@@ -37,8 +37,18 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public UserDto update(Long id, User user) throws ObjectNotFoundException, ConflictException {
 
+//        for (Long aLong : users.keySet()) {
+//            if (aLong.equals(id)){
+//                if(users.get(id).getName().equals(user.getName()) && users.get(id).getEmail().equals(user.getEmail())) {
+//                    UserDto userDto = userMapper.toUserDto(user);
+//                    userDto.setId(id);
+//                    return userDto;
+//                }
+//            }
+//        }
+
         for (UserDto value : users.values()) {
-            if(value.getEmail().equals(user.getEmail())){
+            if(value.getEmail().equals(user.getEmail()) && (!value.getId().equals(id))){
                 throw new ConflictException("email уже существует");
             }
         }
