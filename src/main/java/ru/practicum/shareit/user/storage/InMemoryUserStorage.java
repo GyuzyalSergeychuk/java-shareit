@@ -14,6 +14,7 @@ import ru.practicum.shareit.user.model.User;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -22,14 +23,14 @@ public class InMemoryUserStorage implements UserStorage {
 
     private final UserMapper userMapper;
 
-    private HashMap<Long, UserDto> users = new HashMap<>();
+    private HashMap<Long, User> users = new HashMap<>();
 
     @Override
     public UserDto create(User user) throws ValidationException, ConflictException {
             User afterCheckUser = standardCheck(user);
             afterCheckUser.assignId();
             UserDto userDto = userMapper.toUserDto(afterCheckUser);
-            users.put(userDto.getId(), userDto);
+            users.put(user.getId(), user);
             log.info("Пользователь успешно добавлен {}", user.getId());
             return userDto;
     }
@@ -37,46 +38,39 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public UserDto update(Long id, User user) throws ObjectNotFoundException, ConflictException {
 
-//        for (Long aLong : users.keySet()) {
-//            if (aLong.equals(id)){
-//                if(users.get(id).getName().equals(user.getName()) && users.get(id).getEmail().equals(user.getEmail())) {
-//                    UserDto userDto = userMapper.toUserDto(user);
-//                    userDto.setId(id);
-//                    return userDto;
-//                }
-//            }
-//        }
-
-        for (UserDto value : users.values()) {
+        for (User value : users.values()) {
             if(value.getEmail().equals(user.getEmail()) && (!value.getId().equals(id))){
                 throw new ConflictException("email уже существует");
             }
         }
 
-        UserDto userDto = userMapper.toUserDto(user);
-        userDto.setId(id);
-
-        if (userDto.getId() <= 0) {
+        user.setId(id);
+        if (user.getId() <= 0) {
             throw new ObjectNotFoundException("Пользователь не найдет");
         }
-        if (users.containsKey(userDto.getId())) {
-            if (userDto.getEmail() == null) {
-                userDto.setEmail(users.get(id).getEmail());
-                users.put(userDto.getId(), userDto);
-            } else if (userDto.getName() == null) {
-                userDto.setName(users.get(id).getName());
-                users.put(userDto.getId(), userDto);
+        if (users.containsKey(user.getId())) {
+            if (user.getEmail() == null) {
+                user.setEmail(users.get(id).getEmail());
+                users.put(user.getId(), user);
+            } else if (user.getName() == null) {
+                user.setName(users.get(id).getName());
+                users.put(user.getId(), user);
             } else {
-                users.put(userDto.getId(), userDto);
+                users.put(user.getId(), user);
             }
         }
+
+        UserDto userDto = userMapper.toUserDto(user);
+        userDto.setId(id);
         log.info("Изменения пользователя {} успешно внесены", userDto.getId());
         return userDto;
     }
 
     @Override
     public List<UserDto> getFindAllUsers() {
-        return new ArrayList<UserDto>(users.values());
+        return users.values().stream()
+                .map(userMapper::toUserDto)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -84,7 +78,12 @@ public class InMemoryUserStorage implements UserStorage {
         if (id <= 0) {
             throw new ObjectNotFoundException("Пользователь не найдет");
         }
-        UserDto userDto = users.get(id);
+
+        if(!users.containsKey(id)){
+            throw new ObjectNotFoundException("Пользователь не найдет");
+        }
+        User user = users.get(id);
+        UserDto userDto = userMapper.toUserDto(user);
         return userDto;
     }
 
@@ -108,7 +107,7 @@ public class InMemoryUserStorage implements UserStorage {
             log.error("Неверно введен email: {}", user);
             throw new ValidationException("Неверно введен email");
         }
-        for (UserDto value : users.values()) {
+        for (User value : users.values()) {
             if(value.getEmail().equals(user.getEmail())){
                 log.error("Неверно введен email: {}", user);
                 throw new ConflictException("Неверно введен email");

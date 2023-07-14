@@ -11,9 +11,10 @@ import lombok.Data;
 @Builder
 public class ItemDto {
     private Long id;
+    private Long userId;
     private String name;
     private String description;
-    private Boolean status;
+    private Boolean available;
     private String owner;
     private String request;
 }

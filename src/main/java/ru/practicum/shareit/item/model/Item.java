@@ -9,10 +9,17 @@ import lombok.Data;
 @Data
 @Builder
 public class Item {
+    private static Long nextId = 0L;
     private Long id;
+    private Long userId;
     private String name;
     private String description;
-    private Boolean status;
+    private Boolean available;
     private String owner;
     private String request;
+
+    public void assignId() {
+        nextId++;
+        id = nextId;
+    }
 }

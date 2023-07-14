@@ -2,7 +2,9 @@ package ru.practicum.shareit.user.model;
 
 import lombok.Builder;
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
+import ru.practicum.shareit.item.model.Item;
+
+import java.util.List;
 
 /**
  * TODO Sprint add-controllers.
@@ -14,6 +16,7 @@ public class User {
     private Long id;
     private String name;
     private String email;
+    private List<Item> items;
 
     public void assignId() {
         nextId++;
