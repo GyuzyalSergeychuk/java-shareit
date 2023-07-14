@@ -8,6 +8,8 @@ import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.InMemoryUserStorage;
 
 import java.util.ArrayList;
@@ -30,6 +32,7 @@ public class InMemoryItemStorage implements ItemStorage {
         Long user1 = inMemoryUserStorage.getUserId(userId).getId();
         Item afterCheckItem = standardCheck(item);
         afterCheckItem.assignId();
+        item.setUserId(user1);
         if (items.containsKey(user1)) {
             items.get(user1).add(item);
         } else {
@@ -37,9 +40,15 @@ public class InMemoryItemStorage implements ItemStorage {
             listItems.add(item);
             items.put(user1, listItems);
         }
-        inMemoryUserStorage.getUserId(user1).getItems().add(item);
+        UserDto userDto = inMemoryUserStorage.getUserId(user1);
+        if (userDto.getItems() == null) {
+            userDto.setItems(new ArrayList<Item>());
+            userDto.getItems().add(item);
+
+        } else {
+            userDto.getItems().add(item);
+        }
         ItemDto itemDto = itemMapper.toItemDto(item);
-        itemDto.setUserId(user1);
 
         log.info("Товар успешно добавлен {}", itemDto.getId());
         return itemDto;
@@ -53,10 +62,10 @@ public class InMemoryItemStorage implements ItemStorage {
 //        // isEndOfStatusItems - флаг, при false - товар отсутствует, при true - товар можно забронировать
 //        boolean isEndOfStatusItems = false;
 
-        if (inMemoryUserStorage.getUserId(userId).equals(null)) {
-            throw new ObjectNotFoundException("Пользователь не найдет");
-        }
-        if (items.containsKey(userId)) {
+        UserDto userDto = inMemoryUserStorage.getUserId(userId);
+        itemReq.setUserId(userId);
+
+        if (items.containsKey(userDto.getId())) {
             List<Item> itemsUser = items.get(userId);
             for (Item item : itemsUser) {
                 if (item.getId().equals(itemReq.getId())) {
@@ -66,71 +75,71 @@ public class InMemoryItemStorage implements ItemStorage {
                         itemReq.setDescription(item.getDescription());
                     } else if (itemReq.getAvailable() == null) {
                         itemReq.setAvailable(item.getAvailable());
-                    } else {
-                        items.get(userId).add(Math.toIntExact(itemReq.getId()), item);
                     }
+                    items.get(userId).add(item);
                 }
             }
         }
-            ItemDto itemDto = itemMapper.toItemDto(itemReq);
-            itemDto.setUserId(userId);
-            log.info("Изменения товара {} успешно внесены", itemDto.getId());
-            return itemDto;
-        }
 
-        @Override
-        public List<ItemDto> getFindAllItems () {
-            return items.values().stream()
-                    .map(e -> itemMapper.toItemDto((Item) e))
-                    .collect(Collectors.toList());
-        }
-
-        @Override
-        public List<Item> getItemId (Long id){
-            if (id <= 0) {
-                throw new ObjectNotFoundException("Товар не найдет");
-            }
-            List<Item> itemDto = items.get(id);
-            return itemDto;
-        }
-
-        @Override
-        public List<ItemDto> itemsAreAvailable (String description){
-            if (description.equals(null) || description.isEmpty() || description.isBlank()) {
-                throw new ObjectNotFoundException("Товар не найдет");
-            }
-
-            List<ItemDto> sortDescriptionItem = new ArrayList<>();
-
-            for (List<Item> value : items.values()) {
-                for (Item item : value) {
-                     sortDescriptionItem = (items.values()
-                            .stream()
-                            .filter(e -> item.getDescription().equals(description))
-                            .map((List<Item> item1) -> itemMapper.toItemDto((Item) item1))
-                            .collect(Collectors.toList()));
-                }
-            }
-            return sortDescriptionItem;
-        }
-
-        private Item standardCheck (Item item) throws ValidationException {
-            if (item.getName() == null ||
-                    item.getName().isEmpty() ||
-                    item.getName().isBlank() ||
-                    item.getName().contains(" ")) {
-                log.error("Название товара не может быть пустым: {}", item);
-                throw new ValidationException("Неверно указано название товара");
-            }
-            if (item.getDescription() == null ||
-                    item.getDescription().isEmpty() ||
-                    item.getDescription().isBlank()) {
-                log.error("Неверно введено описание товара: {}", item);
-                throw new ValidationException("Неверно указано описание товара");
-            }
-            if (item.getAvailable() == null || item.getAvailable() != true) {
-                item.setAvailable(true);
-            }
-            return item;
-        }
+        ItemDto itemDto = itemMapper.toItemDto(itemReq);
+        itemDto.setUserId(userId);
+        log.info("Изменения товара {} успешно внесены", itemDto.getId());
+        return itemDto;
     }
+
+    @Override
+    public List<ItemDto> getFindAllItems() {
+        return items.values().stream()
+                .map(e -> itemMapper.toItemDto((Item) e))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Item> getItemId(Long id) {
+        if (id <= 0) {
+            throw new ObjectNotFoundException("Товар не найдет");
+        }
+        List<Item> itemDto = items.get(id);
+        return itemDto;
+    }
+
+    @Override
+    public List<ItemDto> itemsAreAvailable(String description) {
+        if (description.equals(null) || description.isEmpty() || description.isBlank()) {
+            throw new ObjectNotFoundException("Товар не найдет");
+        }
+
+        List<ItemDto> sortDescriptionItem = new ArrayList<>();
+
+        for (List<Item> value : items.values()) {
+            for (Item item : value) {
+                sortDescriptionItem = (items.values()
+                        .stream()
+                        .filter(e -> item.getDescription().equals(description))
+                        .map((List<Item> item1) -> itemMapper.toItemDto((Item) item1))
+                        .collect(Collectors.toList()));
+            }
+        }
+        return sortDescriptionItem;
+    }
+
+    private Item standardCheck(Item item) throws ValidationException {
+        if (item.getName() == null ||
+                item.getName().isEmpty() ||
+                item.getName().isBlank() ||
+                item.getName().contains(" ")) {
+            log.error("Название товара не может быть пустым: {}", item);
+            throw new ValidationException("Неверно указано название товара");
+        }
+        if (item.getDescription() == null ||
+                item.getDescription().isEmpty() ||
+                item.getDescription().isBlank()) {
+            log.error("Неверно введено описание товара: {}", item);
+            throw new ValidationException("Неверно указано описание товара");
+        }
+        if (item.getAvailable() == null) {
+            throw new ValidationException("Неверно указано описание товара");
+        }
+        return item;
+    }
+}
