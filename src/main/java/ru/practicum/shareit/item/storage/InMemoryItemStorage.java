@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class InMemoryItemStorage implements ItemStorage {
 
+    private static Long nextId = 0L;
     private final ItemMapper itemMapper;
     private final InMemoryUserStorage inMemoryUserStorage;
     private  List<Item> items = new ArrayList<>();
@@ -27,7 +28,7 @@ public class InMemoryItemStorage implements ItemStorage {
     public ItemDto create(Long userId, Item item) throws ValidationException {
         Long user1 = inMemoryUserStorage.getUserId(userId).getId();
         Item afterCheckItem = standardCheck(item);
-        afterCheckItem.assignId();
+        afterCheckItem.setId(assignId());
         item.setUserId(user1);
         items.add(item);
         UserDto userDto = inMemoryUserStorage.getUserId(user1);
@@ -130,5 +131,10 @@ public class InMemoryItemStorage implements ItemStorage {
             throw new ValidationException("Неверно указано описание товара");
         }
         return item;
+    }
+
+    public Long assignId() {
+        nextId++;
+        return nextId;
     }
 }

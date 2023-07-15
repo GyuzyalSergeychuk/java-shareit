@@ -19,13 +19,14 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class InMemoryUserStorage implements UserStorage {
 
+    private static Long nextId = 0L;
     private final UserMapper userMapper;
     private HashMap<Long, User> users = new HashMap<>();
 
     @Override
     public UserDto create(User user) throws ValidationException, ConflictException {
         User afterCheckUser = standardCheck(user);
-        afterCheckUser.assignId();
+        afterCheckUser.setId(assignId());
         UserDto userDto = userMapper.toUserDto(afterCheckUser);
         users.put(user.getId(), user);
         log.info("Пользователь успешно добавлен {}", user.getId());
@@ -110,8 +111,12 @@ public class InMemoryUserStorage implements UserStorage {
             log.error("Имя пользователя не может быть пустым: {}", user);
             throw new ValidationException("Имя пользователя не может быть пустым");
         }
-
         return user;
+    }
+
+    public Long assignId() {
+        nextId++;
+        return nextId;
     }
 }
 
