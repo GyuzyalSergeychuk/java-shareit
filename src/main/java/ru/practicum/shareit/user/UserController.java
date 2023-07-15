@@ -10,7 +10,9 @@ import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserStorage;
+
 import java.util.List;
+
 /**
  * TODO Sprint add-controllers.
  */
@@ -20,7 +22,6 @@ import java.util.List;
 @Slf4j
 public class UserController {
 
-    @Autowired
     private final UserStorage userStorage;
 
     @PostMapping
@@ -30,7 +31,7 @@ public class UserController {
     }
 
     @PatchMapping("{userId}")
-    public UserDto update(@PathVariable("userId") Long id, @RequestBody User user ) throws ValidationException, ConflictException {
+    public UserDto update(@PathVariable("userId") Long id, @RequestBody User user) throws ValidationException, ConflictException {
         log.info("Получен запрос на внесение изменений {}", user);
         return userStorage.update(id, user);
     }
@@ -42,7 +43,7 @@ public class UserController {
     }
 
     @GetMapping("{id}")
-    public UserDto getUserId(@PathVariable("id") Long id){
+    public UserDto getUserId(@PathVariable("id") Long id) {
         log.info("Получен запрос на получение пользователя {}", id);
         return userStorage.getUserId(id);
     }

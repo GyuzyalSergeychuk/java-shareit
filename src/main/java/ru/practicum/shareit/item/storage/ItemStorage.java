@@ -11,11 +11,11 @@ public interface ItemStorage {
 
     ItemDto create(Long userId, Item item) throws ValidationException, ObjectNotFoundException;
 
-    ItemDto update(Long userId, Item itemReq);
+    ItemDto update(Long userId, Long itemId, Item itemReq);
 
-    List<ItemDto> getFindAllItems();
+    List<ItemDto> getFindAllItems(Long userId);
 
-    List<Item> getItemId(Long id);
+    ItemDto getItemId(Long itemId);
 
-    List<ItemDto> itemsAreAvailable(String description);
+    List<ItemDto> searchItem(String text);
 }

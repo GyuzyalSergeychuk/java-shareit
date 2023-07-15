@@ -9,7 +9,6 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemStorage;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * TODO Sprint add-controllers.
@@ -25,27 +24,33 @@ public class ItemController {
     @PostMapping
     public ItemDto create(@RequestHeader("X-Sharer-User-Id") Long userId,
                           @RequestBody Item item) throws ValidationException {
-    return itemStorage.create(userId, item);
+        log.info("Получен запрос на добавление товара пользователем{}", userId);
+        return itemStorage.create(userId, item);
     }
 
     @PatchMapping("{itemId}")
     public ItemDto update(@RequestHeader("X-Sharer-User-Id") Long userId,
-                          @RequestBody Item itemReq){
-        return itemStorage.update(userId, itemReq);
+                          @PathVariable("itemId") Long itemId,
+                          @RequestBody Item itemReq) {
+        log.info("Получен запрос внесение изменений товара {} пользователем{}", itemId, userId);
+        return itemStorage.update(userId, itemId, itemReq);
+    }
+
+    @GetMapping("{itemId}")
+    public ItemDto getId(@PathVariable("itemId") Long itemId) {
+        log.info("Получен запрос на получение товара по номеру {}", itemId);
+        return itemStorage.getItemId(itemId);
     }
 
     @GetMapping
-    public List<ItemDto> getFindAllItems() {
-        return itemStorage.getFindAllItems();
+    public List<ItemDto> getFindAllItems(@RequestHeader("X-Sharer-User-Id") Long userId) {
+        log.info("Получен запрос списка всех товаров пользователя{}", userId);
+        return itemStorage.getFindAllItems(userId);
     }
 
-    @GetMapping("{id}")
-    public List<Item> getItemId(@PathVariable("id") Long id){
-        return itemStorage.getItemId(id);
-    }
-
-    @GetMapping("{search}")
-    public List<ItemDto> itemsAreAvailable(@RequestParam String text){
-        return itemStorage.itemsAreAvailable(text);
+    @GetMapping("/search")
+    public List<ItemDto> searchItem(@RequestParam String text) {
+        log.info("Получен запрос на списка товара по содержанию текста {}", text);
+        return itemStorage.searchItem(text);
     }
 }

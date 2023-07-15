@@ -4,14 +4,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exceptions.ConflictException;
-import ru.practicum.shareit.exceptions.ErrorHandler;
 import ru.practicum.shareit.exceptions.ObjectNotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,31 +20,28 @@ import java.util.stream.Collectors;
 public class InMemoryUserStorage implements UserStorage {
 
     private final UserMapper userMapper;
-
     private HashMap<Long, User> users = new HashMap<>();
 
     @Override
     public UserDto create(User user) throws ValidationException, ConflictException {
-            User afterCheckUser = standardCheck(user);
-            afterCheckUser.assignId();
-            UserDto userDto = userMapper.toUserDto(afterCheckUser);
-            users.put(user.getId(), user);
-            log.info("Пользователь успешно добавлен {}", user.getId());
-            return userDto;
+        User afterCheckUser = standardCheck(user);
+        afterCheckUser.assignId();
+        UserDto userDto = userMapper.toUserDto(afterCheckUser);
+        users.put(user.getId(), user);
+        log.info("Пользователь успешно добавлен {}", user.getId());
+        return userDto;
     }
 
     @Override
     public UserDto update(Long id, User user) throws ObjectNotFoundException, ConflictException {
-
         for (User value : users.values()) {
-            if(value.getEmail().equals(user.getEmail()) && (!value.getId().equals(id))){
+            if (value.getEmail().equals(user.getEmail()) && (!value.getId().equals(id))) {
                 throw new ConflictException("email уже существует");
             }
         }
-
         user.setId(id);
         if (user.getId() <= 0) {
-            throw new ObjectNotFoundException("Пользователь не найдет");
+            throw new ObjectNotFoundException("Пользователь не найден");
         }
         if (users.containsKey(user.getId())) {
             if (user.getEmail() == null) {
@@ -59,7 +54,6 @@ public class InMemoryUserStorage implements UserStorage {
                 users.put(user.getId(), user);
             }
         }
-
         UserDto userDto = userMapper.toUserDto(user);
         userDto.setId(id);
         log.info("Изменения пользователя {} успешно внесены", userDto.getId());
@@ -76,21 +70,20 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public UserDto getUserId(Long id) {
         if (id <= 0) {
-            throw new ObjectNotFoundException("Пользователь не найдет");
+            throw new ObjectNotFoundException("Пользователь не найден");
         }
 
-        if(!users.containsKey(id)){
-            throw new ObjectNotFoundException("Пользователь не найдет");
+        if (!users.containsKey(id)) {
+            throw new ObjectNotFoundException("Пользователь не найден");
         }
         User user = users.get(id);
-        UserDto userDto = userMapper.toUserDto(user);
-        return userDto;
+        return userMapper.toUserDto(user);
     }
 
     @Override
     public boolean deleteUser(Long id) {
         if (id <= 0) {
-            throw new ObjectNotFoundException("Пользователь не найдет");
+            throw new ObjectNotFoundException("Пользователь не найден");
         }
         if (users.containsKey(id)) {
             users.remove(id);
@@ -108,7 +101,7 @@ public class InMemoryUserStorage implements UserStorage {
             throw new ValidationException("Неверно введен email");
         }
         for (User value : users.values()) {
-            if(value.getEmail().equals(user.getEmail())){
+            if (value.getEmail().equals(user.getEmail())) {
                 log.error("Неверно введен email: {}", user);
                 throw new ConflictException("Неверно введен email");
             }

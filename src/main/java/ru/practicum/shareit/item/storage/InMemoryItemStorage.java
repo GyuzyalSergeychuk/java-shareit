@@ -9,13 +9,9 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.InMemoryUserStorage;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -25,7 +21,7 @@ public class InMemoryItemStorage implements ItemStorage {
 
     private final ItemMapper itemMapper;
     private final InMemoryUserStorage inMemoryUserStorage;
-    private Map<Long, List<Item>> items = new HashMap<>();
+    private  List<Item> items = new ArrayList<>();
 
     @Override
     public ItemDto create(Long userId, Item item) throws ValidationException {
@@ -33,94 +29,87 @@ public class InMemoryItemStorage implements ItemStorage {
         Item afterCheckItem = standardCheck(item);
         afterCheckItem.assignId();
         item.setUserId(user1);
-        if (items.containsKey(user1)) {
-            items.get(user1).add(item);
-        } else {
-            List<Item> listItems = new ArrayList<>();
-            listItems.add(item);
-            items.put(user1, listItems);
-        }
+        items.add(item);
         UserDto userDto = inMemoryUserStorage.getUserId(user1);
         if (userDto.getItems() == null) {
             userDto.setItems(new ArrayList<Item>());
             userDto.getItems().add(item);
-
         } else {
             userDto.getItems().add(item);
         }
         ItemDto itemDto = itemMapper.toItemDto(item);
-
         log.info("Товар успешно добавлен {}", itemDto.getId());
         return itemDto;
     }
 
     @Override
-    public ItemDto update(Long userId, Item itemReq) {
-//        if (item.getId() <= 0) {
-//            throw new ObjectNotFoundException("Товар не найдет");
-//        }
-//        // isEndOfStatusItems - флаг, при false - товар отсутствует, при true - товар можно забронировать
-//        boolean isEndOfStatusItems = false;
-
-        UserDto userDto = inMemoryUserStorage.getUserId(userId);
-        itemReq.setUserId(userId);
-
-        if (items.containsKey(userDto.getId())) {
-            List<Item> itemsUser = items.get(userId);
-            for (Item item : itemsUser) {
-                if (item.getId().equals(itemReq.getId())) {
-                    if (itemReq.getName() == null) {
-                        itemReq.setName(item.getName());
-                    } else if (itemReq.getDescription() == null) {
-                        itemReq.setDescription(item.getDescription());
-                    } else if (itemReq.getAvailable() == null) {
-                        itemReq.setAvailable(item.getAvailable());
-                    }
-                    items.get(userId).add(item);
-                }
+    public ItemDto update(Long userId, Long itemId, Item itemReq) {
+        if (itemId <= 0) {
+            throw new ObjectNotFoundException("Товар не найден");
+        }
+        inMemoryUserStorage.getUserId(userId);
+        for (Item item : items) {
+            if (item.getId().equals(itemId) && !(item.getUserId().equals(userId))) {
+                throw new ObjectNotFoundException("Юзер пытается редактировать чужой товар");
             }
         }
-
-        ItemDto itemDto = itemMapper.toItemDto(itemReq);
-        itemDto.setUserId(userId);
+        itemReq.setUserId(userId);
+        Optional<Item> item = items.stream()
+                .filter(e -> e.getId().equals(itemId))
+                .peek(e -> {
+                    if (itemReq.getName() != null) {
+                        e.setName(itemReq.getName());
+                    }
+                    if (itemReq.getDescription() != null) {
+                        e.setDescription(itemReq.getDescription());
+                    }
+                    if (itemReq.getAvailable() != null) {
+                        e.setAvailable(itemReq.getAvailable());
+                    }
+                })
+                .findFirst();
+        ItemDto itemDto = itemMapper.toItemDto(item.get());
         log.info("Изменения товара {} успешно внесены", itemDto.getId());
         return itemDto;
     }
 
     @Override
-    public List<ItemDto> getFindAllItems() {
-        return items.values().stream()
-                .map(e -> itemMapper.toItemDto((Item) e))
+    public List<ItemDto> getFindAllItems(Long userId) {
+        UserDto userDto = inMemoryUserStorage.getUserId(userId);
+        return items.stream()
+                .filter(e -> e.getUserId().equals(userDto.getId()))
+                .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<Item> getItemId(Long id) {
-        if (id <= 0) {
-            throw new ObjectNotFoundException("Товар не найдет");
+    public ItemDto getItemId(Long itemId) {
+        if (itemId <= 0) {
+            throw new ObjectNotFoundException("Товар не найден");
         }
-        List<Item> itemDto = items.get(id);
-        return itemDto;
+        Optional<Item> item = items.stream()
+                .filter(e -> e.getId().equals(itemId))
+                .findFirst();
+        return itemMapper.toItemDto(item.get());
     }
 
     @Override
-    public List<ItemDto> itemsAreAvailable(String description) {
-        if (description.equals(null) || description.isEmpty() || description.isBlank()) {
-            throw new ObjectNotFoundException("Товар не найдет");
+    public List<ItemDto> searchItem(String text) {
+        List<ItemDto> findItems = new ArrayList<>();
+        if (text == null || text.isEmpty() || text.isBlank()) {
+            return findItems;
         }
-
-        List<ItemDto> sortDescriptionItem = new ArrayList<>();
-
-        for (List<Item> value : items.values()) {
-            for (Item item : value) {
-                sortDescriptionItem = (items.values()
-                        .stream()
-                        .filter(e -> item.getDescription().equals(description))
-                        .map((List<Item> item1) -> itemMapper.toItemDto((Item) item1))
-                        .collect(Collectors.toList()));
+        String refactorText = text.toLowerCase();
+        for (Item item : items) {
+            if (item.getAvailable()) {
+                if (item.getName().toLowerCase().contains(refactorText)) {
+                    findItems.add(itemMapper.toItemDto(item));
+                } else if (item.getDescription().toLowerCase().contains(refactorText)) {
+                    findItems.add(itemMapper.toItemDto(item));
+                }
             }
         }
-        return sortDescriptionItem;
+        return findItems;
     }
 
     private Item standardCheck(Item item) throws ValidationException {
