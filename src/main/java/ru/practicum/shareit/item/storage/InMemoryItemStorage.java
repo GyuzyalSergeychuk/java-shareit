@@ -133,7 +133,7 @@ public class InMemoryItemStorage implements ItemStorage {
         return item;
     }
 
-    public Long assignId() {
+    public static Long assignId() {
         nextId++;
         return nextId;
     }

@@ -114,7 +114,7 @@ public class InMemoryUserStorage implements UserStorage {
         return user;
     }
 
-    public Long assignId() {
+    public static Long assignId() {
         nextId++;
         return nextId;
     }
