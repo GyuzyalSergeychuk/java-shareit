@@ -9,6 +9,7 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.InMemoryUserStorage;
 
 import java.util.*;
@@ -29,7 +30,7 @@ public class InMemoryItemStorage implements ItemStorage {
         Long user1 = inMemoryUserStorage.getUserId(userId).getId();
         Item afterCheckItem = standardCheck(item);
         afterCheckItem.setId(assignId());
-        item.setUserId(user1);
+        item.setOwnerId(userId);
         items.add(item);
         UserDto userDto = inMemoryUserStorage.getUserId(user1);
         if (userDto.getItems() == null) {
@@ -50,22 +51,22 @@ public class InMemoryItemStorage implements ItemStorage {
         }
         inMemoryUserStorage.getUserId(userId);
         for (Item item : items) {
-            if (item.getId().equals(itemId) && !(item.getUserId().equals(userId))) {
+            if (item.getId().equals(itemId) && !(item.getOwnerId().equals(userId))) {
                 throw new ObjectNotFoundException("Юзер пытается редактировать чужой товар");
             }
         }
-        itemReq.setUserId(userId);
+        itemReq.setOwnerId(userId);
         Optional<Item> item = items.stream()
-                .filter(e -> e.getId().equals(itemId))
-                .peek(e -> {
+                .filter((Item e) -> e.getId().equals(itemId))
+                .peek((Item e) -> {
                     if (itemReq.getName() != null) {
                         e.setName(itemReq.getName());
                     }
                     if (itemReq.getDescription() != null) {
                         e.setDescription(itemReq.getDescription());
                     }
-                    if (itemReq.getAvailable() != null) {
-                        e.setAvailable(itemReq.getAvailable());
+                    if (itemReq.getIsAvailable() != null) {
+                        e.setIsAvailable(itemReq.getIsAvailable());
                     }
                 })
                 .findFirst();
@@ -78,7 +79,7 @@ public class InMemoryItemStorage implements ItemStorage {
     public List<ItemDto> getFindAllItems(Long userId) {
         UserDto userDto = inMemoryUserStorage.getUserId(userId);
         return items.stream()
-                .filter(e -> e.getUserId().equals(userDto.getId()))
+                .filter((Item e) -> e.getOwnerId().equals(userDto.getId()))
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
     }
@@ -89,7 +90,7 @@ public class InMemoryItemStorage implements ItemStorage {
             throw new ObjectNotFoundException("Товар не найден");
         }
         Optional<Item> item = items.stream()
-                .filter(e -> e.getId().equals(itemId))
+                .filter((Item e) -> e.getId().equals(itemId))
                 .findFirst();
         return itemMapper.toItemDto(item.get());
     }
@@ -102,7 +103,7 @@ public class InMemoryItemStorage implements ItemStorage {
         }
         String refactorText = text.toLowerCase();
         for (Item item : items) {
-            if (item.getAvailable()) {
+            if (item.getIsAvailable()) {
                 if (item.getName().toLowerCase().contains(refactorText)) {
                     findItems.add(itemMapper.toItemDto(item));
                 } else if (item.getDescription().toLowerCase().contains(refactorText)) {
@@ -127,7 +128,7 @@ public class InMemoryItemStorage implements ItemStorage {
             log.error("Неверно введено описание товара: {}", item);
             throw new ValidationException("Неверно указано описание товара");
         }
-        if (item.getAvailable() == null) {
+        if (item.getIsAvailable() == null) {
             throw new ValidationException("Неверно указано описание товара");
         }
         return item;

@@ -8,11 +8,10 @@ public class ItemMapper {
     public ItemDto toItemDto(Item item) {
         return ItemDto.builder()
                 .id(item.getId())
-                .userId(item.getUserId())
                 .name(item.getName())
                 .description(item.getDescription())
-                .available(item.getAvailable())
-                .owner(item.getOwner())
+                .available(item.getIsAvailable())
+                .ownerId(item.getOwnerId())
                 .request(item.getRequest())
                 .build();
     }
