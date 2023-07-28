@@ -10,8 +10,11 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "users")
-@Setter @Getter @ToString
-@NoArgsConstructor @AllArgsConstructor
+@Setter
+@Getter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
     @Id
     @GeneratedValue
@@ -34,18 +37,17 @@ public class User {
         return Objects.equals(id, user.id) &&
                 Objects.equals(name, user.name) &&
 //                Objects.equals(email, user.email) &&
-                Objects.equals(email, user.email);
+                Objects.equals(email, user.email) &&
+                Objects.equals(items, user.items);
+    }
 
-//                Objects.equals(items, user.items);
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, email, items);
     }
 
 //    @Override
 //    public int hashCode() {
-//        return Objects.hash(id, name, email, items);
+//        return Objects.hash(id, name, email);
 //    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name, email);
-    }
 }

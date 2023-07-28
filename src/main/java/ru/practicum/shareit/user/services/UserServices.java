@@ -2,6 +2,7 @@ package ru.practicum.shareit.user.services;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exceptions.ConflictException;
 import ru.practicum.shareit.exceptions.ValidationException;
@@ -17,8 +18,8 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserServices {
 
+    @Qualifier("userServiceImpl")
     private final UserStorage userStorage;
-    private final UserRepository userRepository;
 
     public UserDto create(User user) throws ValidationException, ConflictException {
         return userStorage.create(user);
