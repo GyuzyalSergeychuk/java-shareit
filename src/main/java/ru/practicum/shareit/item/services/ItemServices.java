@@ -2,6 +2,7 @@ package ru.practicum.shareit.item.services;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exceptions.ValidationException;
@@ -17,11 +18,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ItemServices {
 
+    @Qualifier("itemServiceImpl")
     private final ItemStorage itemStorage;
 
-
     public ItemDto create(Long userId, Item item) throws ValidationException {
-
         return itemStorage.create(userId, item);
     }
 

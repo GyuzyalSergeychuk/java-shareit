@@ -8,7 +8,6 @@ import ru.practicum.shareit.exceptions.ConflictException;
 import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.storage.UserStorage;
 
 import java.util.List;
@@ -18,10 +17,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserServices {
 
-    @Qualifier("userServiceImpl")
     private final UserStorage userStorage;
 
     public UserDto create(User user) throws ValidationException, ConflictException {
+
         return userStorage.create(user);
     }
 

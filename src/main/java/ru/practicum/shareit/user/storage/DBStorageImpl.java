@@ -1,4 +1,4 @@
-package ru.practicum.shareit.user.services;
+package ru.practicum.shareit.user.storage;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,16 +11,16 @@ import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
-import ru.practicum.shareit.user.storage.UserStorage;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 @Primary
-public class UserServiceImpl implements UserStorage {
+public class DBStorageImpl implements UserStorage {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
@@ -40,17 +40,22 @@ public class UserServiceImpl implements UserStorage {
             throw new ObjectNotFoundException("Пользователь не найден");
         }
 
-        User userBase = userRepository.getById(id);
+        User userBase = userRepository.findById(id).orElseThrow(() ->
+                new ObjectNotFoundException("Пользователь не найден"));
 
-        if (user.getName() != null) {
-            user.setName(userBase.getName());
-        } else if (user.getEmail() != null) {
-            user.setEmail(userBase.getEmail());
+        if (user.getEmail() != null) {
+            if (userRepository.findByEmailNotSelf(user.getEmail(), userBase.getId()) != null) {
+                throw new ObjectNotFoundException(String.format("Такой  email s% уже существует", user.getEmail()));
+            }
         }
-
-        User user1 = userRepository.save(userBase);
-        UserDto userDto = userMapper.toUserDto(user1);
-        return userDto;
+        if (user.getEmail() == null) {
+            user.setEmail(userBase.getEmail());
+        } else if (user.getName() == null) {
+            user.setName(userBase.getName());
+        }
+        user.setId(id);
+        User user1 = userRepository.save(user);
+        return userMapper.toUserDto(user1);
     }
 
     @Override
@@ -66,8 +71,11 @@ public class UserServiceImpl implements UserStorage {
         if (id <= 0) {
             throw new ObjectNotFoundException("Пользователь не найден");
         }
-        User userBase = userRepository.getById(id);
-        return userMapper.toUserDto(userBase);
+
+        User user= userRepository.findById(id).orElseThrow(() ->
+                new ObjectNotFoundException("Пользователь не найден"));
+
+        return userMapper.toUserDto(user);
     }
 
     @Override
@@ -92,12 +100,7 @@ public class UserServiceImpl implements UserStorage {
             log.error("Неверно введен email: {}", user);
             throw new ValidationException("Неверно введен email");
         }
-//        for (User value : users.values()) {
-//            if (value.getEmail().equals(user.getEmail())) {
-//                log.error("Неверно введен email: {}", user);
-//                throw new ConflictException("Неверно введен email");
-//            }
-//        }
+
         if (user.getName().isEmpty() || user.getEmail().isBlank() || user.getName().contains(" ")) {
             log.error("Имя пользователя не может быть пустым: {}", user);
             throw new ValidationException("Имя пользователя не может быть пустым");

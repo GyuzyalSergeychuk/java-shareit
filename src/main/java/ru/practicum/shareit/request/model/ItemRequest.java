@@ -23,7 +23,7 @@ public class ItemRequest {
     private String description;
 
     @Column(name = "requestor_id")
-    private Long requestor;
+    private Long requestorId;
 
     @Column(name = "created_date")
     private Instant created;

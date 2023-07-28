@@ -12,5 +12,5 @@ public class UserDto {
     private Long id;
     private String name;
     private String email;
-    private List<Item> items;
+//    private List<Item> items;
 }

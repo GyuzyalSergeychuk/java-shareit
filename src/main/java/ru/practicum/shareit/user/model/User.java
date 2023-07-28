@@ -1,6 +1,7 @@
 package ru.practicum.shareit.user.model;
 
 import lombok.*;
+import org.hibernate.annotations.DynamicUpdate;
 import ru.practicum.shareit.item.model.Item;
 
 
@@ -17,7 +18,7 @@ import java.util.Objects;
 @AllArgsConstructor
 public class User {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "user_name", length = 64, nullable = false)
@@ -26,7 +27,8 @@ public class User {
     @Column(name = "email", length = 128, nullable = false)
     private String email;
 
-    @OneToMany
+    @ElementCollection
+    @CollectionTable(name = "item")
     private List<Item> items;
 
     @Override
@@ -36,7 +38,6 @@ public class User {
         User user = (User) o;
         return Objects.equals(id, user.id) &&
                 Objects.equals(name, user.name) &&
-//                Objects.equals(email, user.email) &&
                 Objects.equals(email, user.email) &&
                 Objects.equals(items, user.items);
     }
@@ -46,8 +47,4 @@ public class User {
         return Objects.hash(id, name, email, items);
     }
 
-//    @Override
-//    public int hashCode() {
-//        return Objects.hash(id, name, email);
-//    }
 }

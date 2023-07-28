@@ -33,12 +33,12 @@ public class InMemoryItemStorage implements ItemStorage {
         item.setOwnerId(userId);
         items.add(item);
         UserDto userDto = inMemoryUserStorage.getUserId(user1);
-        if (userDto.getItems() == null) {
-            userDto.setItems(new ArrayList<Item>());
-            userDto.getItems().add(item);
-        } else {
-            userDto.getItems().add(item);
-        }
+//        if (userDto.getItems() == null) {
+//            userDto.setItems(new ArrayList<Item>());
+//            userDto.getItems().add(item);
+//        } else {
+//            userDto.getItems().add(item);
+//        }
         ItemDto itemDto = itemMapper.toItemDto(item);
         log.info("Товар успешно добавлен {}", itemDto.getId());
         return itemDto;

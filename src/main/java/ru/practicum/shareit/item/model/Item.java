@@ -13,18 +13,24 @@ import java.util.Objects;
 @Table(name = "item")
 @Setter @Getter @ToString
 @AllArgsConstructor @NoArgsConstructor
+@Embeddable
 public class Item {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(name = "item_name", length = 64, nullable = false)
     private String name;
+
     @Column(name = "description", length = 200, nullable = false)
     private String description;
+
     @Column(name = "is_available")
     private Boolean isAvailable;
-    @Column(name = "owner_id")
+
+    @Column(name = "user_id")
     private Long ownerId;
+
     @Column(name = "request_id")
     private Long request;
 

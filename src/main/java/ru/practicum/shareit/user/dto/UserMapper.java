@@ -11,7 +11,7 @@ public class UserMapper {
                 .id(user.getId())
                 .name(user.getName())
                 .email(user.getEmail())
-                .items(user.getItems())
+//                .items(user.getItems())
                 .build();
     }
 }
