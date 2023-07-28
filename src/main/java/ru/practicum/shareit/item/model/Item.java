@@ -1,7 +1,9 @@
 package ru.practicum.shareit.item.model;
 
+import antlr.collections.List;
 import lombok.*;
 import org.apache.coyote.Request;
+import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
@@ -23,7 +25,8 @@ public class Item {
     private Boolean isAvailable;
     @Column(name = "owner_id")
     private Long ownerId;
-    private Request request;
+    @Column(name = "request_id")
+    private Long request;
 
     @Override
     public boolean equals(Object o) {

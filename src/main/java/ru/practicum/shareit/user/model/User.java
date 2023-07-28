@@ -3,6 +3,7 @@ package ru.practicum.shareit.user.model;
 import lombok.*;
 import ru.practicum.shareit.item.model.Item;
 
+
 import javax.persistence.*;
 import java.util.List;
 import java.util.Objects;
@@ -22,6 +23,7 @@ public class User {
     @Column(name = "email", length = 128, nullable = false)
     private String email;
 
+    @OneToMany
     private List<Item> items;
 
     @Override
@@ -31,12 +33,19 @@ public class User {
         User user = (User) o;
         return Objects.equals(id, user.id) &&
                 Objects.equals(name, user.name) &&
-                Objects.equals(email, user.email) &&
-                Objects.equals(items, user.items);
+//                Objects.equals(email, user.email) &&
+                Objects.equals(email, user.email);
+
+//                Objects.equals(items, user.items);
     }
+
+//    @Override
+//    public int hashCode() {
+//        return Objects.hash(id, name, email, items);
+//    }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, email, items);
+        return Objects.hash(id, name, email);
     }
 }
