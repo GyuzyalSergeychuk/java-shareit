@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 @Primary
-public class DBItemServiceImpl implements ItemStorage {
+public class DBItemStorageImpl implements ItemStorage {
 
     private final ItemRepository itemRepository;
     private final ItemMapper itemMapper;

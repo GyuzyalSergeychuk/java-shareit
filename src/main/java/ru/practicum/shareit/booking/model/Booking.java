@@ -1,10 +1,9 @@
 package ru.practicum.shareit.booking.model;
 
 import lombok.*;
-import org.apache.coyote.Request;
 
 import javax.persistence.*;
-import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
@@ -17,10 +16,10 @@ public class Booking {
     private Long id;
 
     @Column(name = "start_date")
-    private Instant startDate;
+    private LocalDateTime startDate;
 
     @Column(name = "end_date")
-    private Instant endDate;
+    private LocalDateTime endDate;
 
     @Column(name = "item_id")
     private Long itemId;

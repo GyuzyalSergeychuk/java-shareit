@@ -2,7 +2,6 @@ package ru.practicum.shareit.item.dto;
 
 import lombok.Builder;
 import lombok.Data;
-import org.apache.coyote.Request;
 
 /**
  * TODO Sprint add-controllers.

@@ -1,7 +1,6 @@
 package ru.practicum.shareit.user.model;
 
 import lombok.*;
-import org.hibernate.annotations.DynamicUpdate;
 import ru.practicum.shareit.item.model.Item;
 
 
