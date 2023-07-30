@@ -1,10 +1,6 @@
 package ru.practicum.shareit.item.model;
 
-import antlr.collections.List;
 import lombok.*;
-import org.apache.coyote.Request;
-import ru.practicum.shareit.request.model.ItemRequest;
-import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 import java.util.Objects;
@@ -26,7 +22,7 @@ public class Item {
     private String description;
 
     @Column(name = "is_available")
-    private Boolean isAvailable;
+    private Boolean available;
 
     @Column(name = "user_id")
     private Long ownerId;
@@ -42,13 +38,14 @@ public class Item {
         return Objects.equals(id, item.id) &&
                 Objects.equals(name, item.name) &&
                 Objects.equals(description, item.description) &&
-                Objects.equals(isAvailable, item.isAvailable) &&
+                Objects.equals(available, item.available) &&
                 Objects.equals(ownerId, item.ownerId) &&
                 Objects.equals(request, item.request);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, description, isAvailable, ownerId, request);
+        return Objects.hash(id, name, description, available, ownerId, request);
     }
+
 }

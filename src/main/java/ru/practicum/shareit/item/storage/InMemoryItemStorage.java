@@ -9,7 +9,6 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.InMemoryUserStorage;
 
 import java.util.*;
@@ -65,8 +64,8 @@ public class InMemoryItemStorage implements ItemStorage {
                     if (itemReq.getDescription() != null) {
                         e.setDescription(itemReq.getDescription());
                     }
-                    if (itemReq.getIsAvailable() != null) {
-                        e.setIsAvailable(itemReq.getIsAvailable());
+                    if (itemReq.getAvailable() != null) {
+                        e.setAvailable(itemReq.getAvailable());
                     }
                 })
                 .findFirst();
@@ -103,7 +102,7 @@ public class InMemoryItemStorage implements ItemStorage {
         }
         String refactorText = text.toLowerCase();
         for (Item item : items) {
-            if (item.getIsAvailable()) {
+            if (item.getAvailable()) {
                 if (item.getName().toLowerCase().contains(refactorText)) {
                     findItems.add(itemMapper.toItemDto(item));
                 } else if (item.getDescription().toLowerCase().contains(refactorText)) {
@@ -128,7 +127,7 @@ public class InMemoryItemStorage implements ItemStorage {
             log.error("Неверно введено описание товара: {}", item);
             throw new ValidationException("Неверно указано описание товара");
         }
-        if (item.getIsAvailable() == null) {
+        if (item.getAvailable() == null) {
             throw new ValidationException("Неверно указано описание товара");
         }
         return item;

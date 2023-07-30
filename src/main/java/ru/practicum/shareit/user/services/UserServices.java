@@ -20,7 +20,6 @@ public class UserServices {
     private final UserStorage userStorage;
 
     public UserDto create(User user) throws ValidationException, ConflictException {
-
         return userStorage.create(user);
     }
 
