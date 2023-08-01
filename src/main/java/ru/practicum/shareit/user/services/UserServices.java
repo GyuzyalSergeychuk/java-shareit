@@ -31,7 +31,7 @@ public class UserServices {
     }
 
     public UserDto getUserId(Long id) {
-        return userStorage.getUserId(id);
+        return userStorage.getUserDtoById(id);
     }
 
     public boolean deleteUser(Long id) {

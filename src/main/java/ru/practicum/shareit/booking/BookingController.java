@@ -33,10 +33,10 @@ public class BookingController {
 
     @PatchMapping("{bookingId}")
     public BookingDto approved(@RequestHeader("X-Sharer-User-Id") Long userId,
-                          @PathVariable("itemId") Long itemId,
-                          @RequestBody Booking booking) {
-        log.info("Получен запрос внесение изменений в бронирование товара {} пользователем{}", itemId, userId);
-        return bookingServices.approved(userId, itemId, booking);
+                               @PathVariable("bookingId") Long bookingId,
+                               @RequestParam Boolean approved) throws ValidationException {
+        log.info("Получен запрос на подтверждение бронирование пользователем");
+        return bookingServices.approved(userId, bookingId, approved);
     }
 
     @GetMapping("{bookingId}")

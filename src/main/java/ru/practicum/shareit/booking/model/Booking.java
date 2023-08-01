@@ -1,6 +1,9 @@
 package ru.practicum.shareit.booking.model;
 
 import lombok.*;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -12,14 +15,14 @@ import java.util.Objects;
 @NoArgsConstructor @AllArgsConstructor
 public class Booking {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "start_date")
-    private LocalDateTime startDate;
+    private LocalDateTime start;
 
     @Column(name = "end_date")
-    private LocalDateTime endDate;
+    private LocalDateTime end;
 
     @Column(name = "item_id")
     private Long itemId;
@@ -37,8 +40,8 @@ public class Booking {
         if (o == null || getClass() != o.getClass()) return false;
         Booking booking = (Booking) o;
         return Objects.equals(id, booking.id) &&
-                Objects.equals(startDate, booking.startDate) &&
-                Objects.equals(endDate, booking.endDate) &&
+                Objects.equals(start, booking.start) &&
+                Objects.equals(end, booking.end) &&
                 Objects.equals(itemId, booking.itemId) &&
                 Objects.equals(bookerId, booking.bookerId) &&
                 status == booking.status;
@@ -46,6 +49,6 @@ public class Booking {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, startDate, endDate, itemId, bookerId, status);
+        return Objects.hash(id, start, end, itemId, bookerId, status);
     }
 }

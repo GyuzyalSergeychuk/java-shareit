@@ -66,7 +66,7 @@ public class DBUserStorageImpl implements UserStorage {
     }
 
     @Override
-    public UserDto getUserId(Long id) {
+    public UserDto getUserDtoById(Long id) {
         if (id <= 0) {
             throw new ObjectNotFoundException("Пользователь не найден");
         }
@@ -75,6 +75,18 @@ public class DBUserStorageImpl implements UserStorage {
                 new ObjectNotFoundException("Пользователь не найден"));
 
         return userMapper.toUserDto(user);
+    }
+
+    @Override
+    public User getUserById(Long id) {
+        if (id <= 0) {
+            throw new ObjectNotFoundException("Пользователь не найден");
+        }
+
+        User user= userRepository.findById(id).orElseThrow(() ->
+                new ObjectNotFoundException("Пользователь не найден"));
+
+        return user;
     }
 
     @Override

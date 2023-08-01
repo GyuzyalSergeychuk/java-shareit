@@ -31,7 +31,7 @@ public class DBItemStorageImpl implements ItemStorage {
     @Override
     public ItemDto create(Long userId, Item item) throws ValidationException, ObjectNotFoundException {
         Item afterCheckItem = standardCheck(item);
-        userService.getUserId(userId);
+        userService.getUserById(userId);
         afterCheckItem.setOwnerId(userId);
         Item itemBase = itemRepository.save(afterCheckItem);
         log.info("Товар успешно добавлен {}", itemBase.getId());
@@ -43,7 +43,7 @@ public class DBItemStorageImpl implements ItemStorage {
         if (itemId <= 0) {
             throw new ObjectNotFoundException("Товар не найден");
         }
-        userService.getUserId(userId);
+        userService.getUserById(userId);
 
         Item itemBase = itemRepository.findByIdSelf(itemId, userId);
 
@@ -68,7 +68,7 @@ public class DBItemStorageImpl implements ItemStorage {
 
     @Override
     public List<ItemDto> getFindAllItems(Long userId) {
-        userService.getUserId(userId);
+        userService.getUserById(userId);
         List<Item> itemList = itemRepository.findByOwnerId(userId);
         return itemList.stream()
                 .map(itemMapper::toItemDto)
@@ -76,7 +76,7 @@ public class DBItemStorageImpl implements ItemStorage {
     }
 
     @Override
-    public ItemDto getItemId(Long itemId) {
+    public ItemDto getItemDtoById(Long itemId) {
         if (itemId <= 0) {
             throw new ObjectNotFoundException("Id не может быть меньше нуля");
         }
@@ -85,6 +85,18 @@ public class DBItemStorageImpl implements ItemStorage {
                 new ObjectNotFoundException("Пользователь не найден"));
 
         return itemMapper.toItemDto(itemBase);
+    }
+
+    @Override
+    public Item getItemById(Long itemId) {
+        if (itemId <= 0) {
+            throw new ObjectNotFoundException("Id не может быть меньше нуля");
+        }
+
+        Item itemBase= itemRepository.findById(itemId).orElseThrow(() ->
+                new ObjectNotFoundException("Пользователь не найден"));
+
+        return itemBase;
     }
 
     @Override

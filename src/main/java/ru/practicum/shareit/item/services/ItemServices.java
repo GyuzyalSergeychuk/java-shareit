@@ -2,7 +2,6 @@ package ru.practicum.shareit.item.services;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -27,7 +26,7 @@ public class ItemServices {
     }
 
     public ItemDto getId(Long itemId) {
-        return itemStorage.getItemId(itemId);
+        return itemStorage.getItemDtoById(itemId);
     }
 
     public List<ItemDto> getFindAllItems(Long userId) {

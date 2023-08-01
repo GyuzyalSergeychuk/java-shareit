@@ -15,7 +15,9 @@ public interface ItemStorage {
 
     List<ItemDto> getFindAllItems(Long userId);
 
-    ItemDto getItemId(Long itemId);
+    ItemDto getItemDtoById(Long itemId);
+
+    Item getItemById(Long itemId);
 
     List<ItemDto> searchItem(String text);
 }

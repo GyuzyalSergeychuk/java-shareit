@@ -69,7 +69,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public UserDto getUserId(Long id) {
+    public UserDto getUserDtoById(Long id) {
         if (id <= 0) {
             throw new ObjectNotFoundException("Пользователь не найден");
         }
@@ -79,6 +79,11 @@ public class InMemoryUserStorage implements UserStorage {
         }
         User user = users.get(id);
         return userMapper.toUserDto(user);
+    }
+
+    @Override
+    public User getUserById(Long id) {
+        return null;
     }
 
     @Override

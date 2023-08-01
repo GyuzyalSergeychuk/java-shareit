@@ -26,12 +26,12 @@ public class InMemoryItemStorage implements ItemStorage {
 
     @Override
     public ItemDto create(Long userId, Item item) throws ValidationException {
-        Long user1 = inMemoryUserStorage.getUserId(userId).getId();
+        Long user1 = inMemoryUserStorage.getUserById(userId).getId();
         Item afterCheckItem = standardCheck(item);
         afterCheckItem.setId(assignId());
         item.setOwnerId(userId);
         items.add(item);
-        UserDto userDto = inMemoryUserStorage.getUserId(user1);
+        UserDto userDto = inMemoryUserStorage.getUserDtoById(user1);
 //        if (userDto.getItems() == null) {
 //            userDto.setItems(new ArrayList<Item>());
 //            userDto.getItems().add(item);
@@ -48,7 +48,7 @@ public class InMemoryItemStorage implements ItemStorage {
         if (itemId <= 0) {
             throw new ObjectNotFoundException("Товар не найден");
         }
-        inMemoryUserStorage.getUserId(userId);
+        inMemoryUserStorage.getUserById(userId);
         for (Item item : items) {
             if (item.getId().equals(itemId) && !(item.getOwnerId().equals(userId))) {
                 throw new ObjectNotFoundException("Юзер пытается редактировать чужой товар");
@@ -76,7 +76,7 @@ public class InMemoryItemStorage implements ItemStorage {
 
     @Override
     public List<ItemDto> getFindAllItems(Long userId) {
-        UserDto userDto = inMemoryUserStorage.getUserId(userId);
+        UserDto userDto = inMemoryUserStorage.getUserDtoById(userId);
         return items.stream()
                 .filter((Item e) -> e.getOwnerId().equals(userDto.getId()))
                 .map(itemMapper::toItemDto)
@@ -84,7 +84,7 @@ public class InMemoryItemStorage implements ItemStorage {
     }
 
     @Override
-    public ItemDto getItemId(Long itemId) {
+    public ItemDto getItemDtoById(Long itemId) {
         if (itemId <= 0) {
             throw new ObjectNotFoundException("Товар не найден");
         }
@@ -111,6 +111,11 @@ public class InMemoryItemStorage implements ItemStorage {
             }
         }
         return findItems;
+    }
+
+    @Override
+    public Item getItemById(Long itemId) {
+        return null;
     }
 
     private Item standardCheck(Item item) throws ValidationException {
