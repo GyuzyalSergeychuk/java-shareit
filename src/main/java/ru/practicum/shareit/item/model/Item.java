@@ -9,7 +9,6 @@ import java.util.Objects;
 @Table(name = "item")
 @Setter @Getter @ToString
 @AllArgsConstructor @NoArgsConstructor
-@Embeddable
 public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
