@@ -30,6 +30,12 @@ public class Item {
     @Column(name = "request_id")
     private Long request;
 
+    @Column(name = "last_booking_id")
+    private Long lastBookingId;
+
+    @Column(name = "next_booking_id")
+    private Long nextBookingId;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -40,12 +46,13 @@ public class Item {
                 Objects.equals(description, item.description) &&
                 Objects.equals(available, item.available) &&
                 Objects.equals(ownerId, item.ownerId) &&
-                Objects.equals(request, item.request);
+                Objects.equals(request, item.request) &&
+                Objects.equals(lastBookingId, item.lastBookingId) &&
+                Objects.equals(nextBookingId, item.nextBookingId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, description, available, ownerId, request);
+        return Objects.hash(id, name, description, available, ownerId, request, lastBookingId, nextBookingId);
     }
-
 }

@@ -9,6 +9,7 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.InMemoryUserStorage;
 
 import java.util.*;
@@ -32,19 +33,14 @@ public class InMemoryItemStorage implements ItemStorage {
         item.setOwnerId(userId);
         items.add(item);
         UserDto userDto = inMemoryUserStorage.getUserDtoById(user1);
-//        if (userDto.getItems() == null) {
-//            userDto.setItems(new ArrayList<Item>());
-//            userDto.getItems().add(item);
-//        } else {
-//            userDto.getItems().add(item);
-//        }
+
         ItemDto itemDto = itemMapper.toItemDto(item);
         log.info("Товар успешно добавлен {}", itemDto.getId());
         return itemDto;
     }
 
     @Override
-    public ItemDto update(Long userId, Long itemId, Item itemReq) {
+    public ItemDto update(Long userId, Long itemId, Item itemReq)  {
         if (itemId <= 0) {
             throw new ObjectNotFoundException("Товар не найден");
         }
@@ -75,16 +71,24 @@ public class InMemoryItemStorage implements ItemStorage {
     }
 
     @Override
-    public List<ItemDto> getFindAllItems(Long userId) {
+    public List<ItemDto> getFindAllItemsDto(Long userId) {
         UserDto userDto = inMemoryUserStorage.getUserDtoById(userId);
-        return items.stream()
+        return  items.stream()
                 .filter((Item e) -> e.getOwnerId().equals(userDto.getId()))
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public ItemDto getItemDtoById(Long itemId) {
+    public List<Item> getFindAllItems(Long userId) {
+        User user = inMemoryUserStorage.getUserById(userId);
+        return items.stream()
+                .filter((Item e) -> e.getOwnerId().equals(user.getId()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public ItemDto getItemDtoById(Long itemId)  {
         if (itemId <= 0) {
             throw new ObjectNotFoundException("Товар не найден");
         }

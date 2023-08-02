@@ -40,23 +40,23 @@ public class BookingController {
     }
 
     @GetMapping("{bookingId}")
-    public BookingDto getBookingId(@PathVariable("bookingId") Long bookingId){
+    public BookingDto getBookingId(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                   @PathVariable("bookingId") Long bookingId) throws ValidationException {
         log.info("Получен запрос на получение бронирования {}", bookingId);
-        return bookingServices.getBookingId(bookingId);
+        return bookingServices.getBookingId(userId, bookingId);
     }
 
     @GetMapping
     public List<BookingDto> getAllBookingsByUser(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                 @RequestParam (required = false) String state) {
+                                                 @RequestParam (required = false) String state) throws ValidationException {
         log.info("Получен запрос на список бронирования текущего пользователя {}", userId);
         return bookingServices.getAllBookingsByUser(userId, state);
     }
 
     @GetMapping("owner")
     public List<BookingDto> getAllBookingsByItems(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                 @PathVariable("itemId") Long itemId,
-                                                 @RequestParam (required = false) String state) {
+                                                 @RequestParam (required = false) String state) throws ValidationException {
         log.info("Получен запрос на список бронирования текущего пользователя {}", userId);
-        return bookingServices.getAllBookingsByItems(userId, itemId, state);
+        return bookingServices.getAllBookingsByItems(userId, state);
     }
 }

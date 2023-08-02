@@ -12,9 +12,7 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse validationException(final ValidationException e) {
-        return new ErrorResponse(
-                String.format("Ошибка с полем %s", e)
-        );
+        return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler

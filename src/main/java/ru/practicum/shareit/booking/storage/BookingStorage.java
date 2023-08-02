@@ -1,8 +1,5 @@
 package ru.practicum.shareit.booking.storage;
 
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.exceptions.ValidationException;
@@ -15,9 +12,9 @@ public interface BookingStorage {
 
     BookingDto approved(Long userId, Long bookingId, Boolean approved) throws ValidationException;
 
-    BookingDto getBookingId(Long bookingId);
+    BookingDto getBookingDtoById(Long userId, Long bookingId) throws ValidationException;
 
-    List<BookingDto> getAllBookingsByUser(Long userId, String state);
+    List<BookingDto> getAllBookingsByUser(Long userId, String state) throws ValidationException;
 
-    List<BookingDto> getAllBookingsByItems(Long userId, Long itemId,String state);
+    List<BookingDto> getAllBookingsByItems(Long userId, String state) throws ValidationException;
 }

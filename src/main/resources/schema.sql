@@ -23,7 +23,9 @@ CREATE TABLE IF NOT EXISTS item (
     description VARCHAR(200) NOT NULL,
     is_available BOOLEAN DEFAULT false NOT NULL,
     user_id BIGINT REFERENCES users (id),
-    request_id BIGINT REFERENCES requests (id)
+    request_id BIGINT REFERENCES requests (id),
+    last_booking_id BIGINT REFERENCES booking (id),
+    next_booking_id BIGINT REFERENCES booking (id),
 );
 
 CREATE TABLE IF NOT EXISTS user_items (

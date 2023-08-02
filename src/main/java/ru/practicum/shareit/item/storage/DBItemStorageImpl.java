@@ -67,7 +67,7 @@ public class DBItemStorageImpl implements ItemStorage {
     }
 
     @Override
-    public List<ItemDto> getFindAllItems(Long userId) {
+    public List<ItemDto> getFindAllItemsDto(Long userId) {
         userService.getUserById(userId);
         List<Item> itemList = itemRepository.findByOwnerId(userId);
         return itemList.stream()
@@ -76,7 +76,13 @@ public class DBItemStorageImpl implements ItemStorage {
     }
 
     @Override
-    public ItemDto getItemDtoById(Long itemId) {
+    public List<Item> getFindAllItems(Long userId) {
+        userService.getUserById(userId);
+        return itemRepository.findByOwnerId(userId);
+    }
+
+    @Override
+    public ItemDto getItemDtoById(Long itemId)  {
         if (itemId <= 0) {
             throw new ObjectNotFoundException("Id не может быть меньше нуля");
         }
@@ -93,10 +99,8 @@ public class DBItemStorageImpl implements ItemStorage {
             throw new ObjectNotFoundException("Id не может быть меньше нуля");
         }
 
-        Item itemBase= itemRepository.findById(itemId).orElseThrow(() ->
+        return itemRepository.findById(itemId).orElseThrow(() ->
                 new ObjectNotFoundException("Пользователь не найден"));
-
-        return itemBase;
     }
 
     @Override
@@ -106,17 +110,14 @@ public class DBItemStorageImpl implements ItemStorage {
             throw new ObjectNotFoundException("Запрос на поиск товара не может быть пустым");
         }
 
-        if(text.isEmpty() || text.isBlank()){
-            List<Item> itemDto = new ArrayList<>();
-            return itemDto.stream()
-                    .map(itemMapper::toItemDto)
-                    .collect(Collectors.toList());
+        if (text.isEmpty() || text.isBlank()){
+            return List.of();
         }
         String refactorText = text.toLowerCase();
         String text1 = StringUtils.capitalize(refactorText);
 
-        List<Item> itemBase = itemRepository.findByNameOrDescriptionContainingIgnoreCaseAndAvailableTrue(text1, text1);
-        return itemBase.stream()
+        List<Item> items = itemRepository.findByNameOrDescriptionContainingIgnoreCaseAndAvailableTrue(text1, text1);
+        return items.stream()
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
     }
@@ -137,7 +138,6 @@ public class DBItemStorageImpl implements ItemStorage {
         if (item.getAvailable() == null) {
             throw new ValidationException("Неверно указано описание товара");
         }
-
         return item;
     }
 }

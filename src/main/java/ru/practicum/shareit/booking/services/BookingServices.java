@@ -3,9 +3,6 @@ package ru.practicum.shareit.booking.services;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.storage.BookingStorage;
@@ -28,15 +25,15 @@ public class BookingServices {
         return bookingStorage.approved(userId, bookingId, approved);
     };
 
-    public BookingDto getBookingId(Long bookingId){
-        return bookingStorage.getBookingId(bookingId);
+    public BookingDto getBookingId(Long userId, Long bookingId) throws ValidationException {
+        return bookingStorage.getBookingDtoById(userId, bookingId);
     }
 
-    public List<BookingDto> getAllBookingsByUser(Long userId, String state){
+    public List<BookingDto> getAllBookingsByUser(Long userId, String state) throws ValidationException {
         return bookingStorage.getAllBookingsByUser(userId, state);
     }
 
-    public List<BookingDto> getAllBookingsByItems(Long userId, Long itemId, String state){
-        return bookingStorage.getAllBookingsByItems(userId, itemId, state);
+    public List<BookingDto> getAllBookingsByItems(Long userId, String state) throws ValidationException {
+        return bookingStorage.getAllBookingsByItems(userId, state);
     }
 }
