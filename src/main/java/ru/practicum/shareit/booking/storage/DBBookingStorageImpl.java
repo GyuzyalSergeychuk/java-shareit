@@ -37,6 +37,17 @@ public class DBBookingStorageImpl implements BookingStorage {
         User user = dbUserStorage.getUserById(userId);
         Item item = itemRepository.findById(bookingReq.getItemId()).orElseThrow(() ->
                 new ObjectNotFoundException("Пользователь не найден"));
+
+
+        //TODO предположение: если вещь была недоступна, но срок бронирования истек, надо снять недоступность с вещи?
+//        if (!item.getAvailable()) {
+//            Booking nextBooking = bookingRepository.findById(item.getNextBookingId()).get();
+//            if (nextBooking.getEnd().isBefore(bookingReq.getStart())) {
+//                item.setAvailable(true);
+//            } else if (nextBooking.getStart().isAfter(bookingReq.getEnd())) {
+//                item.setAvailable(true);
+//            }
+//        }
         if (!item.getAvailable()) {
             throw new ValidationException("Вещь недоступна для бронирования");
         }
@@ -50,9 +61,17 @@ public class DBBookingStorageImpl implements BookingStorage {
         } else if (item.getOwnerId().equals(userId)){
             throw new ObjectNotFoundException("Владелец вещи пытается сделать бронирование своей вещи");
         }
-        if (bookingReq.getStatus() == null) {
-            bookingReq.setStatus(Status.WAITING);
+
+        //Запрашиваем все бронирования целевой вещи, фильтруем по статусу АПРУВ, и сверяем время с текущим бронированием.
+        //В случае пересечения выбрасываем исключение
+        List<Booking> allBookingsOfTargetItem = bookingRepository.findByItemIdOrderByStartDesc(item.getId());
+        if (allBookingsOfTargetItem.stream()
+                .filter(b -> Status.APPROVED.equals(b.getStatus()))
+                .anyMatch(b -> b.getStart().isBefore(bookingReq.getEnd()) && b.getEnd().isAfter(bookingReq.getStart()))) {
+            throw new ObjectNotFoundException("Предмет нельзя забронировать. Он уже используется кем-то!");
         }
+
+        bookingReq.setStatus(Status.WAITING);
         bookingReq.setBookerId(user.getId());
         Booking booking = bookingRepository.save(bookingReq);
 
@@ -67,15 +86,23 @@ public class DBBookingStorageImpl implements BookingStorage {
                 new ObjectNotFoundException("Пользователь не найден"));
         dbUserStorage.getUserById(userId);
 
-        if (item.getOwnerId().equals(userId) && booking.getStatus().equals(Status.APPROVED)){
+        if (item.getOwnerId().equals(userId) && booking.getStatus().equals(Status.APPROVED)) {
             throw new ValidationException("Бронирование уже было подтверждено ранее");
         }
 
-        if (item.getAvailable() && item.getOwnerId().equals(userId) && approved != null) {
+        if (!item.getOwnerId().equals(userId)) {
+            throw new ObjectNotFoundException("Подтверждение бронирования может делать только владелец вещи");
+        }
+
+        if (!booking.getStatus().equals(Status.WAITING)) {
+            throw new ObjectNotFoundException("Ответ по бронированию уже дан");
+        }
+
+        if (approved != null) {
             if (approved) {
                 booking.setStatus(Status.APPROVED);
                 // если бронирование подтверждено, обновляем информацию о бронированиях в вещи
-                if(item.getLastBookingId() == null){
+                if (item.getLastBookingId() == null) {
                     item.setLastBookingId(booking.getId());
                     item.setNextBookingId(booking.getId());
                 } else if (item.getNextBookingId() != null) {
@@ -86,10 +113,7 @@ public class DBBookingStorageImpl implements BookingStorage {
             } else {
                 booking.setStatus(Status.REJECTED);
             }
-        } else if (!item.getOwnerId().equals(userId)) {
-            throw new ObjectNotFoundException("Подтверждение бронирования может делать только владелец вещи");
-        }
-        else {
+        } else {
             throw new ValidationException("Неверные данные");
         }
 
@@ -97,6 +121,7 @@ public class DBBookingStorageImpl implements BookingStorage {
 
         return bookingMapper.toBookingDto(booking);
     }
+
 
     @Override
     public BookingDto getBookingDtoById(Long userId, Long bookingId) {
@@ -109,7 +134,6 @@ public class DBBookingStorageImpl implements BookingStorage {
         if (item.getOwnerId().equals(userId)) {
             return bookingMapper.toBookingDto(booking);
         }  else if (booking.getBookerId().equals(userId)) {
-
             return bookingMapper.toBookingDto(booking);
         } else {
             throw new ObjectNotFoundException(String.format
@@ -133,7 +157,6 @@ public class DBBookingStorageImpl implements BookingStorage {
             for (Booking booking : bookings) {
                 if (booking.getStatus().equals(Status.WAITING) || booking.getStatus().equals(Status.APPROVED)) {
                     bookingList.add(booking);
-                    var i = 0;
                 }
             }
         } else if (state.equals(Status.PAST.name())) {

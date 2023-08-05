@@ -96,14 +96,16 @@ public class DBItemStorageImpl implements ItemStorage {
 
         ItemDto itemDto = itemMapper.toItemDto(item);
 
-        if (itemDto.getOwnerId().equals(userId) && item.getLastBookingId() != null) {
-            Booking lastBooking = bookingRepository.getById(item.getLastBookingId());
-            Booking nextBooking = bookingRepository.getById(item.getNextBookingId());
-            BookingDto lastBookingDto = bookingMapper.toBookingDto(lastBooking);
-            BookingDto nextBookingDto = bookingMapper.toBookingDto(nextBooking);
+        if (itemDto.getOwnerId().equals(userId)) {
+            if (item.getLastBookingId() != null) {
+                Booking lastBooking = bookingRepository.getById(item.getLastBookingId());
+                Booking nextBooking = bookingRepository.getById(item.getNextBookingId());
+                BookingDto lastBookingDto = bookingMapper.toBookingDto(lastBooking);
+                BookingDto nextBookingDto = bookingMapper.toBookingDto(nextBooking);
 
-            itemDto.setLastBooking(lastBookingDto);
-            itemDto.setNextBooking(nextBookingDto);
+                itemDto.setLastBooking(lastBookingDto);
+                itemDto.setNextBooking(nextBookingDto);
+            }
         }
 
         return itemDto;
