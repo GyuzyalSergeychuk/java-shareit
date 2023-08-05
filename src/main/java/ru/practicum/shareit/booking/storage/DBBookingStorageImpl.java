@@ -55,14 +55,7 @@ public class DBBookingStorageImpl implements BookingStorage {
         }
         bookingReq.setBookerId(user.getId());
         Booking booking = bookingRepository.save(bookingReq);
-        if(item.getLastBookingId() == null){
-            item.setLastBookingId(booking.getId());
-            item.setNextBookingId(booking.getId());
-        } else if (item.getNextBookingId() != null) {
-            item.setLastBookingId(item.getNextBookingId());
-            item.setNextBookingId(booking.getId());
-        }
-        itemRepository.save(item);
+
         return bookingMapper.toBookingDto(booking);
     }
 
@@ -74,17 +67,26 @@ public class DBBookingStorageImpl implements BookingStorage {
                 new ObjectNotFoundException("Пользователь не найден"));
         dbUserStorage.getUserById(userId);
 
-        if(item.getOwnerId().equals(userId) && booking.getStatus().equals(Status.APPROVED)){
+        if (item.getOwnerId().equals(userId) && booking.getStatus().equals(Status.APPROVED)){
             throw new ValidationException("Бронирование уже было подтверждено ранее");
         }
 
         if (item.getAvailable() && item.getOwnerId().equals(userId) && approved != null) {
             if (approved) {
                 booking.setStatus(Status.APPROVED);
+                // если бронирование подтверждено, обновляем информацию о бронированиях в вещи
+                if(item.getLastBookingId() == null){
+                    item.setLastBookingId(booking.getId());
+                    item.setNextBookingId(booking.getId());
+                } else if (item.getNextBookingId() != null) {
+                    item.setLastBookingId(item.getNextBookingId());
+                    item.setNextBookingId(booking.getId());
+                }
+                itemRepository.save(item);
             } else {
                 booking.setStatus(Status.REJECTED);
             }
-        } else if(!item.getOwnerId().equals(userId)) {
+        } else if (!item.getOwnerId().equals(userId)) {
             throw new ObjectNotFoundException("Подтверждение бронирования может делать только владелец вещи");
         }
         else {
@@ -92,6 +94,7 @@ public class DBBookingStorageImpl implements BookingStorage {
         }
 
         booking = bookingRepository.save(booking);
+
         return bookingMapper.toBookingDto(booking);
     }
 
