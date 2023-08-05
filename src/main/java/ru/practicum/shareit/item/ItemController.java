@@ -7,7 +7,6 @@ import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.services.ItemServices;
-import ru.practicum.shareit.item.storage.ItemStorage;
 
 import java.util.List;
 
@@ -40,7 +39,7 @@ public class ItemController {
     @GetMapping("{itemId}")
     public ItemDto getId(@PathVariable("itemId") Long itemId) {
         log.info("Получен запрос на получение товара по номеру {}", itemId);
-        return itemServices.getId(itemId);
+        return itemServices.getItemDtoById(itemId);
     }
 
     @GetMapping
