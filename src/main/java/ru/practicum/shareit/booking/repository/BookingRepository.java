@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import ru.practicum.shareit.booking.model.Booking;
 
-import java.util.*;
+import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 

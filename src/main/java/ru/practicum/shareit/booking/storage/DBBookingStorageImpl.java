@@ -11,6 +11,7 @@ import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exceptions.ObjectNotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.storage.DBItemStorageImpl;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.DBUserStorageImpl;
@@ -29,37 +30,48 @@ public class DBBookingStorageImpl implements BookingStorage {
     private final DBUserStorageImpl dbUserStorage;
     private final DBItemStorageImpl dbItemStorage;
     private final BookingRepository bookingRepository;
+    private final ItemRepository itemRepository;
 
     @Override
-    public BookingDto create(Long userId, Booking booking) throws ValidationException {
+    public BookingDto create(Long userId, Booking bookingReq) throws ValidationException {
         User user = dbUserStorage.getUserById(userId);
-        Item item = dbItemStorage.getItemById(booking.getItemId());
+        Item item = itemRepository.findById(bookingReq.getItemId()).orElseThrow(() ->
+                new ObjectNotFoundException("Пользователь не найден"));
         if (!item.getAvailable()) {
             throw new ValidationException("Вещь недоступна для бронирования");
         }
-        if (booking.getStart() == null ||
-                booking.getEnd() == null ||
-                booking.getStart().isAfter(booking.getEnd()) ||
-                booking.getStart().equals(booking.getEnd()) ||
-                booking.getEnd().isBefore(LocalDateTime.now()) ||
-                booking.getStart().isBefore(LocalDateTime.now())) {
+        if (bookingReq.getStart() == null ||
+                bookingReq.getEnd() == null ||
+                bookingReq.getStart().isAfter(bookingReq.getEnd()) ||
+                bookingReq.getStart().equals(bookingReq.getEnd()) ||
+                bookingReq.getEnd().isBefore(LocalDateTime.now()) ||
+                bookingReq.getStart().isBefore(LocalDateTime.now())) {
             throw new ValidationException("Неверно указана дата бронирования");
         } else if (item.getOwnerId().equals(userId)){
             throw new ObjectNotFoundException("Владелец вещи пытается сделать бронирование своей вещи");
         }
-        if (booking.getStatus() == null) {
-            booking.setStatus(Status.WAITING);
+        if (bookingReq.getStatus() == null) {
+            bookingReq.setStatus(Status.WAITING);
         }
-        booking.setBookerId(user.getId());
-        Booking bookingBase = bookingRepository.save(booking);
-        return bookingMapper.toBookingDto(bookingBase);
+        bookingReq.setBookerId(user.getId());
+        Booking booking = bookingRepository.save(bookingReq);
+        if(item.getLastBookingId() == null){
+            item.setLastBookingId(booking.getId());
+            item.setNextBookingId(booking.getId());
+        } else if (item.getNextBookingId() != null) {
+            item.setLastBookingId(item.getNextBookingId());
+            item.setNextBookingId(booking.getId());
+        }
+        itemRepository.save(item);
+        return bookingMapper.toBookingDto(booking);
     }
 
     @Override
     public BookingDto approved(Long userId, Long bookingId, Boolean approved) throws ValidationException {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() ->
                 new ObjectNotFoundException("Запрос на бронирование не найден"));
-        Item item = dbItemStorage.getItemById(booking.getItemId());
+        Item item = itemRepository.findById(booking.getItemId()).orElseThrow(() ->
+                new ObjectNotFoundException("Пользователь не найден"));
         dbUserStorage.getUserById(userId);
 
         if(item.getOwnerId().equals(userId) && booking.getStatus().equals(Status.APPROVED)){
@@ -87,12 +99,14 @@ public class DBBookingStorageImpl implements BookingStorage {
     public BookingDto getBookingDtoById(Long userId, Long bookingId) {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() ->
                 new ObjectNotFoundException("Запрос на бронирование не найден"));
-        Item item = dbItemStorage.getItemById(booking.getItemId());
+        Item item = itemRepository.findById(booking.getItemId()).orElseThrow(() ->
+                new ObjectNotFoundException("Пользователь не найден"));
         dbUserStorage.getUserById(userId);
 
         if (item.getOwnerId().equals(userId)) {
             return bookingMapper.toBookingDto(booking);
         }  else if (booking.getBookerId().equals(userId)) {
+
             return bookingMapper.toBookingDto(booking);
         } else {
             throw new ObjectNotFoundException(String.format

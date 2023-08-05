@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exceptions.ObjectNotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -13,7 +14,6 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.storage.DBUserStorageImpl;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,7 +26,6 @@ public class DBItemStorageImpl implements ItemStorage {
     private final ItemRepository itemRepository;
     private final ItemMapper itemMapper;
     private final DBUserStorageImpl userService;
-
 
     @Override
     public ItemDto create(Long userId, Item item) throws ValidationException, ObjectNotFoundException {
