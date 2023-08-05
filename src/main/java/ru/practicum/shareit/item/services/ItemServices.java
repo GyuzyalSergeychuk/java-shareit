@@ -30,7 +30,7 @@ public class ItemServices {
     }
 
     public List<ItemDto> getFindAllItems(Long userId) {
-        return itemStorage.getFindAllItemsDto(userId);
+        return itemStorage.getAllItemsDto(userId);
     }
 
     public List<ItemDto> searchItem(String text) {

@@ -66,7 +66,7 @@ public class DBItemStorageImpl implements ItemStorage {
     }
 
     @Override
-    public List<ItemDto> getFindAllItemsDto(Long userId) {
+    public List<ItemDto> getAllItemsDto(Long userId) {
         userService.getUserById(userId);
         List<Item> itemList = itemRepository.findByOwnerId(userId);
         return itemList.stream()
@@ -75,7 +75,7 @@ public class DBItemStorageImpl implements ItemStorage {
     }
 
     @Override
-    public List<Item> getFindAllItems(Long userId) {
+    public List<Item> getAllItems(Long userId) {
         userService.getUserById(userId);
         return itemRepository.findByOwnerId(userId);
     }

@@ -154,7 +154,7 @@ public class DBBookingStorageImpl implements BookingStorage {
     @Override
     public List<BookingDto> getAllBookingsByItems(Long userId, String state) throws ValidationException {
         dbUserStorage.getUserById(userId);
-        List<Item> items = dbItemStorage.getFindAllItems(userId);
+        List<Item> items = dbItemStorage.getAllItems(userId);
         List<Booking> bookingList = new ArrayList<>();
 
         for (Item item : items) {

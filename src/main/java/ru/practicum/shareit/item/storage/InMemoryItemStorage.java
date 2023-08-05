@@ -71,7 +71,7 @@ public class InMemoryItemStorage implements ItemStorage {
     }
 
     @Override
-    public List<ItemDto> getFindAllItemsDto(Long userId) {
+    public List<ItemDto> getAllItemsDto(Long userId) {
         UserDto userDto = inMemoryUserStorage.getUserDtoById(userId);
         return  items.stream()
                 .filter((Item e) -> e.getOwnerId().equals(userDto.getId()))
@@ -80,7 +80,7 @@ public class InMemoryItemStorage implements ItemStorage {
     }
 
     @Override
-    public List<Item> getFindAllItems(Long userId) {
+    public List<Item> getAllItems(Long userId) {
         User user = inMemoryUserStorage.getUserById(userId);
         return items.stream()
                 .filter((Item e) -> e.getOwnerId().equals(user.getId()))
