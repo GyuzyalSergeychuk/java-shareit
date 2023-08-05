@@ -88,7 +88,7 @@ public class InMemoryItemStorage implements ItemStorage {
     }
 
     @Override
-    public ItemDto getItemDtoById(Long itemId)  {
+    public ItemDto getItemDtoById(Long userId, Long itemId)  {
         if (itemId <= 0) {
             throw new ObjectNotFoundException("Товар не найден");
         }

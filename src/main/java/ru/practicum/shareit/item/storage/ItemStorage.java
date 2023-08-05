@@ -17,7 +17,7 @@ public interface ItemStorage {
 
     List<Item> getAllItems(Long userId);
 
-    ItemDto getItemDtoById(Long itemId) ;
+    ItemDto getItemDtoById(Long userId, Long itemId) ;
 
     Item getItemById(Long itemId);
 

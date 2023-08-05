@@ -25,8 +25,8 @@ public class ItemServices {
         return itemStorage.update(userId, itemId, itemReq);
     }
 
-    public ItemDto getItemDtoById(Long itemId) {
-        return itemStorage.getItemDtoById(itemId);
+    public ItemDto getItemDtoById(Long userId, Long itemId) {
+        return itemStorage.getItemDtoById(userId, itemId);
     }
 
     public List<ItemDto> getFindAllItems(Long userId) {

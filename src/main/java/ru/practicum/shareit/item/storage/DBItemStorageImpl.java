@@ -5,6 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingMapper;
+import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exceptions.ObjectNotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
@@ -26,6 +29,8 @@ public class DBItemStorageImpl implements ItemStorage {
     private final ItemRepository itemRepository;
     private final ItemMapper itemMapper;
     private final DBUserStorageImpl userService;
+    private final BookingRepository bookingRepository;
+    private final BookingMapper bookingMapper;
 
     @Override
     public ItemDto create(Long userId, Item item) throws ValidationException, ObjectNotFoundException {
@@ -81,15 +86,27 @@ public class DBItemStorageImpl implements ItemStorage {
     }
 
     @Override
-    public ItemDto getItemDtoById(Long itemId)  {
+    public ItemDto getItemDtoById(Long userId, Long itemId)  {
         if (itemId <= 0) {
             throw new ObjectNotFoundException("Id не может быть меньше нуля");
         }
 
-        Item itemBase= itemRepository.findById(itemId).orElseThrow(() ->
+        Item item= itemRepository.findById(itemId).orElseThrow(() ->
                 new ObjectNotFoundException("Пользователь не найден"));
 
-        return itemMapper.toItemDto(itemBase);
+        ItemDto itemDto = itemMapper.toItemDto(item);
+
+        if (itemDto.getOwnerId().equals(userId) && item.getLastBookingId() != null) {
+            Booking lastBooking = bookingRepository.getById(item.getLastBookingId());
+            Booking nextBooking = bookingRepository.getById(item.getNextBookingId());
+            BookingDto lastBookingDto = bookingMapper.toBookingDto(lastBooking);
+            BookingDto nextBookingDto = bookingMapper.toBookingDto(nextBooking);
+
+            itemDto.setLastBooking(lastBookingDto);
+            itemDto.setNextBooking(nextBookingDto);
+        }
+
+        return itemDto;
     }
 
     @Override
