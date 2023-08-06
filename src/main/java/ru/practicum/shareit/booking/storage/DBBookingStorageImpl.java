@@ -123,8 +123,9 @@ public class DBBookingStorageImpl implements BookingStorage {
                         if (nextBooking.getEnd().isBefore(LocalDateTime.now())) {
                             item.setLastBookingId(nextBooking.getId());
                             item.setNextBookingId(currentBooking.getId());
+                        } else {
+                            item.setNextBookingId(currentBooking.getId());
                         }
-                        item.setNextBookingId(currentBooking.getId());
                 }
             }
                 itemRepository.save(item);

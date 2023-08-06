@@ -1,10 +1,10 @@
 package ru.practicum.shareit.item.сomment;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import ru.practicum.shareit.user.repository.UserRepository;
 
-@Component
+@Service
 @RequiredArgsConstructor
 public class CommentMapper {
 

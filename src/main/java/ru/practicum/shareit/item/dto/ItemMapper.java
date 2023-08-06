@@ -1,17 +1,20 @@
 package ru.practicum.shareit.item.dto;
 
-import org.springframework.context.annotation.Lazy;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import ru.practicum.shareit.booking.storage.DBBookingStorageImpl;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.сomment.Comment;
+import ru.practicum.shareit.item.сomment.CommentDto;
+import ru.practicum.shareit.item.сomment.CommentMapper;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
+@RequiredArgsConstructor
 public class ItemMapper {
-    private final DBBookingStorageImpl dbBookingStorage;
 
-    public ItemMapper (@Lazy DBBookingStorageImpl dbBookingStorage) {
-        this.dbBookingStorage = dbBookingStorage;
-    }
+    private final CommentMapper commentMapper;
 
     public ItemDto toItemDto(Item item) {
         return ItemDto.builder()
@@ -20,6 +23,16 @@ public class ItemMapper {
                 .description(item.getDescription())
                 .available(item.getAvailable())
                 .ownerId(item.getOwnerId())
+                .comments(mapComments(item.getComments()))
                 .build();
+    }
+
+    private List<CommentDto> mapComments(List<Comment> comments) {
+        if (comments == null){
+            return List.of();
+        }
+        return comments.stream()
+                .map(commentMapper::toCommentDto)
+                .collect(Collectors.toList());
     }
 }
