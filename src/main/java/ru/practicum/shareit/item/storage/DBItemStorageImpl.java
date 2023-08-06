@@ -8,6 +8,7 @@ import org.springframework.util.StringUtils;
 import ru.practicum.shareit.booking.dto.BookingForGetItemDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exceptions.ObjectNotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
@@ -19,12 +20,14 @@ import ru.practicum.shareit.item.сomment.Comment;
 import ru.practicum.shareit.item.сomment.CommentDto;
 import ru.practicum.shareit.item.сomment.CommentMapper;
 import ru.practicum.shareit.item.сomment.CommentRepository;
-import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.storage.DBUserStorageImpl;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -87,10 +90,7 @@ public class DBItemStorageImpl implements ItemStorage {
         return itemList.stream()
                 .map(e -> {
                     ItemDto itemDto = itemMapper.toItemDto(e);
-                    if (e.getNextBookingId() != null) {
-                        itemDto.setLastBooking(mapBookingForGetItemDto(e.getLastBookingId()));
-                        itemDto.setNextBooking(mapBookingForGetItemDto(e.getNextBookingId()));
-                    }
+                    setBookingsIntoItemDto(itemDto);
                     return itemDto;
                 })
                 .collect(Collectors.toList());
@@ -114,10 +114,7 @@ public class DBItemStorageImpl implements ItemStorage {
         ItemDto itemDto = itemMapper.toItemDto(item);
 
         if (itemDto.getOwnerId().equals(userId)) {
-            if (item.getLastBookingId() != null) {
-                itemDto.setLastBooking(mapBookingForGetItemDto(item.getLastBookingId()));
-                itemDto.setNextBooking(mapBookingForGetItemDto(item.getNextBookingId()));
-            }
+            itemDto = setBookingsIntoItemDto(itemDto);
         }
         return itemDto;
     }
@@ -151,34 +148,6 @@ public class DBItemStorageImpl implements ItemStorage {
                 .collect(Collectors.toList());
     }
 
-    private Item standardCheck(Item item) throws ValidationException {
-        if (item.getName() == null ||
-                item.getName().isEmpty() ||
-                item.getName().isBlank()) {
-            log.error("Название товара не может быть пустым: {}", item);
-            throw new ValidationException("Неверно указано название вещи");
-        }
-        if (item.getDescription() == null ||
-                item.getDescription().isEmpty() ||
-                item.getDescription().isBlank()) {
-            log.error("Неверно введено описание вещи: {}", item);
-            throw new ValidationException("Неверно указано описание вещи");
-        }
-        if (item.getAvailable() == null) {
-            throw new ValidationException("Неверно указано описание вещи");
-        }
-        return item;
-    }
-
-    // Маппим букинг в мелкий букинг для возврата внутри итема
-    private BookingForGetItemDto mapBookingForGetItemDto(Long bookingId) {
-        Booking booking = bookingRepository.getById(bookingId);
-        return BookingForGetItemDto.builder()
-                .id(booking.getId())
-                .bookerId(booking.getBookerId())
-                .build();
-    }
-
     @Override
     public CommentDto createComment(Long userId, Long itemId, Comment comment) throws ValidationException {
         userRepository.findById(userId).orElseThrow(() ->
@@ -202,5 +171,67 @@ public class DBItemStorageImpl implements ItemStorage {
 
         comment = commentRepository.save(comment);
         return commentMapper.toCommentDto(comment);
+    }
+
+
+    private ItemDto setBookingsIntoItemDto(ItemDto itemDto) {
+
+        List<Booking> allBookingsForCurrentItem = bookingRepository.findByItemIdOrderByStartDesc(itemDto.getId());
+        List<Booking> sortingBooking = allBookingsForCurrentItem.stream()
+//                        .filter(e -> e.getEnd().isBefore(LocalDateTime.now()))
+                .filter(e -> e.getStatus().equals(Status.APPROVED))
+                .sorted(Comparator.comparing(Booking::getStart))
+                .collect(Collectors.toList());
+        if (sortingBooking.isEmpty()) {
+            return itemDto;
+        } else {
+            LocalDateTime now = LocalDateTime.now();
+            Booking nearestLastBooking = sortingBooking.get(0);
+            Booking nearestNextBooking= sortingBooking.get(0);
+            int count = 0;
+            for (Booking booking :sortingBooking) {
+                if (booking.getEnd().isBefore(now) && booking.getEnd().isAfter(nearestLastBooking.getEnd())) {
+                    nearestLastBooking = booking;
+                }
+                if (booking.getStart().isAfter(now) && count == 0) {
+                    nearestNextBooking = booking;
+                    count += 1;
+                }
+                if (booking.getStart().isAfter(now) && booking.getStart().isBefore(nearestNextBooking.getStart())) {
+                    nearestNextBooking = booking;
+                }
+            }
+            itemDto.setLastBooking(mapBookingForGetItemDto(nearestLastBooking.getId()));
+            itemDto.setNextBooking(mapBookingForGetItemDto(nearestNextBooking.getId()));
+        }
+        return itemDto;
+    }
+
+    // Маппим букинг в мелкий букинг для возврата внутри итема
+    private BookingForGetItemDto mapBookingForGetItemDto(Long bookingId) {
+        Booking booking = bookingRepository.getById(bookingId);
+        return BookingForGetItemDto.builder()
+                .id(booking.getId())
+                .bookerId(booking.getBookerId())
+                .build();
+    }
+
+    private Item standardCheck(Item item) throws ValidationException {
+        if (item.getName() == null ||
+                item.getName().isEmpty() ||
+                item.getName().isBlank()) {
+            log.error("Название товара не может быть пустым: {}", item);
+            throw new ValidationException("Неверно указано название вещи");
+        }
+        if (item.getDescription() == null ||
+                item.getDescription().isEmpty() ||
+                item.getDescription().isBlank()) {
+            log.error("Неверно введено описание вещи: {}", item);
+            throw new ValidationException("Неверно указано описание вещи");
+        }
+        if (item.getAvailable() == null) {
+            throw new ValidationException("Неверно указано описание вещи");
+        }
+        return item;
     }
 }
