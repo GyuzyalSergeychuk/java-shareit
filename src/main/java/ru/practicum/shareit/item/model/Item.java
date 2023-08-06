@@ -1,8 +1,10 @@
 package ru.practicum.shareit.item.model;
 
 import lombok.*;
+import ru.practicum.shareit.item.сomment.Comment;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -34,6 +36,10 @@ public class Item {
 
     @Column(name = "next_booking_id")
     private Long nextBookingId;
+
+    @OneToMany
+    @JoinColumn(name = "item_id", referencedColumnName = "id")
+    private List<Comment> comments;
 
     @Override
     public boolean equals(Object o) {
