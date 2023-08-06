@@ -82,7 +82,7 @@ public class DBItemStorageImpl implements ItemStorage {
     @Override
     public List<ItemDto> getAllItemsDto(Long userId) {
         userService.getUserById(userId);
-        List<Item> itemList = itemRepository.findByOwnerIdOrderByNextBookingIdAsc(userId);
+        List<Item> itemList = itemRepository.findByOwnerIdOrderByNextBookingIdDesc(userId);
         return itemList.stream()
                 .map(e -> {
                     ItemDto itemDto = itemMapper.toItemDto(e);

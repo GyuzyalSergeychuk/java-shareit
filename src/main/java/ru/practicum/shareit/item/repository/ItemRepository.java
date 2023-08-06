@@ -14,7 +14,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 
     List<Item> findByOwnerId(Long id);
 
-    List<Item> findByOwnerIdOrderByNextBookingIdAsc(Long id);
+    List<Item> findByOwnerIdOrderByNextBookingIdDesc(Long id);
 
     @Query("SELECT i From Item i " +
             "WHERE i.id = :id and i.ownerId = :ownerId")
