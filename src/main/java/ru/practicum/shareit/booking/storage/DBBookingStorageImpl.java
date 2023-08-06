@@ -181,14 +181,9 @@ public class DBBookingStorageImpl implements BookingStorage {
                 }
             }
         } else if (state.equals(Status.PAST.name())) {
-            List<Booking> bookings = bookingRepository.findByBookerIdOrderByStartDesc(userId);
-            for (Booking booking : bookings) {
-                if (booking.getStatus().equals(Status.REJECTED) ||
-                        booking.getStatus().equals(Status.CANCELED) ||
-                        booking.getEnd().isBefore(LocalDateTime.now())) {
-                    bookingList.add(booking);
-                }
-            }
+            List<Booking> bookings = bookingRepository.findByBookerIdAndEndBeforeAndStatusEqualsOrderByStartDesc(userId, now, Status.APPROVED);
+            bookingList.addAll(bookings);
+
         } else {
             throw new ValidationException(String.format("Unknown state: %s", state));
         }
@@ -229,13 +224,10 @@ public class DBBookingStorageImpl implements BookingStorage {
                     }
                 }
             } else if (state.equals(Status.PAST.name())) {
-                List<Booking> bookings = bookingRepository.findByItemIdOrderByStartDesc(item.getId());
-                for (Booking booking : bookings) {
-                    if (booking.getStatus().equals(Status.REJECTED) ||
-                            booking.getStatus().equals(Status.CANCELED) ||
-                            booking.getEnd().isBefore(LocalDateTime.now())) {
-                        bookingList.add(booking);
-                    }
+                if (item.getLastBookingId() != null) {
+                    List<Booking> bookings = bookingRepository.findByItemOwnerIdAndEndBeforeAndStatusEqualsOrderByStartDesc(
+                            userId, now, Status.APPROVED);
+                    bookingList.addAll(bookings);
                 }
             } else {
                 throw new ValidationException(String.format("Unknown state: %s", state));
