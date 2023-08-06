@@ -4,6 +4,7 @@ import lombok.*;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
@@ -22,18 +23,21 @@ public class Comment {
     private String text;
 
     @Column(name = "author_id")
-    private Long userId;
+    private Long authorId;
+
+    @Column(name = "created")
+    private LocalDateTime created;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Comment comment = (Comment) o;
-        return Objects.equals(id, comment.id) && Objects.equals(text, comment.text) && Objects.equals(userId, comment.userId);
+        return Objects.equals(id, comment.id) && Objects.equals(text, comment.text) && Objects.equals(authorId, comment.authorId) && Objects.equals(created, comment.created);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, text, userId);
+        return Objects.hash(id, text, authorId, created);
     }
 }

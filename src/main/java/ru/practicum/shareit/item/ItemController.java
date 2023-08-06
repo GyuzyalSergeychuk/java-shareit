@@ -7,6 +7,8 @@ import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.services.ItemServices;
+import ru.practicum.shareit.item.сomment.Comment;
+import ru.practicum.shareit.item.сomment.CommentDto;
 
 import java.util.List;
 
@@ -53,5 +55,13 @@ public class ItemController {
     public List<ItemDto> searchItem(@RequestParam String text) {
         log.info("Получен запрос на списка товара по содержанию текста {}", text);
         return itemServices.searchItem(text);
+    }
+
+    @PostMapping("{itemId}/comment")
+    public CommentDto createComment(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                    @PathVariable("itemId") Long itemId,
+                                    @RequestBody Comment comment) throws ValidationException {
+        log.info("Получен запрос на создание комментария пользователем{}", userId);
+        return itemServices.createComment(userId, itemId, comment);
     }
 }

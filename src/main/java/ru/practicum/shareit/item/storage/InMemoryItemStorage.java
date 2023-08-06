@@ -8,6 +8,8 @@ import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.сomment.Comment;
+import ru.practicum.shareit.item.сomment.CommentDto;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.InMemoryUserStorage;
@@ -140,6 +142,11 @@ public class InMemoryItemStorage implements ItemStorage {
             throw new ValidationException("Неверно указано описание товара");
         }
         return item;
+    }
+
+    @Override
+    public CommentDto createComment(Long userId, Long itemId, Comment comment) throws ValidationException {
+        return null;
     }
 
     public static Long assignId() {

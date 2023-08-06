@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingForGetItemDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
@@ -16,8 +15,15 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.item.сomment.Comment;
+import ru.practicum.shareit.item.сomment.CommentDto;
+import ru.practicum.shareit.item.сomment.CommentMapper;
+import ru.practicum.shareit.item.сomment.CommentRepository;
+import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.storage.DBUserStorageImpl;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,6 +38,9 @@ public class DBItemStorageImpl implements ItemStorage {
     private final DBUserStorageImpl userService;
     private final BookingRepository bookingRepository;
     private final BookingMapper bookingMapper;
+    private final UserRepository userRepository;
+    private final CommentRepository commentRepository;
+    private final CommentMapper commentMapper;
 
     @Override
     public ItemDto create(Long userId, Item item) throws ValidationException, ObjectNotFoundException {
@@ -39,14 +48,14 @@ public class DBItemStorageImpl implements ItemStorage {
         userService.getUserById(userId);
         afterCheckItem.setOwnerId(userId);
         Item itemBase = itemRepository.save(afterCheckItem);
-        log.info("Товар успешно добавлен {}", itemBase.getId());
+        log.info("вещь успешно добавлен {}", itemBase.getId());
         return itemMapper.toItemDto(itemBase);
     }
 
     @Override
     public ItemDto update(Long userId, Long itemId, Item itemReq) {
         if (itemId <= 0) {
-            throw new ObjectNotFoundException("Товар не найден");
+            throw new ObjectNotFoundException("вещь не найдена");
         }
         userService.getUserById(userId);
 
@@ -67,7 +76,7 @@ public class DBItemStorageImpl implements ItemStorage {
         }
 
         Item item = itemRepository.save(itemBase);
-        log.info("Изменения товара {} успешно внесены", item.getId());
+        log.info("Изменения вещи {} успешно внесены", item.getId());
         return itemMapper.toItemDto(item);
     }
 
@@ -100,7 +109,7 @@ public class DBItemStorageImpl implements ItemStorage {
         }
 
         Item item= itemRepository.findById(itemId).orElseThrow(() ->
-                new ObjectNotFoundException("Пользователь не найден"));
+                new ObjectNotFoundException("Вещь не найдена"));
 
         ItemDto itemDto = itemMapper.toItemDto(item);
 
@@ -120,7 +129,7 @@ public class DBItemStorageImpl implements ItemStorage {
         }
 
         return itemRepository.findById(itemId).orElseThrow(() ->
-                new ObjectNotFoundException("Пользователь не найден"));
+                new ObjectNotFoundException("Вещь не найдена"));
     }
 
     @Override
@@ -147,16 +156,16 @@ public class DBItemStorageImpl implements ItemStorage {
                 item.getName().isEmpty() ||
                 item.getName().isBlank()) {
             log.error("Название товара не может быть пустым: {}", item);
-            throw new ValidationException("Неверно указано название товара");
+            throw new ValidationException("Неверно указано название вещи");
         }
         if (item.getDescription() == null ||
                 item.getDescription().isEmpty() ||
                 item.getDescription().isBlank()) {
-            log.error("Неверно введено описание товара: {}", item);
-            throw new ValidationException("Неверно указано описание товара");
+            log.error("Неверно введено описание вещи: {}", item);
+            throw new ValidationException("Неверно указано описание вещи");
         }
         if (item.getAvailable() == null) {
-            throw new ValidationException("Неверно указано описание товара");
+            throw new ValidationException("Неверно указано описание вещи");
         }
         return item;
     }
@@ -168,5 +177,28 @@ public class DBItemStorageImpl implements ItemStorage {
                 .id(booking.getId())
                 .bookerId(booking.getBookerId())
                 .build();
+    }
+
+    @Override
+    public CommentDto createComment(Long userId, Long itemId, Comment comment) throws ValidationException {
+        User user = userRepository.findById(userId).orElseThrow(() ->
+                new ObjectNotFoundException("Пользователь не найден"));
+        ItemDto item = getItemDtoById(userId, itemId);
+        Booking booking = bookingRepository.findById(userId).get();
+
+        if (comment.getText() == null || comment.getText().isEmpty() || comment.getText().isBlank()){
+            throw new ValidationException("Текст комментария не может быть пустым");
+        }
+
+        if(booking.getBookerId().equals(userId) && booking.getItemId().equals(itemId)){
+            comment.setAuthorId(userId);
+            comment.setCreated(LocalDateTime.now());
+        } else {
+            log.info("Пользователь {} не может оставить комментарий, так как не бронировал вещь {}", userId, itemId);
+            throw new ValidationException("Не возможно добавить комментарий");
+        }
+
+        Comment comment1 = commentRepository.save(comment);
+        return commentMapper.toCommentDto(comment1);
     }
 }

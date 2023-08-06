@@ -7,6 +7,8 @@ import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.storage.ItemStorage;
+import ru.practicum.shareit.item.сomment.Comment;
+import ru.practicum.shareit.item.сomment.CommentDto;
 
 import java.util.List;
 
@@ -35,5 +37,9 @@ public class ItemServices {
 
     public List<ItemDto> searchItem(String text) {
         return itemStorage.searchItem(text);
+    }
+
+    public CommentDto createComment(Long userId, Long itemId, Comment comment) throws ValidationException{
+        return itemStorage.createComment(userId, itemId, comment);
     }
 }
