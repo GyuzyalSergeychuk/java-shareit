@@ -138,8 +138,7 @@ public class DBBookingStorageImpl implements BookingStorage {
         } else if (booking.getBookerId().equals(userId)) {
             return bookingMapper.toBookingDto(booking);
         } else {
-            throw new ObjectNotFoundException
-                    (String.format("Пользователя создавшего бронирование или владельца вещи под данным %d не существует",
+            throw new ObjectNotFoundException(String.format("Пользователя создавшего бронирование или владельца вещи под данным %d не существует",
                             userId));
         }
     }
