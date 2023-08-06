@@ -5,14 +5,13 @@ import lombok.*;
 import javax.persistence.*;
 import java.time.Instant;
 
-/**
- * TODO Sprint add-item-requests.
- */
-
 @Entity
 @Table(name = "requests")
-@Setter @Getter @ToString
-@NoArgsConstructor @AllArgsConstructor
+@Setter
+@Getter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
 public class ItemRequest {
     @Id
     @GeneratedValue
@@ -26,5 +25,4 @@ public class ItemRequest {
 
     @Column(name = "created_date")
     private Instant created;
-
 }
