@@ -39,7 +39,7 @@ public class ItemServices {
         return itemStorage.searchItem(text);
     }
 
-    public CommentDto createComment(Long userId, Long itemId, Comment comment) throws ValidationException{
+    public CommentDto createComment(Long userId, Long itemId, Comment comment) throws ValidationException {
         return itemStorage.createComment(userId, itemId, comment);
     }
 }

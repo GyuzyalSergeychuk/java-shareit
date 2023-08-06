@@ -9,8 +9,11 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "item")
-@Setter @Getter @ToString
-@AllArgsConstructor @NoArgsConstructor
+@Setter
+@Getter
+@ToString
+@AllArgsConstructor
+@NoArgsConstructor
 public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,7 +40,6 @@ public class Item {
     @Column(name = "next_booking_id")
     private Long nextBookingId;
 
-//    @OneToMany(mappedBy = "mItem", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @OneToMany
     @JoinColumn(name = "item_id", referencedColumnName = "id")
     private List<Comment> comments;

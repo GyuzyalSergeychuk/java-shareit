@@ -19,7 +19,6 @@ import ru.practicum.shareit.user.storage.DBUserStorageImpl;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,15 +39,6 @@ public class DBBookingStorageImpl implements BookingStorage {
                 new ObjectNotFoundException("Пользователь не найден"));
         bookingReq.setItemOwnerId(item.getOwnerId());
 
-        //TODO предположение: если вещь была недоступна, но срок бронирования истек, надо снять недоступность с вещи?
-//        if (!item.getAvailable()) {
-//            Booking nextBooking = bookingRepository.findById(item.getNextBookingId()).get();
-//            if (nextBooking.getEnd().isBefore(bookingReq.getStart())) {
-//                item.setAvailable(true);
-//            } else if (nextBooking.getStart().isAfter(bookingReq.getEnd())) {
-//                item.setAvailable(true);
-//            }
-//        }
         if (!item.getAvailable()) {
             throw new ValidationException("Вещь недоступна для бронирования");
         }
@@ -59,7 +49,7 @@ public class DBBookingStorageImpl implements BookingStorage {
                 bookingReq.getEnd().isBefore(LocalDateTime.now()) ||
                 bookingReq.getStart().isBefore(LocalDateTime.now())) {
             throw new ValidationException("Неверно указана дата бронирования");
-        } else if (item.getOwnerId().equals(userId)){
+        } else if (item.getOwnerId().equals(userId)) {
             throw new ObjectNotFoundException("Владелец вещи пытается сделать бронирование своей вещи");
         }
 
@@ -104,9 +94,6 @@ public class DBBookingStorageImpl implements BookingStorage {
             throw new ObjectNotFoundException("Ответ по бронированию уже дан");
         }
 
-//        if (currentBooking.getEnd().isBefore(LocalDateTime.now())) {
-//            throw new ObjectNotFoundException("Нельзя подтвердить  бронирование у котого истек срок окончания");
-//        }
         if (approved != null) {
             if (approved) {
                 currentBooking.setStatus(Status.APPROVED);
@@ -114,8 +101,6 @@ public class DBBookingStorageImpl implements BookingStorage {
                 if (item.getLastBookingId() == null) {
                     item.setLastBookingId(currentBooking.getId());
                     item.setNextBookingId(currentBooking.getId());
-                    //TODO вот в этом блоке надо фиксить логику, если не проходят тесты на items/{itemId}
-                    //а конкретно когда проблемы с полями lastBooking.id , lastBooking.bookerId и прочими
                 } else {
                     if (currentBooking.getEnd().isBefore(nextBooking.getStart())) {
                         item.setNextBookingId(currentBooking.getId());
@@ -126,8 +111,8 @@ public class DBBookingStorageImpl implements BookingStorage {
                         } else {
                             item.setNextBookingId(currentBooking.getId());
                         }
+                    }
                 }
-            }
                 itemRepository.save(item);
             } else {
                 currentBooking.setStatus(Status.REJECTED);
@@ -137,7 +122,6 @@ public class DBBookingStorageImpl implements BookingStorage {
         }
 
         currentBooking = bookingRepository.save(currentBooking);
-
         return bookingMapper.toBookingDto(currentBooking);
     }
 
@@ -151,7 +135,7 @@ public class DBBookingStorageImpl implements BookingStorage {
 
         if (item.getOwnerId().equals(userId)) {
             return bookingMapper.toBookingDto(booking);
-        }  else if (booking.getBookerId().equals(userId)) {
+        } else if (booking.getBookerId().equals(userId)) {
             return bookingMapper.toBookingDto(booking);
         } else {
             throw new ObjectNotFoundException(String.format
@@ -183,7 +167,6 @@ public class DBBookingStorageImpl implements BookingStorage {
         } else if (state.equals(Status.PAST.name())) {
             List<Booking> bookings = bookingRepository.findByBookerIdAndEndBeforeAndStatusEqualsOrderByStartDesc(userId, now, Status.APPROVED);
             bookingList.addAll(bookings);
-
         } else {
             throw new ValidationException(String.format("Unknown state: %s", state));
         }
@@ -197,7 +180,6 @@ public class DBBookingStorageImpl implements BookingStorage {
     public List<BookingDto> getAllBookingsByItems(Long userId, String state) throws ValidationException {
         dbUserStorage.getUserById(userId);
         List<Item> items = dbItemStorage.getAllItems(userId);
-//        items = items.stream().filter(e -> e.getLastBookingId() != null).collect(Collectors.toList());
         List<Booking> bookingList = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
 
@@ -213,7 +195,8 @@ public class DBBookingStorageImpl implements BookingStorage {
                 bookingList.addAll(bookings);
             } else if (state.equals(Status.CURRENT.name())) {
                 if (item.getLastBookingId() != null) {
-                    List<Booking> bookings = bookingRepository.findByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(userId, now, now);
+                    List<Booking> bookings = bookingRepository.findByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(
+                            userId, now, now);
                     bookingList.addAll(bookings);
                 }
             } else if (state.equals(Status.FUTURE.name())) {

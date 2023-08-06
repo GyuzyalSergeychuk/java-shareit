@@ -10,7 +10,7 @@ public class CommentMapper {
 
     private final UserRepository userRepository;
 
-    public CommentDto toCommentDto(Comment comment){
+    public CommentDto toCommentDto(Comment comment) {
         return CommentDto.builder()
                 .id(comment.getId())
                 .text(comment.getText())

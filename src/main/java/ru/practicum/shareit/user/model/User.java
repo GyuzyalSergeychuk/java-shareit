@@ -3,7 +3,6 @@ package ru.practicum.shareit.user.model;
 import lombok.*;
 import ru.practicum.shareit.item.model.Item;
 
-
 import javax.persistence.*;
 import java.util.List;
 import java.util.Objects;

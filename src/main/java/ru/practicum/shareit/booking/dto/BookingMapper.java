@@ -7,12 +7,10 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
-import ru.practicum.shareit.item.storage.DBItemStorageImpl;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
-import ru.practicum.shareit.user.storage.DBUserStorageImpl;
 
 @Component
 @RequiredArgsConstructor
@@ -23,8 +21,7 @@ public class BookingMapper {
     private final UserMapper userMapper;
     private final ItemMapper itemMapper;
 
-
-    public BookingDto toBookingDto(Booking booking)  {
+    public BookingDto toBookingDto(Booking booking) {
         return BookingDto.builder()
                 .id(booking.getId())
                 .start(booking.getStart())

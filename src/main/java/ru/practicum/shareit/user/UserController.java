@@ -11,9 +11,6 @@ import ru.practicum.shareit.user.services.UserServices;
 
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
 @RestController
 @RequestMapping(path = "/users")
 @RequiredArgsConstructor
@@ -29,7 +26,8 @@ public class UserController {
     }
 
     @PatchMapping("{userId}")
-    public UserDto update(@PathVariable("userId") Long id, @RequestBody User user) throws ValidationException, ConflictException {
+    public UserDto update(@PathVariable("userId") Long id, @RequestBody User user)
+            throws ValidationException, ConflictException {
         log.info("Получен запрос на внесение изменений {}", user);
         return userServices.update(id, user);
     }

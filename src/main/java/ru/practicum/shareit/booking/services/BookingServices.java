@@ -23,7 +23,7 @@ public class BookingServices {
 
     public BookingDto approved(Long userId, Long bookingId, Boolean approved) throws ValidationException {
         return bookingStorage.approved(userId, bookingId, approved);
-    };
+    }
 
     public BookingDto getBookingId(Long userId, Long bookingId) throws ValidationException {
         return bookingStorage.getBookingDtoById(userId, bookingId);

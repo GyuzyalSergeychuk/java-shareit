@@ -71,7 +71,7 @@ public class DBUserStorageImpl implements UserStorage {
             throw new ObjectNotFoundException("Пользователь не найден");
         }
 
-        User user= userRepository.findById(id).orElseThrow(() ->
+        User user = userRepository.findById(id).orElseThrow(() ->
                 new ObjectNotFoundException("Пользователь не найден"));
 
         return userMapper.toUserDto(user);
@@ -83,7 +83,7 @@ public class DBUserStorageImpl implements UserStorage {
             throw new ObjectNotFoundException("Пользователь не найден");
         }
 
-        User user= userRepository.findById(id).orElseThrow(() ->
+        User user = userRepository.findById(id).orElseThrow(() ->
                 new ObjectNotFoundException("Пользователь не найден"));
 
         return user;

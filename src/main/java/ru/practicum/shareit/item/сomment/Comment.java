@@ -1,7 +1,6 @@
 package ru.practicum.shareit.item.сomment;
 
 import lombok.*;
-import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -36,7 +35,10 @@ public class Comment {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Comment comment = (Comment) o;
-        return Objects.equals(id, comment.id) && Objects.equals(text, comment.text) && Objects.equals(authorId, comment.authorId) && Objects.equals(created, comment.created);
+        return Objects.equals(id, comment.id) &&
+                Objects.equals(text, comment.text) &&
+                Objects.equals(authorId, comment.authorId) &&
+                Objects.equals(created, comment.created);
     }
 
     @Override

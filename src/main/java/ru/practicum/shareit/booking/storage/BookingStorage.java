@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface BookingStorage {
 
-    BookingDto create(Long userId,Booking booking) throws ValidationException;
+    BookingDto create(Long userId, Booking booking) throws ValidationException;
 
     BookingDto approved(Long userId, Long bookingId, Boolean approved) throws ValidationException;
 

@@ -11,7 +11,9 @@ import java.util.Optional;
 public interface ItemRepository extends JpaRepository<Item, Long> {
 
     Optional<Item> findById(Long id);
+
     List<Item> findByOwnerId(Long id);
+
     List<Item> findByOwnerIdOrderByNextBookingIdAsc(Long id);
 
     @Query("SELECT i From Item i " +
@@ -20,5 +22,4 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
                       @Param("ownerId") Long ownerId);
 
     List<Item> findByNameOrDescriptionContainingIgnoreCaseAndAvailableTrue(String name, String description);
-
 }

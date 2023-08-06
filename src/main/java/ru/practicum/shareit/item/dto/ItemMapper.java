@@ -28,7 +28,7 @@ public class ItemMapper {
     }
 
     private List<CommentDto> mapComments(List<Comment> comments) {
-        if (comments == null){
+        if (comments == null) {
             return List.of();
         }
         return comments.stream()

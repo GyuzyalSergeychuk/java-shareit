@@ -25,7 +25,7 @@ public class InMemoryItemStorage implements ItemStorage {
     private static Long nextId = 0L;
     private final ItemMapper itemMapper;
     private final InMemoryUserStorage inMemoryUserStorage;
-    private  List<Item> items = new ArrayList<>();
+    private List<Item> items = new ArrayList<>();
 
     @Override
     public ItemDto create(Long userId, Item item) throws ValidationException {
@@ -34,15 +34,13 @@ public class InMemoryItemStorage implements ItemStorage {
         afterCheckItem.setId(assignId());
         item.setOwnerId(userId);
         items.add(item);
-        UserDto userDto = inMemoryUserStorage.getUserDtoById(user1);
-
         ItemDto itemDto = itemMapper.toItemDto(item);
         log.info("Товар успешно добавлен {}", itemDto.getId());
         return itemDto;
     }
 
     @Override
-    public ItemDto update(Long userId, Long itemId, Item itemReq)  {
+    public ItemDto update(Long userId, Long itemId, Item itemReq) {
         if (itemId <= 0) {
             throw new ObjectNotFoundException("Товар не найден");
         }
@@ -75,7 +73,7 @@ public class InMemoryItemStorage implements ItemStorage {
     @Override
     public List<ItemDto> getAllItemsDto(Long userId) {
         UserDto userDto = inMemoryUserStorage.getUserDtoById(userId);
-        return  items.stream()
+        return items.stream()
                 .filter((Item e) -> e.getOwnerId().equals(userDto.getId()))
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
@@ -90,7 +88,7 @@ public class InMemoryItemStorage implements ItemStorage {
     }
 
     @Override
-    public ItemDto getItemDtoById(Long userId, Long itemId)  {
+    public ItemDto getItemDtoById(Long userId, Long itemId) {
         if (itemId <= 0) {
             throw new ObjectNotFoundException("Товар не найден");
         }
@@ -119,11 +117,6 @@ public class InMemoryItemStorage implements ItemStorage {
         return findItems;
     }
 
-    @Override
-    public Item getItemById(Long itemId) {
-        return null;
-    }
-
     private Item standardCheck(Item item) throws ValidationException {
         if (item.getName() == null ||
                 item.getName().isEmpty() ||
@@ -145,7 +138,7 @@ public class InMemoryItemStorage implements ItemStorage {
     }
 
     @Override
-    public CommentDto createComment(Long userId, Long itemId, Comment comment) throws ValidationException {
+    public CommentDto createComment(Long userId, Long itemId, Comment comment) {
         return null;
     }
 

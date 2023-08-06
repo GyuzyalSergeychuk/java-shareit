@@ -10,6 +10,7 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findById(Long id);
+
     @Query("SELECT u From User u " +
             "WHERE u.email = :email and u.id is not :id")
     User findByEmailNotSelf(@Param("email") String email,

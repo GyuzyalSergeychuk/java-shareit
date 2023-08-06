@@ -6,9 +6,6 @@ import ru.practicum.shareit.booking.dto.BookingForGetItemDto;
 import ru.practicum.shareit.item.сomment.CommentDto;
 
 import java.util.List;
-/**
- * TODO Sprint add-controllers.
- */
 
 @Data
 @Builder
@@ -21,5 +18,4 @@ public class ItemDto {
     private BookingForGetItemDto lastBooking;
     private BookingForGetItemDto nextBooking;
     private List<CommentDto> comments;
-//    private Request request;
 }

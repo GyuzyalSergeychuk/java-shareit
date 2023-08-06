@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import ru.practicum.shareit.booking.dto.BookingForGetItemDto;
-import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.booking.repository.BookingRepository;
@@ -24,10 +23,8 @@ import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.storage.DBUserStorageImpl;
 
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,7 +37,6 @@ public class DBItemStorageImpl implements ItemStorage {
     private final ItemMapper itemMapper;
     private final DBUserStorageImpl userService;
     private final BookingRepository bookingRepository;
-    private final BookingMapper bookingMapper;
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
     private final CommentMapper commentMapper;
@@ -64,11 +60,11 @@ public class DBItemStorageImpl implements ItemStorage {
 
         Item itemBase = itemRepository.findByIdSelf(itemId, userId);
 
-        if (itemBase == null){
+        if (itemBase == null) {
             throw new ObjectNotFoundException("Юзер пытается редактировать чужой товар");
         }
 
-        if(itemReq.getName() != null){
+        if (itemReq.getName() != null) {
             itemBase.setName(itemReq.getName());
         }
         if (itemReq.getDescription() != null) {
@@ -103,12 +99,12 @@ public class DBItemStorageImpl implements ItemStorage {
     }
 
     @Override
-    public ItemDto getItemDtoById(Long userId, Long itemId)  {
+    public ItemDto getItemDtoById(Long userId, Long itemId) {
         if (itemId <= 0) {
             throw new ObjectNotFoundException("Id не может быть меньше нуля");
         }
 
-        Item item= itemRepository.findById(itemId).orElseThrow(() ->
+        Item item = itemRepository.findById(itemId).orElseThrow(() ->
                 new ObjectNotFoundException("Вещь не найдена"));
 
         ItemDto itemDto = itemMapper.toItemDto(item);
@@ -120,23 +116,12 @@ public class DBItemStorageImpl implements ItemStorage {
     }
 
     @Override
-    public Item getItemById(Long itemId) {
-        if (itemId <= 0) {
-            throw new ObjectNotFoundException("Id не может быть меньше нуля");
-        }
-
-        return itemRepository.findById(itemId).orElseThrow(() ->
-                new ObjectNotFoundException("Вещь не найдена"));
-    }
-
-    @Override
     public List<ItemDto> searchItem(String text) {
-
         if (text == null) {
             throw new ObjectNotFoundException("Запрос на поиск товара не может быть пустым");
         }
 
-        if (text.isEmpty() || text.isBlank()){
+        if (text.isEmpty() || text.isBlank()) {
             return List.of();
         }
         String refactorText = text.toLowerCase();
@@ -156,11 +141,11 @@ public class DBItemStorageImpl implements ItemStorage {
                 new ObjectNotFoundException("Вещь не найдена"));
         Booking booking = bookingRepository.findById(userId).get();
 
-        if (comment.getText() == null || comment.getText().isEmpty() || comment.getText().isBlank()){
+        if (comment.getText() == null || comment.getText().isEmpty() || comment.getText().isBlank()) {
             throw new ValidationException("Текст комментария не может быть пустым");
         }
 
-        if (booking.getBookerId().equals(userId) && booking.getItemId().equals(itemId)){
+        if (booking.getBookerId().equals(userId) && booking.getItemId().equals(itemId)) {
             comment.setAuthorId(userId);
             comment.setCreated(LocalDateTime.now());
             comment.setItemId(itemId);
@@ -175,10 +160,8 @@ public class DBItemStorageImpl implements ItemStorage {
 
 
     private ItemDto setBookingsIntoItemDto(ItemDto itemDto) {
-
         List<Booking> allBookingsForCurrentItem = bookingRepository.findByItemIdOrderByStartDesc(itemDto.getId());
         List<Booking> sortingBooking = allBookingsForCurrentItem.stream()
-//                        .filter(e -> e.getEnd().isBefore(LocalDateTime.now()))
                 .filter(e -> e.getStatus().equals(Status.APPROVED))
                 .sorted(Comparator.comparing(Booking::getStart))
                 .collect(Collectors.toList());
@@ -187,9 +170,9 @@ public class DBItemStorageImpl implements ItemStorage {
         } else {
             LocalDateTime now = LocalDateTime.now();
             Booking nearestLastBooking = sortingBooking.get(0);
-            Booking nearestNextBooking= sortingBooking.get(0);
+            Booking nearestNextBooking = sortingBooking.get(0);
             int count = 0;
-            for (Booking booking :sortingBooking) {
+            for (Booking booking : sortingBooking) {
                 if (booking.getEnd().isBefore(now) && booking.getEnd().isAfter(nearestLastBooking.getEnd())) {
                     nearestLastBooking = booking;
                 }
