@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingForGetItemDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.repository.BookingRepository;
@@ -100,8 +101,14 @@ public class DBItemStorageImpl implements ItemStorage {
             if (item.getLastBookingId() != null) {
                 Booking lastBooking = bookingRepository.getById(item.getLastBookingId());
                 Booking nextBooking = bookingRepository.getById(item.getNextBookingId());
-                BookingDto lastBookingDto = bookingMapper.toBookingDto(lastBooking);
-                BookingDto nextBookingDto = bookingMapper.toBookingDto(nextBooking);
+                BookingForGetItemDto lastBookingDto = BookingForGetItemDto.builder()
+                        .id(lastBooking.getId())
+                        .bookerId(lastBooking.getBookerId())
+                        .build();
+                BookingForGetItemDto nextBookingDto = BookingForGetItemDto.builder()
+                        .id(nextBooking.getId())
+                        .bookerId(nextBooking.getBookerId())
+                        .build();
 
                 itemDto.setLastBooking(lastBookingDto);
                 itemDto.setNextBooking(nextBookingDto);

@@ -19,6 +19,7 @@ import ru.practicum.shareit.user.storage.DBUserStorageImpl;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -80,13 +81,18 @@ public class DBBookingStorageImpl implements BookingStorage {
 
     @Override
     public BookingDto approved(Long userId, Long bookingId, Boolean approved) throws ValidationException {
-        Booking booking = bookingRepository.findById(bookingId).orElseThrow(() ->
+        Booking currentBooking = bookingRepository.findById(bookingId).orElseThrow(() ->
                 new ObjectNotFoundException("Запрос на бронирование не найден"));
-        Item item = itemRepository.findById(booking.getItemId()).orElseThrow(() ->
+        Item item = itemRepository.findById(currentBooking.getItemId()).orElseThrow(() ->
                 new ObjectNotFoundException("Пользователь не найден"));
+        Booking nextBooking = null;
+        if (item.getNextBookingId() != null) {
+            nextBooking = bookingRepository.findById(item.getNextBookingId()).get();
+        }
+
         dbUserStorage.getUserById(userId);
 
-        if (item.getOwnerId().equals(userId) && booking.getStatus().equals(Status.APPROVED)) {
+        if (item.getOwnerId().equals(userId) && currentBooking.getStatus().equals(Status.APPROVED)) {
             throw new ValidationException("Бронирование уже было подтверждено ранее");
         }
 
@@ -94,34 +100,43 @@ public class DBBookingStorageImpl implements BookingStorage {
             throw new ObjectNotFoundException("Подтверждение бронирования может делать только владелец вещи");
         }
 
-        if (!booking.getStatus().equals(Status.WAITING)) {
+        if (!currentBooking.getStatus().equals(Status.WAITING)) {
             throw new ObjectNotFoundException("Ответ по бронированию уже дан");
         }
 
+//        if (currentBooking.getEnd().isBefore(LocalDateTime.now())) {
+//            throw new ObjectNotFoundException("Нельзя подтвердить  бронирование у котого истек срок окончания");
+//        }
         if (approved != null) {
             if (approved) {
-                booking.setStatus(Status.APPROVED);
+                currentBooking.setStatus(Status.APPROVED);
                 // если бронирование подтверждено, обновляем информацию о бронированиях в вещи
                 if (item.getLastBookingId() == null) {
-                    item.setLastBookingId(booking.getId());
-                    item.setNextBookingId(booking.getId());
-                } else if (item.getNextBookingId() != null) {
-                    item.setLastBookingId(item.getNextBookingId());
-                    item.setNextBookingId(booking.getId());
+                    item.setLastBookingId(currentBooking.getId());
+                    item.setNextBookingId(currentBooking.getId());
+                } else {
+                    if (currentBooking.getEnd().isBefore(nextBooking.getStart())) {
+                        item.setNextBookingId(currentBooking.getId());
+                    } else if (currentBooking.getStart().isAfter(nextBooking.getEnd())) {
+                        if (nextBooking.getEnd().isBefore(LocalDateTime.now())) {
+                            item.setLastBookingId(nextBooking.getId());
+                            item.setNextBookingId(currentBooking.getId());
+                        }
+                        item.setNextBookingId(currentBooking.getId());
                 }
+            }
                 itemRepository.save(item);
             } else {
-                booking.setStatus(Status.REJECTED);
+                currentBooking.setStatus(Status.REJECTED);
             }
         } else {
             throw new ValidationException("Неверные данные");
         }
 
-        booking = bookingRepository.save(booking);
+        currentBooking = bookingRepository.save(currentBooking);
 
-        return bookingMapper.toBookingDto(booking);
+        return bookingMapper.toBookingDto(currentBooking);
     }
-
 
     @Override
     public BookingDto getBookingDtoById(Long userId, Long bookingId) {
