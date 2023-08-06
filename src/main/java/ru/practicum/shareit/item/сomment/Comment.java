@@ -28,6 +28,9 @@ public class Comment {
     @Column(name = "created")
     private LocalDateTime created;
 
+    @Column(name = "item_id")
+    private Long itemId;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -181,24 +181,26 @@ public class DBItemStorageImpl implements ItemStorage {
 
     @Override
     public CommentDto createComment(Long userId, Long itemId, Comment comment) throws ValidationException {
-        User user = userRepository.findById(userId).orElseThrow(() ->
+        userRepository.findById(userId).orElseThrow(() ->
                 new ObjectNotFoundException("Пользователь не найден"));
-        ItemDto item = getItemDtoById(userId, itemId);
+        itemRepository.findById(itemId).orElseThrow(() ->
+                new ObjectNotFoundException("Вещь не найдена"));
         Booking booking = bookingRepository.findById(userId).get();
 
         if (comment.getText() == null || comment.getText().isEmpty() || comment.getText().isBlank()){
             throw new ValidationException("Текст комментария не может быть пустым");
         }
 
-        if(booking.getBookerId().equals(userId) && booking.getItemId().equals(itemId)){
+        if (booking.getBookerId().equals(userId) && booking.getItemId().equals(itemId)){
             comment.setAuthorId(userId);
             comment.setCreated(LocalDateTime.now());
+            comment.setItemId(itemId);
         } else {
             log.info("Пользователь {} не может оставить комментарий, так как не бронировал вещь {}", userId, itemId);
             throw new ValidationException("Не возможно добавить комментарий");
         }
 
-        Comment comment1 = commentRepository.save(comment);
-        return commentMapper.toCommentDto(comment1);
+        comment = commentRepository.save(comment);
+        return commentMapper.toCommentDto(comment);
     }
 }

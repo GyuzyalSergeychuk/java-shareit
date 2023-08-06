@@ -37,6 +37,7 @@ public class Item {
     @Column(name = "next_booking_id")
     private Long nextBookingId;
 
+//    @OneToMany(mappedBy = "mItem", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @OneToMany
     @JoinColumn(name = "item_id", referencedColumnName = "id")
     private List<Comment> comments;
