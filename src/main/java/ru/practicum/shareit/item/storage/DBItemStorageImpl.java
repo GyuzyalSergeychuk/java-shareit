@@ -202,7 +202,11 @@ public class DBItemStorageImpl implements ItemStorage {
                 }
             }
             itemDto.setLastBooking(mapBookingForGetItemDto(nearestLastBooking.getId()));
-            itemDto.setNextBooking(mapBookingForGetItemDto(nearestNextBooking.getId()));
+            if (count == 1) {
+                itemDto.setNextBooking(mapBookingForGetItemDto(nearestNextBooking.getId()));
+            } else {
+                itemDto.setNextBooking(null);
+            }
         }
         return itemDto;
     }
