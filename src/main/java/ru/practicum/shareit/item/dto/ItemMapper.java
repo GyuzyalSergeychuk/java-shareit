@@ -22,9 +22,6 @@ public class ItemMapper {
                 .description(item.getDescription())
                 .available(item.getAvailable())
                 .ownerId(item.getOwnerId())
-//                .lastBooking(dbBookingStorage.getBookingDtoById(item.getOwnerId(), item.getLastBookingId()))
-//                .nextBooking(dbBookingStorage.getBookingDtoById(item.getOwnerId(), item.getNextBookingId()))
-//                .request(item.getRequest())
                 .build();
     }
 }

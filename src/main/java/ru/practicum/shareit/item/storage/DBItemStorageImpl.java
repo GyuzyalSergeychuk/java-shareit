@@ -74,9 +74,16 @@ public class DBItemStorageImpl implements ItemStorage {
     @Override
     public List<ItemDto> getAllItemsDto(Long userId) {
         userService.getUserById(userId);
-        List<Item> itemList = itemRepository.findByOwnerId(userId);
+        List<Item> itemList = itemRepository.findByOwnerIdOrderByNextBookingIdAsc(userId);
         return itemList.stream()
-                .map(itemMapper::toItemDto)
+                .map(e -> {
+                    ItemDto itemDto = itemMapper.toItemDto(e);
+                    if (e.getNextBookingId() != null) {
+                        itemDto.setLastBooking(mapBookingForGetItemDto(e.getLastBookingId()));
+                        itemDto.setNextBooking(mapBookingForGetItemDto(e.getNextBookingId()));
+                    }
+                    return itemDto;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -99,22 +106,10 @@ public class DBItemStorageImpl implements ItemStorage {
 
         if (itemDto.getOwnerId().equals(userId)) {
             if (item.getLastBookingId() != null) {
-                Booking lastBooking = bookingRepository.getById(item.getLastBookingId());
-                Booking nextBooking = bookingRepository.getById(item.getNextBookingId());
-                BookingForGetItemDto lastBookingDto = BookingForGetItemDto.builder()
-                        .id(lastBooking.getId())
-                        .bookerId(lastBooking.getBookerId())
-                        .build();
-                BookingForGetItemDto nextBookingDto = BookingForGetItemDto.builder()
-                        .id(nextBooking.getId())
-                        .bookerId(nextBooking.getBookerId())
-                        .build();
-
-                itemDto.setLastBooking(lastBookingDto);
-                itemDto.setNextBooking(nextBookingDto);
+                itemDto.setLastBooking(mapBookingForGetItemDto(item.getLastBookingId()));
+                itemDto.setNextBooking(mapBookingForGetItemDto(item.getNextBookingId()));
             }
         }
-
         return itemDto;
     }
 
@@ -164,5 +159,14 @@ public class DBItemStorageImpl implements ItemStorage {
             throw new ValidationException("Неверно указано описание товара");
         }
         return item;
+    }
+
+    // Маппим букинг в мелкий букинг для возврата внутри итема
+    private BookingForGetItemDto mapBookingForGetItemDto(Long bookingId) {
+        Booking booking = bookingRepository.getById(bookingId);
+        return BookingForGetItemDto.builder()
+                .id(booking.getId())
+                .bookerId(booking.getBookerId())
+                .build();
     }
 }

@@ -12,6 +12,7 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 
     Optional<Item> findById(Long id);
     List<Item> findByOwnerId(Long id);
+    List<Item> findByOwnerIdOrderByNextBookingIdAsc(Long id);
 
     @Query("SELECT i From Item i " +
             "WHERE i.id = :id and i.ownerId = :ownerId")
