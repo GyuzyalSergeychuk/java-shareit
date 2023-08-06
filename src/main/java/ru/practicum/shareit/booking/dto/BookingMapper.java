@@ -32,6 +32,7 @@ public class BookingMapper {
                 .item(convertItemToItemDto(booking.getItemId()))
                 .booker(convertBookingToBookingDto(booking.getBookerId()))
                 .status(booking.getStatus())
+                .itemOwner(booking.getItemOwnerId())
                 .build();
     }
 

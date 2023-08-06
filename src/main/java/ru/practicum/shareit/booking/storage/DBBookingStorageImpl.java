@@ -38,7 +38,7 @@ public class DBBookingStorageImpl implements BookingStorage {
         User user = dbUserStorage.getUserById(userId);
         Item item = itemRepository.findById(bookingReq.getItemId()).orElseThrow(() ->
                 new ObjectNotFoundException("Пользователь не найден"));
-
+        bookingReq.setItemOwnerId(item.getOwnerId());
 
         //TODO предположение: если вещь была недоступна, но срок бронирования истек, надо снять недоступность с вещи?
 //        if (!item.getAvailable()) {
@@ -163,13 +163,16 @@ public class DBBookingStorageImpl implements BookingStorage {
     public List<BookingDto> getAllBookingsByUser(Long userId, String state) throws ValidationException {
         dbUserStorage.getUserById(userId);
         List<Booking> bookingList = new ArrayList<>();
+        LocalDateTime now = LocalDateTime.now();
 
         if (state == null || state.equals("ALL")) {
             bookingList = bookingRepository.findByBookerIdOrderByStartDesc(userId);
-        } else if (state.equals(Status.CURRENT.name()) ||
-                state.equals(Status.WAITING.name()) ||
+        } else if (state.equals(Status.WAITING.name()) ||
                 state.equals(Status.REJECTED.name())) {
             bookingList = bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, Status.valueOf(state));
+        } else if (state.equals(Status.CURRENT.name())) {
+            bookingList = bookingRepository.findByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(
+                    userId, now, now);
         } else if (state.equals(Status.FUTURE.name())) {
             List<Booking> bookings = bookingRepository.findByBookerIdOrderByStartDesc(userId);
             for (Booking booking : bookings) {
@@ -199,19 +202,25 @@ public class DBBookingStorageImpl implements BookingStorage {
     public List<BookingDto> getAllBookingsByItems(Long userId, String state) throws ValidationException {
         dbUserStorage.getUserById(userId);
         List<Item> items = dbItemStorage.getAllItems(userId);
+//        items = items.stream().filter(e -> e.getLastBookingId() != null).collect(Collectors.toList());
         List<Booking> bookingList = new ArrayList<>();
+        LocalDateTime now = LocalDateTime.now();
 
         for (Item item : items) {
             if (state == null || state.equals("ALL")) {
                 List<Booking> booking = bookingRepository.findByItemIdOrderByStartDesc(item.getId());
                 bookingList.addAll(booking);
-            } else if (state.equals(Status.CURRENT.name()) ||
-                    state.equals(Status.WAITING.name()) ||
+            } else if (state.equals(Status.WAITING.name()) ||
                     state.equals(Status.REJECTED.name())) {
-                List<Booking> booking = bookingRepository.findByItemIdAndStatusOrderByStartDesc(
+                List<Booking> bookings = bookingRepository.findByItemIdAndStatusOrderByStartDesc(
                         item.getId(),
                         Status.valueOf(state));
-                bookingList.addAll(booking);
+                bookingList.addAll(bookings);
+            } else if (state.equals(Status.CURRENT.name())) {
+                if (item.getLastBookingId() != null) {
+                    List<Booking> bookings = bookingRepository.findByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(userId, now, now);
+                    bookingList.addAll(bookings);
+                }
             } else if (state.equals(Status.FUTURE.name())) {
                 List<Booking> bookings = bookingRepository.findByItemIdOrderByStartDesc(item.getId());
                 for (Booking booking : bookings) {
@@ -228,7 +237,7 @@ public class DBBookingStorageImpl implements BookingStorage {
                         bookingList.add(booking);
                     }
                 }
-            }else {
+            } else {
                 throw new ValidationException(String.format("Unknown state: %s", state));
             }
         }

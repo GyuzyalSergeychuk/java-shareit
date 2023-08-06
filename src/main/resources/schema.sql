@@ -39,7 +39,8 @@ CREATE TABLE IF NOT EXISTS booking (
     end_date TIMESTAMP WITH TIME ZONE,
     item_id BIGINT REFERENCES item (id),
     booker_id BIGINT REFERENCES users (id),
-    status VARCHAR(350) DEFAULT false NOT NULL
+    status VARCHAR(350) DEFAULT false NOT NULL,
+    item_owner_id BIGINT REFERENCES users (id)
 );
 
 CREATE TABLE IF NOT EXISTS comments (

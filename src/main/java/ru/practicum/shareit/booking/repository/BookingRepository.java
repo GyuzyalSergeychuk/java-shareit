@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.Status;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {
@@ -27,4 +28,10 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             "WHERE b.itemId = :itemId AND b.status = :status ORDER BY b.start DESC")
     List<Booking> findByItemIdAndStatusOrderByStartDesc(@Param("itemId") Long itemId,
                                                         @Param("status") final Status status);
+
+    List<Booking> findByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(Long bookerId, LocalDateTime before, LocalDateTime after);
+
+    List<Booking> findByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(Long userId, LocalDateTime before, LocalDateTime after);
+
+
 }

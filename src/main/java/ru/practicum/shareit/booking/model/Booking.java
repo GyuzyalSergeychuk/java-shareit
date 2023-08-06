@@ -34,6 +34,9 @@ public class Booking {
     @Column(name = "status")
     private Status status;
 
+    @Column(name = "item_owner_id")
+    private Long itemOwnerId;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
