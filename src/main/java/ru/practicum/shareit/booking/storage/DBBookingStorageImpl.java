@@ -166,7 +166,7 @@ public class DBBookingStorageImpl implements BookingStorage {
         } else if (state.equals(Status.CURRENT.name()) ||
                 state.equals(Status.WAITING.name()) ||
                 state.equals(Status.REJECTED.name())) {
-            bookingList = bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, state);
+            bookingList = bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, Status.valueOf(state));
         } else if (state.equals(Status.FUTURE.name())) {
             List<Booking> bookings = bookingRepository.findByBookerIdOrderByStartDesc(userId);
             for (Booking booking : bookings) {
@@ -207,7 +207,7 @@ public class DBBookingStorageImpl implements BookingStorage {
                     state.equals(Status.REJECTED.name())) {
                 List<Booking> booking = bookingRepository.findByItemIdAndStatusOrderByStartDesc(
                         item.getId(),
-                        state);
+                        Status.valueOf(state));
                 bookingList.addAll(booking);
             } else if (state.equals(Status.FUTURE.name())) {
                 List<Booking> bookings = bookingRepository.findByItemIdOrderByStartDesc(item.getId());
