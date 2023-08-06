@@ -138,7 +138,7 @@ public class DBItemStorageImpl implements ItemStorage {
         userRepository.findById(userId).orElseThrow(() ->
                 new ObjectNotFoundException("Пользователь не найден"));
         itemRepository.findById(itemId).orElseThrow(() ->
-                new ObjectNotFoundException("Вещь отсутствует"));
+                new ObjectNotFoundException("Вещь не найдена"));
         Booking booking = bookingRepository.findById(userId).get();
 
         if (comment.getText() == null || comment.getText().isEmpty() || comment.getText().isBlank()) {
