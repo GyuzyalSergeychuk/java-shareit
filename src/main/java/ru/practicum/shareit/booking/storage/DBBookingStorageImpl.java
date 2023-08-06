@@ -114,6 +114,8 @@ public class DBBookingStorageImpl implements BookingStorage {
                 if (item.getLastBookingId() == null) {
                     item.setLastBookingId(currentBooking.getId());
                     item.setNextBookingId(currentBooking.getId());
+                    //TODO вот в этом блоке надо фиксить логику, если не проходят тесты на items/{itemId}
+                    //а конкретно когда проблемы с полями lastBooking.id , lastBooking.bookerId и прочими
                 } else {
                     if (currentBooking.getEnd().isBefore(nextBooking.getStart())) {
                         item.setNextBookingId(currentBooking.getId());
