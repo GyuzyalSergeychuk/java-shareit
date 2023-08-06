@@ -1,7 +1,7 @@
 package ru.practicum.shareit.item.model;
 
 import lombok.*;
-import ru.practicum.shareit.item.сomment.Comment;
+import ru.practicum.shareit.item.comment.Comment;
 
 import javax.persistence.*;
 import java.util.List;
