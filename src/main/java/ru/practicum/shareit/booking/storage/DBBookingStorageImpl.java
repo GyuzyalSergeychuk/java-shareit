@@ -38,7 +38,6 @@ public class DBBookingStorageImpl implements BookingStorage {
         Item item = itemRepository.findById(bookingReq.getItemId()).orElseThrow(() ->
                 new ObjectNotFoundException("Пользователь не найден"));
         bookingReq.setItemOwnerId(item.getOwnerId());
-
         if (!item.getAvailable()) {
             throw new ValidationException("Вещь недоступна для бронирования");
         }
@@ -52,20 +51,17 @@ public class DBBookingStorageImpl implements BookingStorage {
         } else if (item.getOwnerId().equals(userId)) {
             throw new ObjectNotFoundException("Владелец вещи пытается сделать бронирование своей вещи");
         }
-
         //Запрашиваем все бронирования целевой вещи, фильтруем по статусу АПРУВ, и сверяем время с текущим бронированием.
         //В случае пересечения выбрасываем исключение
         List<Booking> allBookingsOfTargetItem = bookingRepository.findByItemIdOrderByStartDesc(item.getId());
         if (allBookingsOfTargetItem.stream()
-                .filter(b -> Status.APPROVED.equals(b.getStatus()))
-                .anyMatch(b -> b.getStart().isBefore(bookingReq.getEnd()) && b.getEnd().isAfter(bookingReq.getStart()))) {
+                .filter((Booking b) -> Status.APPROVED.equals(b.getStatus()))
+                .anyMatch((Booking b) -> b.getStart().isBefore(bookingReq.getEnd()) && b.getEnd().isAfter(bookingReq.getStart()))) {
             throw new ObjectNotFoundException("Предмет нельзя забронировать. Он уже используется кем-то!");
         }
-
         bookingReq.setStatus(Status.WAITING);
         bookingReq.setBookerId(user.getId());
         Booking booking = bookingRepository.save(bookingReq);
-
         return bookingMapper.toBookingDto(booking);
     }
 
@@ -79,21 +75,22 @@ public class DBBookingStorageImpl implements BookingStorage {
         if (item.getNextBookingId() != null) {
             nextBooking = bookingRepository.findById(item.getNextBookingId()).get();
         }
-
         dbUserStorage.getUserById(userId);
-
         if (item.getOwnerId().equals(userId) && currentBooking.getStatus().equals(Status.APPROVED)) {
             throw new ValidationException("Бронирование уже было подтверждено ранее");
         }
-
         if (!item.getOwnerId().equals(userId)) {
             throw new ObjectNotFoundException("Подтверждение бронирования может делать только владелец вещи");
         }
-
         if (!currentBooking.getStatus().equals(Status.WAITING)) {
             throw new ObjectNotFoundException("Ответ по бронированию уже дан");
         }
+        currentBooking = setApprove(currentBooking, nextBooking, approved, item);
+        currentBooking = bookingRepository.save(currentBooking);
+        return bookingMapper.toBookingDto(currentBooking);
+    }
 
+    private Booking setApprove(Booking currentBooking, Booking nextBooking, Boolean approved, Item item) throws ValidationException {
         if (approved != null) {
             if (approved) {
                 currentBooking.setStatus(Status.APPROVED);
@@ -120,9 +117,7 @@ public class DBBookingStorageImpl implements BookingStorage {
         } else {
             throw new ValidationException("Неверные данные");
         }
-
-        currentBooking = bookingRepository.save(currentBooking);
-        return bookingMapper.toBookingDto(currentBooking);
+        return currentBooking;
     }
 
     @Override
@@ -146,10 +141,17 @@ public class DBBookingStorageImpl implements BookingStorage {
     @Override
     public List<BookingDto> getAllBookingsByUser(Long userId, String state) throws ValidationException {
         dbUserStorage.getUserById(userId);
+        List<Booking> bookingList = getAllBooking(userId, state);
+        return bookingList.stream()
+                .map(bookingMapper::toBookingDto)
+                .collect(Collectors.toList());
+    }
+
+    private List<Booking> getAllBooking(Long userId, String state) throws ValidationException {
         List<Booking> bookingList = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
 
-        if (state == null || state.equals("ALL")) {
+        if (state == null || "ALL".equals(state)) {
             bookingList = bookingRepository.findByBookerIdOrderByStartDesc(userId);
         } else if (state.equals(Status.WAITING.name()) ||
                 state.equals(Status.REJECTED.name())) {
@@ -171,20 +173,25 @@ public class DBBookingStorageImpl implements BookingStorage {
             throw new ValidationException(String.format("Unknown state: %s", state));
         }
 
-        return bookingList.stream()
-                .map(bookingMapper::toBookingDto)
-                .collect(Collectors.toList());
+        return bookingList;
     }
 
     @Override
     public List<BookingDto> getAllBookingsByItems(Long userId, String state) throws ValidationException {
         dbUserStorage.getUserById(userId);
         List<Item> items = dbItemStorage.getAllItems(userId);
+        List<Booking> bookingList = getListItems(userId, items, state);
+        return bookingList.stream()
+                .map(bookingMapper::toBookingDto)
+                .collect(Collectors.toList());
+    }
+
+    private List<Booking> getListItems(Long userId, List<Item> items, String state) throws ValidationException {
         List<Booking> bookingList = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
 
         for (Item item : items) {
-            if (state == null || state.equals("ALL")) {
+            if (state == null || "ALL".equals(state)) {
                 List<Booking> booking = bookingRepository.findByItemIdOrderByStartDesc(item.getId());
                 bookingList.addAll(booking);
             } else if (state.equals(Status.WAITING.name()) ||
@@ -216,9 +223,6 @@ public class DBBookingStorageImpl implements BookingStorage {
                 throw new ValidationException(String.format("Unknown state: %s", state));
             }
         }
-
-        return bookingList.stream()
-                .map(bookingMapper::toBookingDto)
-                .collect(Collectors.toList());
+        return bookingList;
     }
 }

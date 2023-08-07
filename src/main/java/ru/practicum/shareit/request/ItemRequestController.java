@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  * TODO Sprint add-item-requests.
+ * Работа с ItemRequestController начнется только с 15ТЗ  в 14ТЗ по нему нет техзадания
  */
 @RestController
 @RequestMapping(path = "/requests")

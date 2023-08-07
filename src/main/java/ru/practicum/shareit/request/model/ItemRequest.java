@@ -5,6 +5,11 @@ import lombok.*;
 import javax.persistence.*;
 import java.time.Instant;
 
+/**
+ * TODO Sprint add-item-requests.
+ * Работа с ItemRequestController начнется только с 15ТЗ
+ */
+
 @Entity
 @Table(name = "requests")
 @Setter

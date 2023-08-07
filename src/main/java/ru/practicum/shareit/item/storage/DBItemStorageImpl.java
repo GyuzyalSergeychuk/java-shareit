@@ -84,7 +84,7 @@ public class DBItemStorageImpl implements ItemStorage {
         userService.getUserById(userId);
         List<Item> itemList = itemRepository.findByOwnerIdOrderByNextBookingIdDesc(userId);
         return itemList.stream()
-                .map(e -> {
+                .map((Item e) -> {
                     ItemDto itemDto = itemMapper.toItemDto(e);
                     setBookingsIntoItemDto(itemDto);
                     return itemDto;
@@ -162,7 +162,7 @@ public class DBItemStorageImpl implements ItemStorage {
     private ItemDto setBookingsIntoItemDto(ItemDto itemDto) {
         List<Booking> allBookingsForCurrentItem = bookingRepository.findByItemIdOrderByStartDesc(itemDto.getId());
         List<Booking> sortingBooking = allBookingsForCurrentItem.stream()
-                .filter(e -> e.getStatus().equals(Status.APPROVED))
+                .filter((Booking e) -> e.getStatus().equals(Status.APPROVED))
                 .sorted(Comparator.comparing(Booking::getStart))
                 .collect(Collectors.toList());
         if (sortingBooking.isEmpty()) {
