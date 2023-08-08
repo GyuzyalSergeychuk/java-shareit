@@ -2,19 +2,20 @@ package ru.practicum.shareit.item.dto;
 
 import lombok.Builder;
 import lombok.Data;
+import ru.practicum.shareit.booking.dto.BookingForGetItemDto;
+import ru.practicum.shareit.item.comment.CommentDto;
 
-/**
- * TODO Sprint add-controllers.
- */
+import java.util.List;
 
 @Data
 @Builder
 public class ItemDto {
     private Long id;
-    private Long userId;
     private String name;
     private String description;
     private Boolean available;
-    private String owner;
-    private String request;
+    private Long ownerId;
+    private BookingForGetItemDto lastBooking;
+    private BookingForGetItemDto nextBooking;
+    private List<CommentDto> comments;
 }

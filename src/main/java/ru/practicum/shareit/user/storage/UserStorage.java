@@ -15,7 +15,9 @@ public interface UserStorage {
 
     List<UserDto> getFindAllUsers();
 
-    UserDto getUserId(Long id);
+    UserDto getUserDtoById(Long id);
+
+    User getUserById(Long id);
 
     boolean deleteUser(Long id);
 }
