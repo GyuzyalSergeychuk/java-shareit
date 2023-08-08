@@ -48,7 +48,9 @@ public class DBBookingStorageImpl implements BookingStorage {
                 bookingReq.getEnd().isBefore(LocalDateTime.now()) ||
                 bookingReq.getStart().isBefore(LocalDateTime.now())) {
             throw new ValidationException("Неверно указана дата бронирования");
-        } else if (item.getOwnerId().equals(userId)) {
+        }
+
+        if (item.getOwnerId().equals(userId)) {
             throw new ObjectNotFoundException("Владелец вещи пытается сделать бронирование своей вещи");
         }
         //Запрашиваем все бронирования целевой вещи, фильтруем по статусу АПРУВ, и сверяем время с текущим бронированием.
@@ -102,7 +104,7 @@ public class DBBookingStorageImpl implements BookingStorage {
                 } else {
                     if (currentBooking.getEnd().isBefore(nextBooking.getStart())) {
                         item.setNextBookingId(currentBooking.getId());
-                    } else if (currentBooking.getStart().isAfter(nextBooking.getEnd())) {
+                    } else {
                         if (nextBooking.getEnd().isBefore(LocalDateTime.now())) {
                             item.setLastBookingId(nextBooking.getId());
                             item.setNextBookingId(currentBooking.getId());
@@ -135,7 +137,7 @@ public class DBBookingStorageImpl implements BookingStorage {
             return bookingMapper.toBookingDto(booking);
         } else {
             throw new ObjectNotFoundException(String.format("Пользователя создавшего бронирование или владельца вещи под данным %d не существует",
-                            userId));
+                    userId));
         }
     }
 
