@@ -86,6 +86,7 @@ public class DBBookingStorageImpl implements BookingStorage {
             throw new ObjectNotFoundException("Ответ по бронированию уже дан");
         }
         currentBooking = setApprove(currentBooking, nextBooking, approved, item);
+
         currentBooking = bookingRepository.save(currentBooking);
         return bookingMapper.toBookingDto(currentBooking);
     }
