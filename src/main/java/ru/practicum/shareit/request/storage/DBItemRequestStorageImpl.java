@@ -1,11 +1,16 @@
 package ru.practicum.shareit.request.storage;
 
+import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exceptions.ObjectNotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
+import ru.practicum.shareit.pagination.Pagination;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestMapper;
 import ru.practicum.shareit.request.model.ItemRequest;
@@ -19,11 +24,12 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class DBItemRequestStorageImpl implements ItemRequestStorage{
+public class DBItemRequestStorageImpl<T> implements ItemRequestStorage{
 
     private final ItemRequestRepository itemRequestRepository;
     private final ItemRequestMapper itemRequestMapper;
     private final UserRepository userRepository;
+    private final Pagination<ItemRequest> pagination;
 
     @Override
     public ItemRequestDto createRequest(Long userId, ItemRequest itemRequest) throws ValidationException {
@@ -60,16 +66,29 @@ public class DBItemRequestStorageImpl implements ItemRequestStorage{
     public List<ItemRequestDto> getAllRequests(Long userId, Integer from, Integer size) throws ValidationException {
         checkUser(userId);
 
-        if(from < 0 ){
-            throw new ValidationException("Индекс первого элемента не может быть меньше нуля");
-        }
+        List<ItemRequest> requests = itemRequestRepository.findAll().stream()
+                .sorted(Comparator.comparing(ItemRequest::getCreated))
+                .collect(Collectors.toList());
+        List<ItemRequest> page = pagination.makePagination(from, size, requests);
 
-//        Pagination pagination = new Pagination(from, size);
-//        Page<ItemRequestDto> itemRequests = itemRequestRepository.findAllByCreated(PageRequest.of(from, size));
-//        List<ItemRequestDto> itemRequests = itemRequestRepository.findAllByCreated();
-//        return itemRequests.getContent();
-//        return itemRequests;
-        return null;
+        return page.stream()
+                .map(itemRequestMapper::toItemRequestDto)
+                .collect(Collectors.toList());
+
+    }
+
+    @Override
+    public ItemRequestDto getRequests(Long userId, Long requestId) throws ValidationException {
+        checkUser(userId);
+
+        if (requestId < 0) {
+            throw new ValidationException("Значение requestId не может быть меньше нуля");
+        }
+        ItemRequest requests = itemRequestRepository.findById(requestId).
+                orElseThrow(() ->new ObjectNotFoundException("Пользователь не найден"));
+
+        return itemRequestMapper.toItemRequestDto(requests);
+
     }
 
     private User checkUser(Long userId) {

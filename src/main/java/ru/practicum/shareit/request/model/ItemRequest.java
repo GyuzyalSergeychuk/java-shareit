@@ -7,6 +7,7 @@ import javax.persistence.*;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.DoubleStream;
 
 @Entity
 @Table(name = "requests")
@@ -32,4 +33,5 @@ public class ItemRequest {
     @OneToMany
     @JoinColumn(name = "request_id", referencedColumnName = "id")
     private List<Item> items;
+
 }

@@ -9,6 +9,9 @@ import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.services.ItemRequestService;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+
 @RestController
 @RequestMapping(path = "/requests")
 @Slf4j
@@ -31,12 +34,19 @@ public class ItemRequestController {
         return itemRequestService.getAllRequestsByUser(userId);
     }
 
-//    @GetMapping("{all}")
-//    public List<ItemRequestDto> getAllRequests(
-//            @RequestHeader("X-Sharer-User-Id") Long userId,
-//            @RequestParam(name = "from", defaultValue = "0") Integer from,
-//            @RequestParam(name = "size", defaultValue = "20") Integer size)
-//            throws ValidationException {
-//        return itemRequestService.getAllRequests(userId, from, size);
-//    }
+    @GetMapping("all")
+    public List<ItemRequestDto> getAllRequests(
+            @RequestHeader("X-Sharer-User-Id") Long userId,
+            @RequestParam(name = "from", defaultValue = "0") @Min(0) Integer from,
+            @RequestParam(name = "size", defaultValue = "20") @Min(1) @Max(100) Integer size)
+            throws ValidationException {
+        return itemRequestService.getAllRequests(userId, from, size);
+    }
+
+    @GetMapping("{requestId}")
+    public ItemRequestDto getRequests(
+            @RequestHeader("X-Sharer-User-Id") Long userId,
+            @PathVariable("requestId") Long requestId) throws ValidationException {
+        return itemRequestService.getRequests(userId, requestId);
+    }
 }

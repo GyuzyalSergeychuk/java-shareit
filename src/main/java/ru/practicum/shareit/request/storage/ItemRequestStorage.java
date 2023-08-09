@@ -14,4 +14,6 @@ public interface ItemRequestStorage {
 
     List<ItemRequestDto> getAllRequests(Long userId, Integer from, Integer size) throws ValidationException;
 
+    ItemRequestDto getRequests(Long userId, Long requestId) throws ValidationException;
+
 }
