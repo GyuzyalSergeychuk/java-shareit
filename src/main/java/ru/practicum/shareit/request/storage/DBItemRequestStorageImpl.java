@@ -67,7 +67,7 @@ public class DBItemRequestStorageImpl<T> implements ItemRequestStorage{
     public List<ItemRequestDto> getAllRequests(Long userId, Integer from, Integer size) throws ValidationException {
         checkUser(userId);
 
-        if (from < 0 || size < 0 || size == 0 && from == 0){
+        if (from < 0 || size < 0 || size == 0) {
             throw new ValidationException("Индекс первого элемента и размер листа не может быть меньше нуля");
         }
 //        List<ItemRequest> requests = itemRequestRepository.findAll().stream()
@@ -75,10 +75,11 @@ public class DBItemRequestStorageImpl<T> implements ItemRequestStorage{
 //                .collect(Collectors.toList());
 //        List<ItemRequest> page = pagination.makePagination(from, size, requests);
 
-        Page<ItemRequest> request =itemRequestRepository.findAll(
+        Page<ItemRequest> request = itemRequestRepository.findAll(
                 PageRequest.of(from, size, Sort.by("created").descending()));
 
         return request.stream()
+                .filter(e -> !e.getUserId().equals(userId))
                 .map(itemRequestMapper::toItemRequestDto)
                 .collect(Collectors.toList());
 

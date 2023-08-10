@@ -43,7 +43,7 @@ public class DBUserStorageImpl implements UserStorage {
                 new ObjectNotFoundException("Пользователь не найден"));
 
         if (user.getEmail() != null && userRepository.findByEmailNotSelf(user.getEmail(), userBase.getId()) != null) {
-                throw new ObjectNotFoundException(String.format("Такой  email s% уже существует", user.getEmail()));
+            throw new ObjectNotFoundException(String.format("Такой  email s% уже существует", user.getEmail()));
         }
 
         if (user.getEmail() == null) {

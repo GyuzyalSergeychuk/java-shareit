@@ -4,10 +4,9 @@ import lombok.*;
 import ru.practicum.shareit.item.model.Item;
 
 import javax.persistence.*;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.DoubleStream;
+import java.util.Objects;
 
 @Entity
 @Table(name = "requests")
@@ -34,4 +33,20 @@ public class ItemRequest {
     @JoinColumn(name = "request_id", referencedColumnName = "id")
     private List<Item> items;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ItemRequest that = (ItemRequest) o;
+        return Objects.equals(id, that.id) &&
+                Objects.equals(description, that.description) &&
+                Objects.equals(created, that.created) &&
+                Objects.equals(userId, that.userId) &&
+                Objects.equals(items, that.items);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, description, created, userId, items);
+    }
 }

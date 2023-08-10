@@ -10,7 +10,7 @@ import java.util.List;
 public class Pagination<T> {
 
     public List<T> makePagination(Integer from, Integer size, List<T> list) throws ValidationException {
-        if (from < 0 || size < 0 || size == 0 && from == 0){
+        if (from < 0 || size < 0 || size == 0) {
             throw new ValidationException("Индекс первого элемента и размер листа не может быть меньше нуля");
         }
 
@@ -21,6 +21,9 @@ public class Pagination<T> {
             return List.of();
         }
         List<T> listT = new ArrayList<>();
+        if ((from + size) - list.size() < size) {
+            size = size - ((from + size) - list.size());
+        }
         for (int i = from; i < (from + size); i++) {
             listT.add(list.get(i));
         }
