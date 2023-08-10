@@ -29,11 +29,11 @@ public class BookingServices {
         return bookingStorage.getBookingDtoById(userId, bookingId);
     }
 
-    public List<BookingDto> getAllBookingsByUser(Long userId, String state) throws ValidationException {
-        return bookingStorage.getAllBookingsByUser(userId, state);
+    public List<BookingDto> getAllBookingsByUser(Long userId, String state, Integer from, Integer size) throws ValidationException {
+        return bookingStorage.getAllBookingsByUser(userId, state, from, size);
     }
 
-    public List<BookingDto> getAllBookingsByItems(Long userId, String state) throws ValidationException {
-        return bookingStorage.getAllBookingsByItems(userId, state);
+    public List<BookingDto> getAllBookingsByItems(Long userId, String state, Integer from, Integer size) throws ValidationException {
+        return bookingStorage.getAllBookingsByItems(userId, state, from, size);
     }
 }

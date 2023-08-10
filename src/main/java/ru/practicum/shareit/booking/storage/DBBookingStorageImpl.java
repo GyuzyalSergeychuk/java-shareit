@@ -13,6 +13,7 @@ import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.storage.DBItemStorageImpl;
+import ru.practicum.shareit.pagination.Pagination;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.DBUserStorageImpl;
 
@@ -24,13 +25,14 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class DBBookingStorageImpl implements BookingStorage {
+public class DBBookingStorageImpl<T> implements BookingStorage {
 
     private final BookingMapper bookingMapper;
     private final DBUserStorageImpl dbUserStorage;
     private final DBItemStorageImpl dbItemStorage;
     private final BookingRepository bookingRepository;
     private final ItemRepository itemRepository;
+    private final Pagination<Booking> pagination;
 
     @Override
     public BookingDto create(Long userId, Booking bookingReq) throws ValidationException {
@@ -142,10 +144,18 @@ public class DBBookingStorageImpl implements BookingStorage {
     }
 
     @Override
-    public List<BookingDto> getAllBookingsByUser(Long userId, String state) throws ValidationException {
+    public List<BookingDto> getAllBookingsByUser(Long userId, String state, Integer from, Integer size) throws ValidationException {
         dbUserStorage.getUserById(userId);
         List<Booking> bookingList = getAllBooking(userId, state);
-        return bookingList.stream()
+        List<Booking> list;
+        if (from == null && size == null) {
+            list = pagination.makePagination(0, 20, bookingList);
+        } else if (from != null && size != null || size != 0) {
+            list = pagination.makePagination(from, size, bookingList);
+        } else {
+            throw new ValidationException("from and size не могут быть нулями");
+        }
+        return list.stream()
                 .map(bookingMapper::toBookingDto)
                 .collect(Collectors.toList());
     }
@@ -180,11 +190,19 @@ public class DBBookingStorageImpl implements BookingStorage {
     }
 
     @Override
-    public List<BookingDto> getAllBookingsByItems(Long userId, String state) throws ValidationException {
+    public List<BookingDto> getAllBookingsByItems(Long userId, String state, Integer from, Integer size) throws ValidationException {
         dbUserStorage.getUserById(userId);
         List<Item> items = dbItemStorage.getAllItems(userId);
         List<Booking> bookingList = getListItems(userId, items, state);
-        return bookingList.stream()
+        List<Booking> list;
+        if (from == null && size == null) {
+            list = pagination.makePagination(0, 20, bookingList);
+        } else if (from != null && size != null || size != 0) {
+            list = pagination.makePagination(from, size, bookingList);
+        } else {
+            throw new ValidationException("from and size не могут быть нулями");
+        }
+        return list.stream()
                 .map(bookingMapper::toBookingDto)
                 .collect(Collectors.toList());
     }

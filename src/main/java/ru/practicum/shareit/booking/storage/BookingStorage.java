@@ -14,7 +14,7 @@ public interface BookingStorage {
 
     BookingDto getBookingDtoById(Long userId, Long bookingId) throws ValidationException;
 
-    List<BookingDto> getAllBookingsByUser(Long userId, String state) throws ValidationException;
+    List<BookingDto> getAllBookingsByUser(Long userId, String state, Integer from, Integer size) throws ValidationException;
 
-    List<BookingDto> getAllBookingsByItems(Long userId, String state) throws ValidationException;
+    List<BookingDto> getAllBookingsByItems(Long userId, String state, Integer from, Integer size) throws ValidationException;
 }

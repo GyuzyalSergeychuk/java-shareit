@@ -8,6 +8,8 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.services.BookingServices;
 import ru.practicum.shareit.exceptions.ValidationException;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.util.List;
 
 @RestController
@@ -42,15 +44,21 @@ public class BookingController {
 
     @GetMapping
     public List<BookingDto> getAllBookingsByUser(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                 @RequestParam(required = false) String state) throws ValidationException {
+                                                 @RequestParam(required = false) String state,
+                                                 @RequestParam(name = "from", required = false) Integer from,
+                                                 @RequestParam(name = "size", required = false) Integer size)
+            throws ValidationException {
         log.info("Получен запрос на список бронирования текущего пользователя {}", userId);
-        return bookingServices.getAllBookingsByUser(userId, state);
+        return bookingServices.getAllBookingsByUser(userId, state, from, size);
     }
 
     @GetMapping("owner")
     public List<BookingDto> getAllBookingsByItems(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                  @RequestParam(required = false) String state) throws ValidationException {
+                                                  @RequestParam(required = false) String state,
+                                                  @RequestParam(name = "from", required = false) Integer from,
+                                                  @RequestParam(name = "size", required = false) Integer size)
+            throws ValidationException {
         log.info("Получен запрос на список бронирования текущего пользователя {}", userId);
-        return bookingServices.getAllBookingsByItems(userId, state);
+        return bookingServices.getAllBookingsByItems(userId, state, from, size);
     }
 }

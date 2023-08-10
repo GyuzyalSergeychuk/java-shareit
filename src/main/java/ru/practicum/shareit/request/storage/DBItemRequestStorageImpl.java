@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exceptions.ObjectNotFoundException;
@@ -66,12 +67,18 @@ public class DBItemRequestStorageImpl<T> implements ItemRequestStorage{
     public List<ItemRequestDto> getAllRequests(Long userId, Integer from, Integer size) throws ValidationException {
         checkUser(userId);
 
-        List<ItemRequest> requests = itemRequestRepository.findAll().stream()
-                .sorted(Comparator.comparing(ItemRequest::getCreated))
-                .collect(Collectors.toList());
-        List<ItemRequest> page = pagination.makePagination(from, size, requests);
+        if (from < 0 || size < 0 || size == 0 && from == 0){
+            throw new ValidationException("Индекс первого элемента и размер листа не может быть меньше нуля");
+        }
+//        List<ItemRequest> requests = itemRequestRepository.findAll().stream()
+//                .sorted(Comparator.comparing(ItemRequest::getCreated))
+//                .collect(Collectors.toList());
+//        List<ItemRequest> page = pagination.makePagination(from, size, requests);
 
-        return page.stream()
+        Page<ItemRequest> request =itemRequestRepository.findAll(
+                PageRequest.of(from, size, Sort.by("created").descending()));
+
+        return request.stream()
                 .map(itemRequestMapper::toItemRequestDto)
                 .collect(Collectors.toList());
 
