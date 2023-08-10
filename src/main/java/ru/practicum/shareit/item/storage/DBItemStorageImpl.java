@@ -19,6 +19,7 @@ import ru.practicum.shareit.item.comment.Comment;
 import ru.practicum.shareit.item.comment.CommentDto;
 import ru.practicum.shareit.item.comment.CommentMapper;
 import ru.practicum.shareit.item.comment.CommentRepository;
+import ru.practicum.shareit.pagination.Pagination;
 import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.storage.DBUserStorageImpl;
 
@@ -40,6 +41,7 @@ public class DBItemStorageImpl implements ItemStorage {
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
     private final CommentMapper commentMapper;
+    private final Pagination<Item> pagination;
 
     @Override
     public ItemDto create(Long userId, Item item) throws ValidationException, ObjectNotFoundException {
@@ -80,10 +82,18 @@ public class DBItemStorageImpl implements ItemStorage {
     }
 
     @Override
-    public List<ItemDto> getAllItemsDto(Long userId) {
+    public List<ItemDto> getAllItemsDto(Long userId, Integer from, Integer size) throws ValidationException {
         userService.getUserById(userId);
         List<Item> itemList = itemRepository.findByOwnerIdOrderByNextBookingIdDesc(userId);
-        return itemList.stream()
+        List<Item> list;
+        if (from == null && size == null) {
+            list = pagination.makePagination(0, 20, itemList);
+        } else if (from != null && size != null || size != 0) {
+            list = pagination.makePagination(from, size, itemList);
+        } else {
+            throw new ValidationException("from and size не могут быть нулями");
+        }
+        return list.stream()
                 .map((Item e) -> {
                     ItemDto itemDto = itemMapper.toItemDto(e);
                     setBookingsIntoItemDto(itemDto);
@@ -116,7 +126,7 @@ public class DBItemStorageImpl implements ItemStorage {
     }
 
     @Override
-    public List<ItemDto> searchItem(String text) {
+    public List<ItemDto> searchItem(String text, Integer from, Integer size) throws ValidationException {
         if (text == null) {
             throw new ObjectNotFoundException("Запрос на поиск товара не может быть пустым");
         }
@@ -128,7 +138,15 @@ public class DBItemStorageImpl implements ItemStorage {
         String text1 = StringUtils.capitalize(refactorText);
 
         List<Item> items = itemRepository.findByNameOrDescriptionContainingIgnoreCaseAndAvailableTrue(text1, text1);
-        return items.stream()
+        List<Item> list;
+        if (from == null && size == null) {
+            list = pagination.makePagination(0, 20, items);
+        } else if (from != null && size != null || size != 0) {
+            list = pagination.makePagination(from, size, items);
+        } else {
+            throw new ValidationException("from and size не могут быть нулями");
+        }
+        return list.stream()
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
     }

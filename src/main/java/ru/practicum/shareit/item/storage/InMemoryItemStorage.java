@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class InMemoryItemStorage implements ItemStorage {
+public class InMemoryItemStorage<T> implements ItemStorage {
 
     private static Long nextId = 0L;
     private final ItemMapper itemMapper;
@@ -71,7 +71,7 @@ public class InMemoryItemStorage implements ItemStorage {
     }
 
     @Override
-    public List<ItemDto> getAllItemsDto(Long userId) {
+    public List<ItemDto> getAllItemsDto(Long userId, Integer from, Integer size) {
         UserDto userDto = inMemoryUserStorage.getUserDtoById(userId);
         return items.stream()
                 .filter((Item e) -> e.getOwnerId().equals(userDto.getId()))
@@ -99,7 +99,7 @@ public class InMemoryItemStorage implements ItemStorage {
     }
 
     @Override
-    public List<ItemDto> searchItem(String text) {
+    public List<ItemDto> searchItem(String text, Integer from, Integer size) {
         List<ItemDto> findItems = new ArrayList<>();
         if (text == null || text.isEmpty() || text.isBlank()) {
             return findItems;
