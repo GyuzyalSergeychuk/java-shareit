@@ -37,36 +37,52 @@ public class DataFactory {
                 .build();
     }
 
-    public static Item getItem(Long id, String name, String description, Boolean available, Long ownerId, Long requestId,
-                               Long lastBookingId, Long nextBookingId, List<Comment> comments) {
+    public static Item getItem(Long id, String name, String description, Boolean available, Long ownerId) {
+        //Long requestId, Long lastBookingId, Long nextBookingId, List<Comment> comments) {
         Item item = new Item();
         item.setId(id);
         item.setName(name);
         item.setDescription(description);
         item.setAvailable(available);
         item.setOwnerId(ownerId);
-        item.setRequestId(requestId);
-        item.setLastBookingId(lastBookingId);
-        item.setNextBookingId(nextBookingId);
-        item.setComments(comments);
+//        item.setRequestId(requestId);
+//        item.setLastBookingId(lastBookingId);
+//        item.setNextBookingId(nextBookingId);
+//        item.setComments(comments);
         return item;
     }
 
-    public static ItemDto getItemDto(Long id, String name, String description, Boolean available, Long ownerId,
-                                     BookingForGetItemDto lastBookingId, BookingForGetItemDto nextBookingId,
-                                     List<CommentDto> comments, Long requestId) {
+    public static ItemDto getItemDto(Long id, String name, String description, Boolean available, Long ownerId) {
+//                                     BookingForGetItemDto lastBookingId, BookingForGetItemDto nextBookingId,
+//                                     List<CommentDto> comments, Long requestId) {
         return ItemDto.builder()
                 .id(id)
                 .name(name)
                 .description(description)
                 .available(available)
                 .ownerId(ownerId)
-                .lastBooking(lastBookingId)
-                .nextBooking(nextBookingId)
-                .comments(comments)
-                .requestId(requestId)
+//                .lastBooking(lastBookingId)
+//                .nextBooking(nextBookingId)
+//                .comments(comments)
+//                .requestId(requestId)
                 .build();
     }
+
+//    public static ItemDto getItemDtoBooking(Long id, String name, String description, Boolean available, Long ownerId,
+//                                     Long lastBookingId, Long nextBookingId) {
+////                                     List<CommentDto> comments, Long requestId) {
+//        return ItemDto.builder()
+//                .id(id)
+//                .name(name)
+//                .description(description)
+//                .available(available)
+//                .ownerId(ownerId)
+//                .lastBooking(lastBookingId)
+//                .nextBooking(nextBookingId)
+////                .comments(comments)
+////                .requestId(requestId)
+//                .build();
+//    }
 
     public static Booking getBooking(Long id, LocalDateTime start, LocalDateTime end, Long itemId, Long bookerId,
                                      Status status, Long itemOwnerId) {

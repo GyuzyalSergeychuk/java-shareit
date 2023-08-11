@@ -56,7 +56,7 @@ public class DBItemStorageImpl implements ItemStorage {
     @Override
     public ItemDto update(Long userId, Long itemId, Item itemReq) {
         if (itemId <= 0) {
-            throw new ObjectNotFoundException("вещь не найдена");
+            throw new ObjectNotFoundException("Вещь не найдена");
         }
         userService.getUserById(userId);
 
@@ -88,10 +88,10 @@ public class DBItemStorageImpl implements ItemStorage {
         List<Item> list;
         if (from == null && size == null) {
             list = pagination.makePagination(0, 20, itemList);
-        } else if (from != null && size != null || size != 0) {
+        } else if (from > -1 && size > 0) {
             list = pagination.makePagination(from, size, itemList);
         } else {
-            throw new ValidationException("from and size не могут быть нулями");
+            throw new ValidationException("from and size не могут быть меньше нулями");
         }
         return list.stream()
                 .map((Item e) -> {
@@ -130,7 +130,6 @@ public class DBItemStorageImpl implements ItemStorage {
         if (text == null) {
             throw new ObjectNotFoundException("Запрос на поиск товара не может быть пустым");
         }
-
         if (text.isEmpty() || text.isBlank()) {
             return List.of();
         }
@@ -139,13 +138,15 @@ public class DBItemStorageImpl implements ItemStorage {
 
         List<Item> items = itemRepository.findByNameOrDescriptionContainingIgnoreCaseAndAvailableTrue(text1, text1);
         List<Item> list;
+
         if (from == null && size == null) {
             list = pagination.makePagination(0, 20, items);
-        } else if (from != null && size != null || size != 0) {
+        } else if (from > -1 && size > 0) {
             list = pagination.makePagination(from, size, items);
         } else {
             throw new ValidationException("from and size не могут быть нулями");
         }
+
         return list.stream()
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());

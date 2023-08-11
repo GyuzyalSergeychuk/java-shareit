@@ -149,7 +149,6 @@ class DBUserStorageImplTest {
     @Test
     void getUserDtoById0Test() {
         var id = 0L;
-        var user = getUser(1L, "user", "user@user.com");
 
         assertThrows(ObjectNotFoundException.class,
                 () ->  dbUserStorage.getUserDtoById(id),
