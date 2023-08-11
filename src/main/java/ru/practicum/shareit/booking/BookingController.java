@@ -8,8 +8,6 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.services.BookingServices;
 import ru.practicum.shareit.exceptions.ValidationException;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import java.util.List;
 
 @RestController

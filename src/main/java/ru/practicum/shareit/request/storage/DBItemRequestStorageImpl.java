@@ -70,10 +70,6 @@ public class DBItemRequestStorageImpl<T> implements ItemRequestStorage{
         if (from < 0 || size < 0 || size == 0) {
             throw new ValidationException("Индекс первого элемента и размер листа не может быть меньше нуля");
         }
-//        List<ItemRequest> requests = itemRequestRepository.findAll().stream()
-//                .sorted(Comparator.comparing(ItemRequest::getCreated))
-//                .collect(Collectors.toList());
-//        List<ItemRequest> page = pagination.makePagination(from, size, requests);
 
         Page<ItemRequest> request = itemRequestRepository.findAll(
                 PageRequest.of(from, size, Sort.by("created").descending()));

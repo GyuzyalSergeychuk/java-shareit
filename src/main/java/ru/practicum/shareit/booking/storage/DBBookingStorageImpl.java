@@ -38,7 +38,7 @@ public class DBBookingStorageImpl<T> implements BookingStorage {
     public BookingDto create(Long userId, Booking bookingReq) throws ValidationException {
         User user = dbUserStorage.getUserById(userId);
         Item item = itemRepository.findById(bookingReq.getItemId()).orElseThrow(() ->
-                new ObjectNotFoundException("Пользователь не найден"));
+                new ObjectNotFoundException("Вещь не найдена"));
         bookingReq.setItemOwnerId(item.getOwnerId());
         if (!item.getAvailable()) {
             throw new ValidationException("Вещь недоступна для бронирования");
@@ -74,7 +74,7 @@ public class DBBookingStorageImpl<T> implements BookingStorage {
         Booking currentBooking = bookingRepository.findById(bookingId).orElseThrow(() ->
                 new ObjectNotFoundException("Запрос на бронирование не найден"));
         Item item = itemRepository.findById(currentBooking.getItemId()).orElseThrow(() ->
-                new ObjectNotFoundException("Пользователь не найден"));
+                new ObjectNotFoundException("Вещь не найден"));
         Booking nextBooking = null;
         if (item.getNextBookingId() != null) {
             nextBooking = bookingRepository.findById(item.getNextBookingId()).get();
@@ -130,7 +130,7 @@ public class DBBookingStorageImpl<T> implements BookingStorage {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() ->
                 new ObjectNotFoundException("Запрос на бронирование не найден"));
         Item item = itemRepository.findById(booking.getItemId()).orElseThrow(() ->
-                new ObjectNotFoundException("Пользователь не найден"));
+                new ObjectNotFoundException("Вещь не найден"));
         dbUserStorage.getUserById(userId);
 
         if (item.getOwnerId().equals(userId)) {

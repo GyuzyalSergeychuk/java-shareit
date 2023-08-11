@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.exceptions.ConflictException;
 import ru.practicum.shareit.exceptions.ObjectNotFoundException;
@@ -42,7 +41,7 @@ class DBUserStorageImplTest {
 
         var actualResponse = dbUserStorage.create(user);
 
-        assertEquals(userDto , actualResponse);
+        assertEquals(userDto, actualResponse);
     }
 
     @Test
@@ -58,7 +57,27 @@ class DBUserStorageImplTest {
 
         var actualResponse = dbUserStorage.update(id, user);
 
-        assertEquals(userDto , actualResponse);
+        assertEquals(userDto, actualResponse);
+    }
+
+    @Test
+    void createNameNullTest() throws ValidationException, ConflictException {
+        var id = 1L;
+        var user = getUser(1L, " ", "user@user.com");
+
+        assertThrows(ValidationException.class,
+                ()->dbUserStorage.create(user),
+                "Имя пользователя не может быть пустым");
+    }
+
+    @Test
+    void createEmailNullTest() throws ValidationException, ConflictException {
+        var id = 1L;
+        var user = getUser(1L, "user ", " ");
+
+        assertThrows(ValidationException.class,
+                ()->dbUserStorage.create(user),
+                "Неверно введен email");
     }
 
     @Test
@@ -67,12 +86,12 @@ class DBUserStorageImplTest {
         var user = getUser(1L, "user", "user@user.com");
 
         assertThrows(ObjectNotFoundException.class,
-                () ->  dbUserStorage.update(id, user),
+                () -> dbUserStorage.update(id, user),
                 "Пользователь не найден");
     }
 
     @Test
-    void updateEmailAndUserIdTest(){
+    void updateEmailAndUserIdTest() {
         var id = 1L;
         var user = getUser(1L, "user", "user@user.com");
 
@@ -80,7 +99,7 @@ class DBUserStorageImplTest {
         when(userRepository.findByEmailNotSelf(user.getEmail(), user.getId())).thenReturn(user);
 
         assertThrows(ConflictException.class,
-                () ->  dbUserStorage.update(id, user));
+                () -> dbUserStorage.update(id, user));
     }
 
     @Test
@@ -151,7 +170,7 @@ class DBUserStorageImplTest {
         var id = 0L;
 
         assertThrows(ObjectNotFoundException.class,
-                () ->  dbUserStorage.getUserDtoById(id),
+                () -> dbUserStorage.getUserDtoById(id),
                 "Пользователь не найден");
     }
 
@@ -173,7 +192,7 @@ class DBUserStorageImplTest {
         var user = getUser(1L, "user", "user@user.com");
 
         assertThrows(ObjectNotFoundException.class,
-                () ->  dbUserStorage.getUserById(id),
+                () -> dbUserStorage.getUserById(id),
                 "Пользователь не найден");
     }
 
@@ -197,8 +216,7 @@ class DBUserStorageImplTest {
         var user = getUser(1L, "user", "user@user.com");
 
         assertThrows(ObjectNotFoundException.class,
-                () ->  dbUserStorage.deleteUser(id),
+                () -> dbUserStorage.deleteUser(id),
                 "Пользователь не найден");
     }
-
 }

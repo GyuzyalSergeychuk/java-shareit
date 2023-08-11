@@ -2,7 +2,6 @@ package ru.practicum.shareit.item.storage;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import ru.practicum.shareit.booking.dto.BookingForGetItemDto;
@@ -31,7 +30,6 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@Primary
 public class DBItemStorageImpl implements ItemStorage {
 
     private final ItemRepository itemRepository;
@@ -125,6 +123,41 @@ public class DBItemStorageImpl implements ItemStorage {
         return itemDto;
     }
 
+    private ItemDto setBookingsIntoItemDto(ItemDto itemDto) {
+        List<Booking> allBookingsForCurrentItem = bookingRepository.findByItemIdOrderByStartDesc(itemDto.getId());
+        List<Booking> sortingBooking = allBookingsForCurrentItem.stream()
+                .filter((Booking e) -> e.getStatus().equals(Status.APPROVED))
+                .sorted(Comparator.comparing(Booking::getStart))
+                .collect(Collectors.toList());
+        if (sortingBooking.isEmpty()) {
+            return itemDto;
+        } else {
+            LocalDateTime now = LocalDateTime.now();
+            Booking nearestLastBooking = sortingBooking.get(0);
+            Booking nearestNextBooking = sortingBooking.get(0);
+            int count = 0;
+            for (Booking booking : sortingBooking) {
+                if (booking.getEnd().isBefore(now) && booking.getEnd().isAfter(nearestLastBooking.getEnd())) {
+                    nearestLastBooking = booking;
+                }
+                if (booking.getStart().isAfter(now) && count == 0) {
+                    nearestNextBooking = booking;
+                    count += 1;
+                }
+                if (booking.getStart().isAfter(now) && booking.getStart().isBefore(nearestNextBooking.getStart())) {
+                    nearestNextBooking = booking;
+                }
+            }
+            itemDto.setLastBooking(mapBookingForGetItemDto(nearestLastBooking.getId()));
+            if (count == 1) {
+                itemDto.setNextBooking(mapBookingForGetItemDto(nearestNextBooking.getId()));
+            } else {
+                itemDto.setNextBooking(null);
+            }
+        }
+        return itemDto;
+    }
+
     @Override
     public List<ItemDto> searchItem(String text, Integer from, Integer size) throws ValidationException {
         if (text == null) {
@@ -175,42 +208,6 @@ public class DBItemStorageImpl implements ItemStorage {
 
         comment = commentRepository.save(comment);
         return commentMapper.toCommentDto(comment);
-    }
-
-
-    private ItemDto setBookingsIntoItemDto(ItemDto itemDto) {
-        List<Booking> allBookingsForCurrentItem = bookingRepository.findByItemIdOrderByStartDesc(itemDto.getId());
-        List<Booking> sortingBooking = allBookingsForCurrentItem.stream()
-                .filter((Booking e) -> e.getStatus().equals(Status.APPROVED))
-                .sorted(Comparator.comparing(Booking::getStart))
-                .collect(Collectors.toList());
-        if (sortingBooking.isEmpty()) {
-            return itemDto;
-        } else {
-            LocalDateTime now = LocalDateTime.now();
-            Booking nearestLastBooking = sortingBooking.get(0);
-            Booking nearestNextBooking = sortingBooking.get(0);
-            int count = 0;
-            for (Booking booking : sortingBooking) {
-                if (booking.getEnd().isBefore(now) && booking.getEnd().isAfter(nearestLastBooking.getEnd())) {
-                    nearestLastBooking = booking;
-                }
-                if (booking.getStart().isAfter(now) && count == 0) {
-                    nearestNextBooking = booking;
-                    count += 1;
-                }
-                if (booking.getStart().isAfter(now) && booking.getStart().isBefore(nearestNextBooking.getStart())) {
-                    nearestNextBooking = booking;
-                }
-            }
-            itemDto.setLastBooking(mapBookingForGetItemDto(nearestLastBooking.getId()));
-            if (count == 1) {
-                itemDto.setNextBooking(mapBookingForGetItemDto(nearestNextBooking.getId()));
-            } else {
-                itemDto.setNextBooking(null);
-            }
-        }
-        return itemDto;
     }
 
     // Маппим букинг в мелкий букинг для возврата внутри итема

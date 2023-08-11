@@ -2,7 +2,6 @@ package ru.practicum.shareit.user.storage;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exceptions.ConflictException;
 import ru.practicum.shareit.exceptions.ObjectNotFoundException;
@@ -18,7 +17,6 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@Primary
 public class DBUserStorageImpl implements UserStorage {
 
     private final UserRepository userRepository;
