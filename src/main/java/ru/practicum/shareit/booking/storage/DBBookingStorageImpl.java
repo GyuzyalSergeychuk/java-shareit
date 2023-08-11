@@ -150,7 +150,7 @@ public class DBBookingStorageImpl<T> implements BookingStorage {
         List<Booking> list;
         if (from == null && size == null) {
             list = pagination.makePagination(0, 20, bookingList);
-        } else if (from != null && size != null || size != 0) {
+        } else if (from >= 0 && size > 0) {
             list = pagination.makePagination(from, size, bookingList);
         } else {
             throw new ValidationException("from and size не могут быть нулями");
@@ -185,7 +185,6 @@ public class DBBookingStorageImpl<T> implements BookingStorage {
         } else {
             throw new ValidationException(String.format("Unknown state: %s", state));
         }
-
         return bookingList;
     }
 
@@ -197,7 +196,7 @@ public class DBBookingStorageImpl<T> implements BookingStorage {
         List<Booking> list;
         if (from == null && size == null) {
             list = pagination.makePagination(0, 20, bookingList);
-        } else if (from != null && size != null || size != 0) {
+        } else if (from >= 0 && size > 0) {
             list = pagination.makePagination(from, size, bookingList);
         } else {
             throw new ValidationException("from and size не могут быть нулями");
@@ -210,7 +209,6 @@ public class DBBookingStorageImpl<T> implements BookingStorage {
     private List<Booking> getListItems(Long userId, List<Item> items, String state) throws ValidationException {
         List<Booking> bookingList = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
-
         for (Item item : items) {
             if (state == null || "ALL".equals(state)) {
                 List<Booking> booking = bookingRepository.findByItemIdOrderByStartDesc(item.getId());

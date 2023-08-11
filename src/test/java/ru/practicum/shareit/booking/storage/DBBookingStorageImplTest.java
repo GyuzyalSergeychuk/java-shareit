@@ -197,43 +197,158 @@ class DBBookingStorageImplTest {
         assertEquals(bookingDto, actualResponse);
     }
 
-//    @Test
-//    void approvedEndTest() throws ValidationException {
-//        var userId = 1L;
-//        var itemId = 1L;
-//        var bookingId = 1L;
-//        var user = getUser(1L, "user", "user@user.com");
-//        var userDto = getUserDto(2L, "user", "user@user.com");
-//        var item = getItemBooking(1L, "Дрель", "Простая дрель", true,
-//                1L, 1L, 1L, 1L, null) ;
-//        var itemDto = getItemDto(1L, "Дрель", "Простая дрель", false, 1L);
-//        var currentStart = LocalDateTime.now().plusHours(1);
-//        var currentEnd = LocalDateTime.now().plusHours(2);
-//        var nextStart = LocalDateTime.now().plusHours(7);
-//        var nextEnd = LocalDateTime.now().plusHours(12);
-//        var currentBooking = getBooking(1L, currentStart, currentEnd, itemId, 2L, Status.WAITING, 4L);
-//        var nextBooking = getBooking(1L, nextStart, nextEnd, itemId, 2L, Status.WAITING, 4L);
-//        var currentBookingDto = getBookingDto(1L, currentStart, currentEnd, itemDto, userDto, Status.WAITING, 4L);
-//
-//        when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(currentBooking));
-//        when(itemRepository.findById(currentBooking.getItemId())).thenReturn(Optional.of(item));
-//        when(bookingRepository.findById(item.getNextBookingId())).thenReturn(Optional.of(nextBooking));
-//        when(dbUserStorage.getUserById(userId)).thenReturn(user);
-//        when(itemRepository.save(item)).thenReturn(item);
-//        when(bookingRepository.save(currentBooking)).thenReturn(currentBooking);
-//        when(bookingMapper.toBookingDto(currentBooking)).thenReturn(currentBookingDto);
-//
-//        var actualResponse = dbBookingStorage.approved(userId, bookingId, true);
-//
-//        assertEquals(currentBookingDto, actualResponse);
-//    }
+    @Test
+    void approvedTestCurrentBookingBeforeNextBook() throws ValidationException {
+        var userId = 1L;
+        var itemId = 1L;
+        var bookingId = 1l;
+        var user = getUser(1L, "user", "user@user.com");
+        var userDto = getUserDto(2L, "user", "user@user.com");
+        var item = getItem(1L, "Дрель", "Простая дрель", true, 1L);
+        item.setLastBookingId(1L);
+        item.setNextBookingId(1L);
+        var itemDto = getItemDto(1L, "Дрель", "Простая дрель", true, 1L);
+        var start = LocalDateTime.now().plusMinutes(10);
+        var end = LocalDateTime.now().plusHours(10);
+        var booking = getBooking(1L, start, end, itemId, 2L, Status.WAITING, 4L);
+        var bookingDto = getBookingDto(1L, start, end, itemDto, userDto, Status.WAITING, 4L);
 
+        when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+        when(itemRepository.findById(booking.getItemId())).thenReturn(Optional.of(item));
+//        when(bookingRepository.findById(booking.getItemId())).thenReturn(Optional.of(booking));
+        when(dbUserStorage.getUserById(userId)).thenReturn(null);
+        when(itemRepository.save(item)).thenReturn(item);
+        when(bookingRepository.save(booking)).thenReturn(booking);
+        when(bookingMapper.toBookingDto(booking)).thenReturn(bookingDto);
+
+        var actualResponse = dbBookingStorage.approved(userId, bookingId, true);
+
+        assertEquals(bookingDto, actualResponse);
+    }
+
+    @Test
+    void approvedTestCurrentBookingBeforeNextBook1() throws ValidationException {
+        var userId = 1L;
+        var itemId = 1L;
+        var bookingId = 1L;
+        var user = getUser(1L, "user", "user@user.com");
+        var userDto = getUserDto(2L, "user", "user@user.com");
+        var item = getItem(1L, "Дрель", "Простая дрель", true, 1L);
+        item.setLastBookingId(1L);
+        item.setNextBookingId(2L);
+        var itemDto = getItemDto(1L, "Дрель", "Простая дрель", true, 1L);
+        var startCurrentBook = LocalDateTime.now().plusMinutes(10);
+        var startNextBook = LocalDateTime.now().plusMinutes(40);
+        var endCurrentBook = LocalDateTime.now().plusMinutes(10);
+        var endNextBook = LocalDateTime.now().plusMinutes(40);
+        var curBooking = getBooking(1L, startCurrentBook, endCurrentBook, itemId, 2L, Status.WAITING, 4L);
+        var nextBooking = getBooking(1L, startNextBook, endNextBook, itemId, 2L, Status.WAITING, 4L);
+
+        var bookingDto = getBookingDto(1L, startCurrentBook, endCurrentBook, itemDto, userDto, Status.WAITING, 4L);
+
+        when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(curBooking));
+        when(itemRepository.findById(curBooking.getItemId())).thenReturn(Optional.of(item));
+        when(bookingRepository.findById(item.getNextBookingId())).thenReturn(Optional.of(nextBooking));
+        when(dbUserStorage.getUserById(userId)).thenReturn(null);
+        when(itemRepository.save(item)).thenReturn(item);
+        when(bookingRepository.save(curBooking)).thenReturn(curBooking);
+        when(bookingMapper.toBookingDto(curBooking)).thenReturn(bookingDto);
+
+        var actualResponse = dbBookingStorage.approved(userId, bookingId, true);
+
+        assertEquals(bookingDto, actualResponse);
+    }
+
+    @Test
+    void approvedTestCurrentBookingBeforeNextBookBeforeNow() throws ValidationException {
+        var userId = 1L;
+        var itemId = 1L;
+        var bookingId = 1l;
+        var user = getUser(1L, "user", "user@user.com");
+        var userDto = getUserDto(2L, "user", "user@user.com");
+        var item = getItem(1L, "Дрель", "Простая дрель", true, 1L);
+        item.setLastBookingId(1L);
+        item.setNextBookingId(1L);
+        var itemDto = getItemDto(1L, "Дрель", "Простая дрель", true, 1L);
+        var start = LocalDateTime.now().minusMinutes(10);
+        var end = LocalDateTime.now().minusMinutes(8);
+        var booking = getBooking(1L, start, end, itemId, 2L, Status.WAITING, 4L);
+        var bookingDto = getBookingDto(1L, start, end, itemDto, userDto, Status.WAITING, 4L);
+
+        when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+        when(itemRepository.findById(booking.getItemId())).thenReturn(Optional.of(item));
+//        when(bookingRepository.findById(booking.getItemId())).thenReturn(Optional.of(booking));
+        when(dbUserStorage.getUserById(userId)).thenReturn(null);
+        when(itemRepository.save(item)).thenReturn(item);
+        when(bookingRepository.save(booking)).thenReturn(booking);
+        when(bookingMapper.toBookingDto(booking)).thenReturn(bookingDto);
+
+        var actualResponse = dbBookingStorage.approved(userId, bookingId, true);
+
+        assertEquals(bookingDto, actualResponse);
+    }
+
+    @Test
+    void approvedTestCurrentBookingAprrovetFalse() throws ValidationException {
+        var userId = 1L;
+        var itemId = 1L;
+        var bookingId = 1l;
+        var user = getUser(1L, "user", "user@user.com");
+        var userDto = getUserDto(2L, "user", "user@user.com");
+        var item = getItem(1L, "Дрель", "Простая дрель", true, 1L);
+        item.setLastBookingId(1L);
+        item.setNextBookingId(1L);
+        var itemDto = getItemDto(1L, "Дрель", "Простая дрель", true, 1L);
+        var start = LocalDateTime.now().minusMinutes(10);
+        var end = LocalDateTime.now().minusMinutes(8);
+        var booking = getBooking(1L, start, end, itemId, 2L, Status.WAITING, 4L);
+        var bookingDto = getBookingDto(1L, start, end, itemDto, userDto, Status.WAITING, 4L);
+
+        when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+        when(itemRepository.findById(booking.getItemId())).thenReturn(Optional.of(item));
+//        when(bookingRepository.findById(booking.getItemId())).thenReturn(Optional.of(booking));
+        when(dbUserStorage.getUserById(userId)).thenReturn(null);
+//        when(itemRepository.save(item)).thenReturn(item);
+        when(bookingRepository.save(booking)).thenReturn(booking);
+        when(bookingMapper.toBookingDto(booking)).thenReturn(bookingDto);
+
+        var actualResponse = dbBookingStorage.approved(userId, bookingId, false);
+
+        assertEquals(bookingDto, actualResponse);
+    }
+
+    @Test
+    void approvedTestCurrentBookingAprrovetNull() throws ValidationException {
+        var userId = 1L;
+        var itemId = 1L;
+        var bookingId = 1L;
+        var user = getUser(1L, "user", "user@user.com");
+        var userDto = getUserDto(2L, "user", "user@user.com");
+        var item = getItem(1L, "Дрель", "Простая дрель", true, 1L);
+        item.setLastBookingId(1L);
+        item.setNextBookingId(1L);
+        var itemDto = getItemDto(1L, "Дрель", "Простая дрель", true, 1L);
+        var start = LocalDateTime.now().minusMinutes(10);
+        var end = LocalDateTime.now().minusMinutes(8);
+        var booking = getBooking(1L, start, end, itemId, 2L, Status.WAITING, 4L);
+        var bookingDto = getBookingDto(1L, start, end, itemDto, userDto, Status.WAITING, 4L);
+
+        when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+        when(itemRepository.findById(booking.getItemId())).thenReturn(Optional.of(item));
+//        when(bookingRepository.findById(booking.getItemId())).thenReturn(Optional.of(booking));
+        when(dbUserStorage.getUserById(userId)).thenReturn(null);
+//        when(itemRepository.save(item)).thenReturn(item);
+//        when(bookingRepository.save(booking)).thenReturn(booking);
+//        when(bookingMapper.toBookingDto(booking)).thenReturn(bookingDto);
+
+        assertThrows(ValidationException.class, () -> dbBookingStorage.approved(userId, bookingId, null));
+    }
 
     @Test
     void approvedItemId99Test() {
         var userId = 1L;
         var itemId = 99L;
-        var bookingId = 1l;
+        var bookingId = 1L;
         var start = LocalDateTime.now().plusMinutes(10);
         var end = LocalDateTime.now().plusHours(10);
         var booking = getBooking(1L, start, end, itemId, 2L, Status.WAITING, 4L);
@@ -250,7 +365,7 @@ class DBBookingStorageImplTest {
     void approvedBookingId99Test() {
         var userId = 1L;
         var itemId = 1L;
-        var bookingId = 99l;
+        var bookingId = 99L;
         var start = LocalDateTime.now().plusMinutes(10);
         var end = LocalDateTime.now().plusHours(10);
         var booking = getBooking(1L, start, end, itemId, 2L, Status.WAITING, 4L);
@@ -266,7 +381,7 @@ class DBBookingStorageImplTest {
     void approvedApprovedTest() {
         var userId = 1L;
         var itemId = 1L;
-        var bookingId = 1l;
+        var bookingId = 1L;
         var item = getItem(1L, "Дрель", "Простая дрель", true, 1L);
         var start = LocalDateTime.now().plusMinutes(10);
         var end = LocalDateTime.now().plusHours(10);
@@ -282,10 +397,10 @@ class DBBookingStorageImplTest {
     }
 
     @Test
-    void approvedOwyerTest() {
+    void approvedOwnerTest() {
         var userId = 1L;
         var itemId = 1L;
-        var bookingId = 1l;
+        var bookingId = 1L;
         var item = getItem(1L, "Дрель", "Простая дрель", true, 4L);
         var start = LocalDateTime.now().plusMinutes(10);
         var end = LocalDateTime.now().plusHours(10);
@@ -305,7 +420,7 @@ class DBBookingStorageImplTest {
     void approvedWaitingTest() {
         var userId = 1L;
         var itemId = 1L;
-        var bookingId = 1l;
+        var bookingId = 1L;
         var item = getItem(1L, "Дрель", "Простая дрель", true, 1L);;
         var start = LocalDateTime.now().plusMinutes(10);
         var end = LocalDateTime.now().plusHours(10);
@@ -393,13 +508,12 @@ class DBBookingStorageImplTest {
     @Test
     void getBookingDtoBookingId99Test() {
         var userId = 1L;
-        var itemId = 1L;
-        var bookingId = 99l;
+        var bookingId = 99L;
 
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.empty());
 
         assertThrows(ObjectNotFoundException.class,
-                ()-> dbBookingStorage.approved(userId, bookingId, true),
+                ()-> dbBookingStorage.getBookingDtoById(userId, bookingId),
                 "Запрос на бронирование не найден");
     }
 
@@ -407,7 +521,7 @@ class DBBookingStorageImplTest {
     void getBookingDtoItemId99Test() {
         var userId = 1L;
         var itemId = 99L;
-        var bookingId = 1l;
+        var bookingId = 1L;
         var start = LocalDateTime.now().plusMinutes(10);
         var end = LocalDateTime.now().plusHours(10);
         var booking = getBooking(1L, start, end, itemId, 2L, Status.WAITING, 4L);
@@ -416,15 +530,412 @@ class DBBookingStorageImplTest {
         when(itemRepository.findById(booking.getItemId())).thenReturn(Optional.empty());
 
         assertThrows(ObjectNotFoundException.class,
-                ()-> dbBookingStorage.approved(userId, bookingId, true),
+                ()-> dbBookingStorage.getBookingDtoById(userId, bookingId),
                 "Вещь не найден");
     }
 
     @Test
-    void getAllBookingsByUser() {
+    void getAllBookingsByUser() throws ValidationException {
+        var userId = 1L;
+        var state = "ALL";
+        var from = 1;
+        var size = 1;
+        var start = LocalDateTime.now().plusMinutes(10);
+        var end = LocalDateTime.now().plusHours(10);
+        var booking = getBooking(1L, start, end, 1L, 2L, Status.WAITING, 4L);
+        var bookings = List.of(booking);
+        var userDto = getUserDto(2L, "user", "user@user.com");
+        var itemDto = getItemDto(1L, "Дрель", "Простая дрель", true, 1L);
+        var bookingDto = getBookingDto(1L, start, end, itemDto, userDto, Status.APPROVED, 1L);
+        var expectedResponse = List.of(bookingDto);
+
+        when(bookingRepository.findByBookerIdOrderByStartDesc(userId)).thenReturn(bookings);
+        when(pagination.makePagination(from, size, bookings)).thenReturn(bookings);
+        when(bookingMapper.toBookingDto(booking)).thenReturn(bookingDto);
+
+        var actualResponse = dbBookingStorage.getAllBookingsByUser(userId, state, from, size);
+
+        assertEquals(expectedResponse, actualResponse);
     }
 
     @Test
-    void getAllBookingsByItemsTest() {
+    void getAllBookingsByUserFromAndSizeIsNull() throws ValidationException {
+        var userId = 1L;
+        var state = "ALL";
+        Integer from = null;
+        Integer size = null;
+        var start = LocalDateTime.now().plusMinutes(10);
+        var end = LocalDateTime.now().plusHours(10);
+        var booking = getBooking(1L, start, end, 1L, 2L, Status.WAITING, 4L);
+        var bookings = List.of(booking);
+        var userDto = getUserDto(2L, "user", "user@user.com");
+        var itemDto = getItemDto(1L, "Дрель", "Простая дрель", true, 1L);
+        var bookingDto = getBookingDto(1L, start, end, itemDto, userDto, Status.APPROVED, 1L);
+        var expectedResponse = List.of(bookingDto);
+
+        when(bookingRepository.findByBookerIdOrderByStartDesc(userId)).thenReturn(bookings);
+        when(pagination.makePagination(from, size, bookings)).thenReturn(bookings);
+        when(bookingMapper.toBookingDto(booking)).thenReturn(bookingDto);
+
+        var actualResponse = dbBookingStorage.getAllBookingsByUser(userId, state, from, size);
+
+        assertEquals(expectedResponse, actualResponse);
     }
+
+    @Test
+    void getAllBookingsByUserFromIsMinus() throws ValidationException {
+        var userId = 1L;
+        var state = "ALL";
+        Integer from = -1;
+        Integer size = 1;
+        var start = LocalDateTime.now().plusMinutes(10);
+        var end = LocalDateTime.now().plusHours(10);
+        var booking = getBooking(1L, start, end, 1L, 2L, Status.WAITING, 4L);
+        var bookings = List.of(booking);
+        var userDto = getUserDto(2L, "user", "user@user.com");
+        var itemDto = getItemDto(1L, "Дрель", "Простая дрель", true, 1L);
+        var bookingDto = getBookingDto(1L, start, end, itemDto, userDto, Status.APPROVED, 1L);
+        var expectedResponse = List.of(bookingDto);
+
+        when(bookingRepository.findByBookerIdOrderByStartDesc(userId)).thenReturn(bookings);
+
+        assertThrows(ValidationException.class, () -> dbBookingStorage.getAllBookingsByUser(userId, state, from, size));
+
+    }
+
+    @Test
+    void getAllBookingsByUserSattusWainting() throws ValidationException {
+        var userId = 1L;
+        var state = "WAITING";
+        Integer from = 1;
+        Integer size = 1;
+        var start = LocalDateTime.now().plusMinutes(10);
+        var end = LocalDateTime.now().plusHours(10);
+        var booking = getBooking(1L, start, end, 1L, 2L, Status.WAITING, 4L);
+        var bookings = List.of(booking);
+        var userDto = getUserDto(2L, "user", "user@user.com");
+        var itemDto = getItemDto(1L, "Дрель", "Простая дрель", true, 1L);
+        var bookingDto = getBookingDto(1L, start, end, itemDto, userDto, Status.WAITING, 1L);
+        var expectedResponse = List.of(bookingDto);
+
+        when(bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, Status.valueOf(state))).thenReturn(bookings);
+        when(pagination.makePagination(from, size, bookings)).thenReturn(bookings);
+        when(bookingMapper.toBookingDto(booking)).thenReturn(bookingDto);
+
+        var actualResponse = dbBookingStorage.getAllBookingsByUser(userId, state, from, size);
+
+        assertEquals(expectedResponse, actualResponse);
+    }
+
+    @Test
+    void getAllBookingsByUserStatusRejected() throws ValidationException {
+        var userId = 1L;
+        var state = "REJECTED";
+        Integer from = 1;
+        Integer size = 1;
+        var start = LocalDateTime.now().plusMinutes(10);
+        var end = LocalDateTime.now().plusHours(10);
+        var booking = getBooking(1L, start, end, 1L, 2L, Status.WAITING, 4L);
+        var bookings = List.of(booking);
+        var userDto = getUserDto(2L, "user", "user@user.com");
+        var itemDto = getItemDto(1L, "Дрель", "Простая дрель", true, 1L);
+        var bookingDto = getBookingDto(1L, start, end, itemDto, userDto, Status.WAITING, 1L);
+        var expectedResponse = List.of(bookingDto);
+
+        when(bookingRepository.findByBookerIdAndStatusOrderByStartDesc(userId, Status.valueOf(state))).thenReturn(bookings);
+        when(pagination.makePagination(from, size, bookings)).thenReturn(bookings);
+        when(bookingMapper.toBookingDto(booking)).thenReturn(bookingDto);
+
+        var actualResponse = dbBookingStorage.getAllBookingsByUser(userId, state, from, size);
+
+        assertEquals(expectedResponse, actualResponse);
+    }
+
+//    @Test
+//    void getAllBookingsByUserStatusCurrent() throws ValidationException {
+//        var userId = 1L;
+//        var state = "CURRENT";
+//        Integer from = 1;
+//        Integer size = 1;
+//        var start = LocalDateTime.now().plusMinutes(10);
+//        var end = LocalDateTime.now().plusHours(10);
+//        var booking = getBooking(1L, start, end, 1L, 2L, Status.WAITING, 4L);
+//        var bookings = List.of(booking);
+//        var userDto = getUserDto(2L, "user", "user@user.com");
+//        var itemDto = getItemDto(1L, "Дрель", "Простая дрель", true, 1L);
+//        var bookingDto = getBookingDto(1L, start, end, itemDto, userDto, Status.WAITING, 1L);
+//        var expectedResponse = List.of(bookingDto);
+//        var now = LocalDateTime.now();
+//
+//        when(bookingRepository.findByBookerIdAndStartBeforeAndEndAfterOrderByStartDesc(userId, eq(now), eq(now))).thenReturn(bookings);
+//        when(pagination.makePagination(from, size, bookings)).thenReturn(bookings);
+//        when(bookingMapper.toBookingDto(booking)).thenReturn(bookingDto);
+//
+//        var actualResponse = dbBookingStorage.getAllBookingsByUser(userId, state, from, size);
+//
+//        assertEquals(expectedResponse, actualResponse);
+//    }
+
+    @Test
+    void getAllBookingsByUserStatusFUTURE() throws ValidationException {
+        var userId = 1L;
+        var state = "FUTURE";
+        Integer from = 1;
+        Integer size = 1;
+        var start = LocalDateTime.now().plusMinutes(10);
+        var end = LocalDateTime.now().plusHours(10);
+        var booking = getBooking(1L, start, end, 1L, 2L, Status.WAITING, 4L);
+        var bookings = List.of(booking);
+        var userDto = getUserDto(2L, "user", "user@user.com");
+        var itemDto = getItemDto(1L, "Дрель", "Простая дрель", true, 1L);
+        var bookingDto = getBookingDto(1L, start, end, itemDto, userDto, Status.WAITING, 1L);
+        var expectedResponse = List.of(bookingDto);
+        var now = LocalDateTime.now();
+
+        when(bookingRepository.findByBookerIdOrderByStartDesc(userId)).thenReturn(bookings);
+        when(pagination.makePagination(from, size, bookings)).thenReturn(bookings);
+        when(bookingMapper.toBookingDto(booking)).thenReturn(bookingDto);
+
+        var actualResponse = dbBookingStorage.getAllBookingsByUser(userId, state, from, size);
+
+        assertEquals(expectedResponse, actualResponse);
+    }
+
+    @Test
+    void getAllBookingsByUserStatusWRONG() throws ValidationException {
+        var userId = 1L;
+        var state = "ssssss";
+        Integer from = 1;
+        Integer size = 1;
+        var start = LocalDateTime.now().plusMinutes(10);
+        var end = LocalDateTime.now().plusHours(10);
+        var booking = getBooking(1L, start, end, 1L, 2L, Status.WAITING, 4L);
+        var bookings = List.of(booking);
+        var userDto = getUserDto(2L, "user", "user@user.com");
+        var itemDto = getItemDto(1L, "Дрель", "Простая дрель", true, 1L);
+        var bookingDto = getBookingDto(1L, start, end, itemDto, userDto, Status.WAITING, 1L);
+        var expectedResponse = List.of(bookingDto);
+        var now = LocalDateTime.now();
+
+        assertThrows(ValidationException.class, () ->  dbBookingStorage.getAllBookingsByUser(userId, state, from, size));
+    }
+
+    @Test
+    void getAllBookingsByItemsAll() throws ValidationException {
+        var userId = 1L;
+        var state = "ALL";
+        var from = 1;
+        var size = 1;
+        var start = LocalDateTime.now().plusMinutes(10);
+        var end = LocalDateTime.now().plusHours(10);
+        var booking = getBooking(1L, start, end, 1L, 2L, Status.APPROVED, 4L);
+        var bookings = List.of(booking);
+        var testBook = new Booking();
+        List<Booking> testBooks = List.of(testBook);
+        var userDto = getUserDto(2L, "user", "user@user.com");
+        var itemDto = getItemDto(1L, "Дрель", "Простая дрель", true, 1L);
+        var bookingDto = getBookingDto(1L, start, end, itemDto, userDto, Status.APPROVED, 1L);
+        var item = getItem(1L, "Дрель", "Простая дрель", true, 4L);
+        var items = List.of(item);
+        var expectedResponse = List.of(bookingDto);
+
+        when(dbUserStorage.getUserById(userId)).thenReturn(null);
+        when(dbItemStorage.getAllItems(userId)).thenReturn(items);
+        when(bookingRepository.findByItemIdOrderByStartDesc(item.getId())).thenReturn(testBooks);
+//        when(pagination.makePagination(from, size, eq(bookings))).thenReturn(bookings);
+        when(pagination.makePagination(from, size, testBooks)).thenReturn(bookings);
+        when(bookingMapper.toBookingDto(booking)).thenReturn(bookingDto);
+
+        var actualResponse = dbBookingStorage.getAllBookingsByItems(userId, state, from, size);
+
+        assertEquals(expectedResponse, actualResponse);
+    }
+
+    @Test
+    void getAllBookingsByItemsWAITING() throws ValidationException {
+        var userId = 1L;
+        var state = "WAITING";
+        var from = 1;
+        var size = 1;
+        var start = LocalDateTime.now().plusMinutes(10);
+        var end = LocalDateTime.now().plusHours(10);
+        var booking = getBooking(1L, start, end, 1L, 2L, Status.APPROVED, 4L);
+        var bookings = List.of(booking);
+        var testBook = new Booking();
+        List<Booking> testBooks = List.of(testBook);
+        var userDto = getUserDto(2L, "user", "user@user.com");
+        var itemDto = getItemDto(1L, "Дрель", "Простая дрель", true, 1L);
+        var bookingDto = getBookingDto(1L, start, end, itemDto, userDto, Status.APPROVED, 1L);
+        var item = getItem(1L, "Дрель", "Простая дрель", true, 4L);
+        var items = List.of(item);
+        var expectedResponse = List.of(bookingDto);
+
+        when(dbUserStorage.getUserById(userId)).thenReturn(null);
+        when(dbItemStorage.getAllItems(userId)).thenReturn(items);
+        when(bookingRepository.findByItemIdAndStatusOrderByStartDesc(
+                item.getId(),
+                Status.valueOf(state))).thenReturn(testBooks);
+//        when(pagination.makePagination(from, size, eq(bookings))).thenReturn(bookings);
+        when(pagination.makePagination(from, size, testBooks)).thenReturn(bookings);
+        when(bookingMapper.toBookingDto(booking)).thenReturn(bookingDto);
+
+        var actualResponse = dbBookingStorage.getAllBookingsByItems(userId, state, from, size);
+
+        assertEquals(expectedResponse, actualResponse);
+    }
+
+//    @Test
+//    void getAllBookingsByItemsCURRENT() throws ValidationException {
+//        var userId = 1L;
+//        var state = "CURRENT";
+//        var from = 1;
+//        var size = 1;
+//        var start = LocalDateTime.now().plusMinutes(10);
+//        var end = LocalDateTime.now().plusHours(10);
+//        var booking = getBooking(1L, start, end, 1L, 2L, Status.APPROVED, 4L);
+//        var bookings = List.of(booking);
+//        var testBook = new Booking();
+//        List<Booking> testBooks = List.of(testBook);
+//        var userDto = getUserDto(2L, "user", "user@user.com");
+//        var itemDto = getItemDto(1L, "Дрель", "Простая дрель", true, 1L);
+//        var bookingDto = getBookingDto(1L, start, end, itemDto, userDto, Status.APPROVED, 1L);
+//        var item = getItem(1L, "Дрель", "Простая дрель", true, 4L);
+//        item.setLastBookingId(2L);
+//        var items = List.of(item);
+//        var expectedResponse = List.of(bookingDto);
+//
+//        when(dbUserStorage.getUserById(userId)).thenReturn(null);
+//        when(dbItemStorage.getAllItems(userId)).thenReturn(items);
+//        when(bookingRepository.findByItemOwnerIdAndStartBeforeAndEndAfterOrderByStartDesc(
+//                userId, any(LocalDateTime.class), any(LocalDateTime.class))).thenReturn(testBooks);
+////        when(pagination.makePagination(from, size, eq(bookings))).thenReturn(bookings);
+//        when(pagination.makePagination(from, size, testBooks)).thenReturn(bookings);
+//        when(bookingMapper.toBookingDto(booking)).thenReturn(bookingDto);
+//
+//        var actualResponse = dbBookingStorage.getAllBookingsByItems(userId, state, from, size);
+//
+//        assertEquals(expectedResponse, actualResponse);
+//    }
+
+    @Test
+    void getAllBookingsByItemsFUTURE() throws ValidationException {
+        var userId = 1L;
+        var state = "FUTURE";
+        var from = 1;
+        var size = 1;
+        var start = LocalDateTime.now().plusMinutes(10);
+        var end = LocalDateTime.now().plusHours(10);
+        var booking = getBooking(1L, start, end, 1L, 2L, Status.WAITING, 4L);
+        var bookings = List.of(booking);
+        var testBook = new Booking();
+        List<Booking> testBooks = List.of(testBook);
+        var userDto = getUserDto(2L, "user", "user@user.com");
+        var itemDto = getItemDto(1L, "Дрель", "Простая дрель", true, 1L);
+        var bookingDto = getBookingDto(1L, start, end, itemDto, userDto, Status.WAITING, 1L);
+        var item = getItem(1L, "Дрель", "Простая дрель", true, 4L);
+        var items = List.of(item);
+        var expectedResponse = List.of(bookingDto);
+
+        when(dbUserStorage.getUserById(userId)).thenReturn(null);
+        when(dbItemStorage.getAllItems(userId)).thenReturn(items);
+        when(bookingRepository.findByItemIdOrderByStartDesc(item.getId())).thenReturn(bookings);
+//        when(pagination.makePagination(from, size, eq(bookings))).thenReturn(bookings);
+        when(pagination.makePagination(from, size, bookings)).thenReturn(bookings);
+        when(bookingMapper.toBookingDto(booking)).thenReturn(bookingDto);
+
+        var actualResponse = dbBookingStorage.getAllBookingsByItems(userId, state, from, size);
+
+        assertEquals(expectedResponse, actualResponse);
+    }
+
+//    @Test
+//    void getAllBookingsByItemsPAST() throws ValidationException {
+//        var userId = 1L;
+//        var state = "PAST";
+//        var from = 1;
+//        var size = 1;
+//        var start = LocalDateTime.now().plusMinutes(10);
+//        var end = LocalDateTime.now().plusHours(10);
+//        var booking = getBooking(1L, start, end, 1L, 2L, Status.WAITING, 4L);
+//        var bookings = List.of(booking);
+//        var testBook = new Booking();
+//        List<Booking> testBooks = List.of(testBook);
+//        var userDto = getUserDto(2L, "user", "user@user.com");
+//        var itemDto = getItemDto(1L, "Дрель", "Простая дрель", true, 1L);
+//        var bookingDto = getBookingDto(1L, start, end, itemDto, userDto, Status.WAITING, 1L);
+//        var item = getItem(1L, "Дрель", "Простая дрель", true, 4L);
+//        var items = List.of(item);
+//        var expectedResponse = List.of(bookingDto);
+//
+//        when(dbUserStorage.getUserById(userId)).thenReturn(null);
+//        when(dbItemStorage.getAllItems(userId)).thenReturn(items);
+//        when(bookingRepository.findByItemIdOrderByStartDesc(item.getId())).thenReturn(bookings);
+////        when(pagination.makePagination(from, size, eq(bookings))).thenReturn(bookings);
+//        when(pagination.makePagination(from, size, bookings)).thenReturn(bookings);
+//        when(bookingMapper.toBookingDto(booking)).thenReturn(bookingDto);
+//
+//        var actualResponse = dbBookingStorage.getAllBookingsByItems(userId, state, from, size);
+//
+//        assertEquals(expectedResponse, actualResponse);
+//    }
+
+    @Test
+    void getAllBookingsByItemsWRONG() throws ValidationException {
+        var userId = 1L;
+        var state = "ssss";
+        var from = 1;
+        var size = 1;
+        var start = LocalDateTime.now().plusMinutes(10);
+        var end = LocalDateTime.now().plusHours(10);
+        var booking = getBooking(1L, start, end, 1L, 2L, Status.WAITING, 4L);
+        var bookings = List.of(booking);
+        var testBook = new Booking();
+        List<Booking> testBooks = List.of(testBook);
+        var userDto = getUserDto(2L, "user", "user@user.com");
+        var itemDto = getItemDto(1L, "Дрель", "Простая дрель", true, 1L);
+        var bookingDto = getBookingDto(1L, start, end, itemDto, userDto, Status.WAITING, 1L);
+        var item = getItem(1L, "Дрель", "Простая дрель", true, 4L);
+        var items = List.of(item);
+        var expectedResponse = List.of(bookingDto);
+
+        when(dbUserStorage.getUserById(userId)).thenReturn(null);
+        when(dbItemStorage.getAllItems(userId)).thenReturn(items);
+//        when(bookingRepository.findByItemIdOrderByStartDesc(item.getId())).thenReturn(bookings);
+//        when(pagination.makePagination(from, size, eq(bookings))).thenReturn(bookings);
+//        when(pagination.makePagination(from, size, bookings)).thenReturn(bookings);
+//        when(bookingMapper.toBookingDto(booking)).thenReturn(bookingDto);
+
+        assertThrows(ValidationException.class, () ->  dbBookingStorage.getAllBookingsByItems(userId, state, from, size));
+    }
+
+    @Test
+    void getAllBookingsByItemspaginationMinus() throws ValidationException {
+        var userId = 1L;
+        var state = "ALL";
+        var from = -1;
+        var size = 1;
+        var start = LocalDateTime.now().plusMinutes(10);
+        var end = LocalDateTime.now().plusHours(10);
+        var booking = getBooking(1L, start, end, 1L, 2L, Status.WAITING, 4L);
+        var bookings = List.of(booking);
+        var testBook = new Booking();
+        List<Booking> testBooks = List.of(testBook);
+        var userDto = getUserDto(2L, "user", "user@user.com");
+        var itemDto = getItemDto(1L, "Дрель", "Простая дрель", true, 1L);
+        var bookingDto = getBookingDto(1L, start, end, itemDto, userDto, Status.WAITING, 1L);
+        var item = getItem(1L, "Дрель", "Простая дрель", true, 4L);
+        var items = List.of(item);
+        var expectedResponse = List.of(bookingDto);
+
+        when(dbUserStorage.getUserById(userId)).thenReturn(null);
+        when(dbItemStorage.getAllItems(userId)).thenReturn(items);
+        when(bookingRepository.findByItemIdOrderByStartDesc(item.getId())).thenReturn(bookings);
+//        when(pagination.makePagination(from, size, eq(bookings))).thenReturn(bookings);
+//        when(pagination.makePagination(from, size, bookings)).thenReturn(bookings);
+//        when(bookingMapper.toBookingDto(booking)).thenReturn(bookingDto);
+
+        assertThrows(ValidationException.class, () ->  dbBookingStorage.getAllBookingsByItems(userId, state, from, size));
+    }
+
+
 }
