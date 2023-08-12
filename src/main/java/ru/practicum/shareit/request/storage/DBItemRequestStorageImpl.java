@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class DBItemRequestStorageImpl<T> implements ItemRequestStorage{
+public class DBItemRequestStorageImpl implements ItemRequestStorage{
 
     private final ItemRequestRepository itemRequestRepository;
     private final ItemRequestMapper itemRequestMapper;
@@ -70,7 +70,6 @@ public class DBItemRequestStorageImpl<T> implements ItemRequestStorage{
         if (from < 0 || size < 0 || size == 0) {
             throw new ValidationException("Индекс первого элемента и размер листа не может быть меньше нуля");
         }
-
         Page<ItemRequest> request = itemRequestRepository.findAll(
                 PageRequest.of(from, size, Sort.by("created").descending()));
 
@@ -78,7 +77,6 @@ public class DBItemRequestStorageImpl<T> implements ItemRequestStorage{
                 .filter(e -> !e.getUserId().equals(userId))
                 .map(itemRequestMapper::toItemRequestDto)
                 .collect(Collectors.toList());
-
     }
 
     @Override
@@ -92,12 +90,10 @@ public class DBItemRequestStorageImpl<T> implements ItemRequestStorage{
                 orElseThrow(() ->new ObjectNotFoundException("Пользователь не найден"));
 
         return itemRequestMapper.toItemRequestDto(requests);
-
     }
 
     private User checkUser(Long userId) {
         return userRepository.findById(userId).orElseThrow(() ->
                 new ObjectNotFoundException("Пользователь не найден"));
     }
-
 }

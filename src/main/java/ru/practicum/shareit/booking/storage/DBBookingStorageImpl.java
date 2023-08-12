@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class DBBookingStorageImpl<T> implements BookingStorage {
+public class DBBookingStorageImpl implements BookingStorage {
 
     private final BookingMapper bookingMapper;
     private final DBUserStorageImpl dbUserStorage;
@@ -150,7 +150,7 @@ public class DBBookingStorageImpl<T> implements BookingStorage {
         List<Booking> list;
         if (from == null && size == null) {
             list = pagination.makePagination(0, 20, bookingList);
-        } else if (from >= 0 && size > 0) {
+        } else if (from > 0 && size > 0) {
             list = pagination.makePagination(from, size, bookingList);
         } else {
             throw new ValidationException("from and size не могут быть нулями");

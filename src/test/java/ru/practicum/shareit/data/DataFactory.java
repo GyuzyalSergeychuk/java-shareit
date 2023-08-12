@@ -176,7 +176,10 @@ public class DataFactory {
                 .build();
     }
 
-    public static ItemRequest getItemRequest(Long id, String description, LocalDateTime created, Long userId,
+    public static ItemRequest getItemRequest(Long id,
+                                             String description,
+                                             LocalDateTime created,
+                                             Long userId,
                                              List<Item> items){
         ItemRequest itemRequest = new ItemRequest();
         itemRequest.setId(id);
@@ -187,7 +190,10 @@ public class DataFactory {
         return itemRequest;
     }
 
-    public static ItemRequestDto getItemRequestDto(Long id, String description, LocalDateTime created, Long userId,
+    public static ItemRequestDto getItemRequestDto(Long id,
+                                                   String description,
+                                                   LocalDateTime created,
+                                                   Long userId,
                                                    List<ItemDto> items){
         return ItemRequestDto.builder()
                 .id(id)
