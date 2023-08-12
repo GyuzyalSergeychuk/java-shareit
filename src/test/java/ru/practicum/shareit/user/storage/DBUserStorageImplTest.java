@@ -61,22 +61,20 @@ class DBUserStorageImplTest {
     }
 
     @Test
-    void createNameNullTest() throws ValidationException, ConflictException {
-        var id = 1L;
+    void createNameNullTest() {
         var user = getUser(1L, " ", "user@user.com");
 
         assertThrows(ValidationException.class,
-                ()->dbUserStorage.create(user),
+                () -> dbUserStorage.create(user),
                 "Имя пользователя не может быть пустым");
     }
 
     @Test
-    void createEmailNullTest() throws ValidationException, ConflictException {
-        var id = 1L;
+    void createEmailNullTest() {
         var user = getUser(1L, "user ", " ");
 
         assertThrows(ValidationException.class,
-                ()->dbUserStorage.create(user),
+                () -> dbUserStorage.create(user),
                 "Неверно введен email");
     }
 
@@ -84,6 +82,18 @@ class DBUserStorageImplTest {
     void updateId0Test() {
         var id = 0L;
         var user = getUser(1L, "user", "user@user.com");
+
+        assertThrows(ObjectNotFoundException.class,
+                () -> dbUserStorage.update(id, user),
+                "Пользователь не найден");
+    }
+
+    @Test
+    void updateId99Test() {
+        var id = 99L;
+        var user = getUser(id, "user", "user@user.com");
+
+        when(userRepository.findById(id)).thenReturn(Optional.empty());
 
         assertThrows(ObjectNotFoundException.class,
                 () -> dbUserStorage.update(id, user),
@@ -175,6 +185,17 @@ class DBUserStorageImplTest {
     }
 
     @Test
+    void getUserDtoById99Test() {
+        var id = 99L;
+
+        when(userRepository.findById(id)).thenReturn(Optional.empty());
+
+        assertThrows(ObjectNotFoundException.class,
+                () -> dbUserStorage.getUserDtoById(id),
+                "Пользователь не найден");
+    }
+
+    @Test
     void getUserByIdTest() {
         var id = 1L;
         var user = getUser(1L, "user", "user@user.com");
@@ -189,7 +210,17 @@ class DBUserStorageImplTest {
     @Test
     void getUserById0Test() {
         var id = 0L;
-        var user = getUser(1L, "user", "user@user.com");
+
+        assertThrows(ObjectNotFoundException.class,
+                () -> dbUserStorage.getUserById(id),
+                "Пользователь не найден");
+    }
+
+    @Test
+    void getUserById99Test() {
+        var id = 99L;
+
+        when(userRepository.findById(id)).thenReturn(Optional.empty());
 
         assertThrows(ObjectNotFoundException.class,
                 () -> dbUserStorage.getUserById(id),
@@ -213,7 +244,17 @@ class DBUserStorageImplTest {
     @Test
     void deleteUserId0Test() {
         var id = 0L;
-        var user = getUser(1L, "user", "user@user.com");
+
+        assertThrows(ObjectNotFoundException.class,
+                () -> dbUserStorage.deleteUser(id),
+                "Пользователь не найден");
+    }
+
+    @Test
+    void deleteUserId99Test() {
+        var id = 99L;
+
+        when(userRepository.findById(id)).thenReturn(Optional.empty());
 
         assertThrows(ObjectNotFoundException.class,
                 () -> dbUserStorage.deleteUser(id),
