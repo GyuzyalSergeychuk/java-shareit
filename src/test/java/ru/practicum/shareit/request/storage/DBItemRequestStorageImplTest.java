@@ -6,11 +6,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import org.springframework.data.domain.*;
 import ru.practicum.shareit.exceptions.ObjectNotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.pagination.Pagination;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestMapper;
 import ru.practicum.shareit.request.model.ItemRequest;
@@ -35,8 +35,7 @@ class DBItemRequestStorageImplTest {
     private ItemRequestMapper itemRequestMapper;
     @Mock
     private UserRepository userRepository;
-    @Mock
-    private Pagination<ItemRequest> pagination;
+
     @InjectMocks
     private DBItemRequestStorageImpl dbItemRequestStorage;
 
@@ -117,6 +116,7 @@ class DBItemRequestStorageImplTest {
                 "Щётка для обуви",
                 created,
                 userId, itemsDto);
+
         List<ItemRequestDto> itemRequestDtoList = List.of(itemRequestDto);
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
@@ -129,8 +129,23 @@ class DBItemRequestStorageImplTest {
     }
 
     @Test
-    void getAllRequestsTest() throws ValidationException  {
+    void getAllRequestsFromMinusTest() {
         var userId = 1L;
+        var user = getUser(1L, "user", "user@user.com");
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        assertThrows(ValidationException.class,
+                () -> dbItemRequestStorage.getAllRequests(userId, -1, 0),
+                "Индекс первого элемента и размер листа не может быть меньше нуля");
+    }
+
+    @Test
+    void getAllRequestsTest() throws ValidationException {
+        var userId = 1L;
+        var userId2 = 2L;
+        var from = 0;
+        var size = 20;
         var user = getUser(1L, "user", "user@user.com");
         var item = getItem(1L, "Дрель", "Простая дрель", true, 1L);
         List<Item> items = List.of(item);
@@ -140,19 +155,23 @@ class DBItemRequestStorageImplTest {
         var itemRequest = getItemRequest(1L,
                 "Щётка для обуви",
                 created,
-                userId, items);
+                userId2, items);
         var itemRequestList = List.of(itemRequest);
         var itemRequestDto = getItemRequestDto(1L,
                 "Щётка для обуви",
                 created,
-                userId, itemsDto);
+                userId2, itemsDto);
         List<ItemRequestDto> itemRequestDtoList = List.of(itemRequestDto);
+        Page<ItemRequest> request = new PageImpl<>(itemRequestList);
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(itemRequestRepository.findAll(PageRequest.of(from, size, Sort.by("created").descending())))
+                .thenReturn(request);
+        when(itemRequestMapper.toItemRequestDto(itemRequest)).thenReturn(itemRequestDto);
 
-       assertThrows(ValidationException.class,
-               ()-> dbItemRequestStorage.getAllRequests(userId, -1, 0),
-               "Индекс первого элемента и размер листа не может быть меньше нуля");
+        var actualResponse = dbItemRequestStorage.getAllRequests(userId, from, size);
+
+        assertEquals(itemRequestDtoList, actualResponse);
     }
 
     @Test
@@ -184,54 +203,28 @@ class DBItemRequestStorageImplTest {
     }
 
     @Test
-    void getRequestsIdMinusTest() throws ValidationException {
+    void getRequestsIdMinusTest() {
         var userId = 1L;
         var requestId = -1L;
         var user = getUser(1L, "user", "user@user.com");
-        var item = getItem(1L, "Дрель", "Простая дрель", true, 1L);
-        List<Item> items = List.of(item);
-        var itemDto = getItemDto(1L, "Дрель", "Простая дрель", true, 1L);
-        List<ItemDto> itemsDto = List.of(itemDto);
-        var created = LocalDateTime.now();
-        var itemRequest = getItemRequest(1L,
-                "Щётка для обуви",
-                created,
-                userId, items);
-        var itemRequestDto = getItemRequestDto(1L,
-                "Щётка для обуви",
-                created,
-                userId, itemsDto);
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
         assertThrows(ValidationException.class,
-                ()->dbItemRequestStorage.getRequests(userId, requestId),
+                () -> dbItemRequestStorage.getRequests(userId, requestId),
                 "Значение requestId не может быть меньше нуля");
     }
 
     @Test
-    void getRequestsId99Test() throws ValidationException {
+    void getRequestsId99Test() {
         var userId = 1L;
         var requestId = 99L;
         var user = getUser(1L, "user", "user@user.com");
-        var item = getItem(1L, "Дрель", "Простая дрель", true, 1L);
-        List<Item> items = List.of(item);
-        var itemDto = getItemDto(1L, "Дрель", "Простая дрель", true, 1L);
-        List<ItemDto> itemsDto = List.of(itemDto);
-        var created = LocalDateTime.now();
-        var itemRequest = getItemRequest(1L,
-                "Щётка для обуви",
-                created,
-                userId, items);
-        var itemRequestDto = getItemRequestDto(1L,
-                "Щётка для обуви",
-                created,
-                userId, itemsDto);
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
 
         assertThrows(ObjectNotFoundException.class,
-                ()->dbItemRequestStorage.getRequests(userId, requestId),
+                () -> dbItemRequestStorage.getRequests(userId, requestId),
                 "Пользователь не найден");
     }
 }
