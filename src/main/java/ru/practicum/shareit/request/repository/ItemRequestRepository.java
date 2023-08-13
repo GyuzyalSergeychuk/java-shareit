@@ -9,5 +9,4 @@ public interface ItemRequestRepository extends JpaRepository<ItemRequest, Long> 
 
     List<ItemRequest> findAllByUserId(Long userId);
 
-//    Page<ItemRequest> findAllByUserId(Long userId);
 }

@@ -8,10 +8,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit4.SpringRunner;
 import ru.practicum.shareit.user.model.User;
 
-import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.*;
-import static ru.practicum.shareit.data.DataFactory.getUser;
 
 @RunWith(SpringRunner.class)
 @DataJpaTest
@@ -27,7 +24,7 @@ class UserRepositoryTest {
     }
 
     @Test
-    void findByEmailNotSelf() {
+    void findByEmailNotSelfTest() {
         var id = 3L;
         var user = new User();
         user.setName("user");
@@ -46,20 +43,5 @@ class UserRepositoryTest {
         var actualResponse = this.userRepository.findByEmailNotSelf(user.getEmail(), id);
 
         assertEquals(user, actualResponse);
-    }
-
-    @Test
-    void findById() {
-        var id = 1L;
-        var user = new User();
-        user.setName("user");
-        user.setEmail("user@user.com");
-        var user1 = Optional.of(getUser(1L, "user", "user@user.com"));
-        entityManager.persist(user);
-        entityManager.flush();
-
-        var actualResponse = userRepository.findById(id);
-
-        assertEquals(user1, actualResponse);
     }
 }

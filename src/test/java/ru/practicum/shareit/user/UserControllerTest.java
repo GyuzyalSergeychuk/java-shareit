@@ -15,6 +15,7 @@ import java.nio.charset.StandardCharsets;
 
 import org.hamcrest.Matchers;
 
+import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -49,8 +50,8 @@ class UserControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.name").value(Matchers.containsString(userDto.getName())))
-                .andExpect(jsonPath("$.email").value(Matchers.containsString(userDto.getEmail())));
+                .andExpect(jsonPath("$.name").value(containsString(userDto.getName())))
+                .andExpect(jsonPath("$.email").value(containsString(userDto.getEmail())));
     }
 
     @Test
@@ -66,8 +67,8 @@ class UserControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.name").value(Matchers.containsString(userDto.getName())))
-                .andExpect(jsonPath("$.email").value(Matchers.containsString(userDto.getEmail())));
+                .andExpect(jsonPath("$.name").value(containsString(userDto.getName())))
+                .andExpect(jsonPath("$.email").value(containsString(userDto.getEmail())));
     }
 
     @Test
@@ -85,8 +86,8 @@ class UserControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].id").value(1L))
-                .andExpect(jsonPath("$[0].name").value(Matchers.containsString(userDto.getName())))
-                .andExpect(jsonPath("$[0].email").value(Matchers.containsString(userDto.getEmail())));
+                .andExpect(jsonPath("$[0].name").value(containsString(userDto.getName())))
+                .andExpect(jsonPath("$[0].email").value(containsString(userDto.getEmail())));
     }
 
     @Test
@@ -102,8 +103,8 @@ class UserControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.name").value(Matchers.containsString(userDto.getName())))
-                .andExpect(jsonPath("$.email").value(Matchers.containsString(userDto.getEmail())));
+                .andExpect(jsonPath("$.name").value(containsString(userDto.getName())))
+                .andExpect(jsonPath("$.email").value(containsString(userDto.getEmail())));
     }
 
     @Test
