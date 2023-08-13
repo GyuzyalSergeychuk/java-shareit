@@ -1,6 +1,7 @@
 package ru.practicum.shareit.request.storage;
 
 import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -9,7 +10,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exceptions.ObjectNotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
-import ru.practicum.shareit.pagination.Pagination;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.ItemRequestMapper;
 import ru.practicum.shareit.request.model.ItemRequest;
@@ -23,12 +23,11 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class DBItemRequestStorageImpl implements ItemRequestStorage{
+public class DBItemRequestStorageImpl implements ItemRequestStorage {
 
     private final ItemRequestRepository itemRequestRepository;
     private final ItemRequestMapper itemRequestMapper;
     private final UserRepository userRepository;
-    private final Pagination<ItemRequest> pagination;
 
     @Override
     public ItemRequestDto createRequest(Long userId, ItemRequest itemRequest) throws ValidationException {
@@ -49,13 +48,13 @@ public class DBItemRequestStorageImpl implements ItemRequestStorage{
     }
 
     @Override
-    public List<ItemRequestDto> getAllRequestsByUser(Long userId) throws ValidationException {
+    public List<ItemRequestDto> getAllRequestsByUser(Long userId) {
         User user = checkUser(userId);
 
         List<ItemRequest> requests = itemRequestRepository.findAllByUserId(user.getId());
 
         List<ItemRequestDto> requestsDto = requests.stream()
-                .map(itemRequestMapper :: toItemRequestDto)
+                .map(itemRequestMapper::toItemRequestDto)
                 .collect(Collectors.toList());
 
         return requestsDto;
@@ -85,7 +84,7 @@ public class DBItemRequestStorageImpl implements ItemRequestStorage{
             throw new ValidationException("Значение requestId не может быть меньше нуля");
         }
         ItemRequest requests = itemRequestRepository.findById(requestId).
-                orElseThrow(() ->new ObjectNotFoundException("Пользователь не найден"));
+                orElseThrow(() -> new ObjectNotFoundException("Пользователь не найден"));
 
         return itemRequestMapper.toItemRequestDto(requests);
     }

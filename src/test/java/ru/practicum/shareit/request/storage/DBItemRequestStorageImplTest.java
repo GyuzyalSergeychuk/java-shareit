@@ -116,7 +116,6 @@ class DBItemRequestStorageImplTest {
                 "Щётка для обуви",
                 created,
                 userId, itemsDto);
-
         List<ItemRequestDto> itemRequestDtoList = List.of(itemRequestDto);
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
