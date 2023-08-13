@@ -64,6 +64,36 @@ class DBItemStorageImplTest {
     }
 
     @Test
+    void createNameNullTest() {
+        var id = 1L;
+        var item = getItem(1L, null, "Простая дрель", true, 1L);
+
+        assertThrows(ValidationException.class,
+                () -> dbItemStorage.create(id, item),
+                "Неверно указано название вещи");
+    }
+
+    @Test
+    void createDescriptionNullTest() {
+        var id = 1L;
+        var item = getItem(1L, "Дрель", null, true, 1L);
+
+        assertThrows(ValidationException.class,
+                () -> dbItemStorage.create(id, item),
+                "Неверно указано описание вещи");
+    }
+
+    @Test
+    void createAvailableNullTest() {
+        var id = 1L;
+        var item = getItem(1L, "Дрель", "Простая дрель", null, 1L);
+
+        assertThrows(ValidationException.class,
+                () -> dbItemStorage.create(id, item),
+                "Неверно указано available вещи");
+    }
+
+    @Test
     void updateTest() {
         var userId = 1L;
         var itemId = 1L;
@@ -230,7 +260,7 @@ class DBItemStorageImplTest {
         var bookingList = List.of(booking);
         var bookingForGetItemDto = getBookingForGetItemDto(1L, 2L);
         var expectedItemDto = getItemDtoBooking(1L, "Дрель", "Простая дрель", true,
-                1L, bookingForGetItemDto, bookingForGetItemDto, null, null) ;
+                1L, bookingForGetItemDto, bookingForGetItemDto, null, null);
 
         when(itemRepository.findById(userId)).thenReturn(Optional.of(item));
         when(itemMapper.toItemDto(item)).thenReturn(itemDto);

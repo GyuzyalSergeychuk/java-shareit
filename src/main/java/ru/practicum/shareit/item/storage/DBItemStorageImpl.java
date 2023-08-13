@@ -233,7 +233,7 @@ public class DBItemStorageImpl implements ItemStorage {
             throw new ValidationException("Неверно указано описание вещи");
         }
         if (item.getAvailable() == null) {
-            throw new ValidationException("Неверно указано описание вещи");
+            throw new ValidationException("Неверно указано available вещи");
         }
         return item;
     }
