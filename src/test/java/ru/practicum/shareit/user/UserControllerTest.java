@@ -1,6 +1,5 @@
 package ru.practicum.shareit.user;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
@@ -10,21 +9,16 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultMatcher;
-import ru.practicum.shareit.exceptions.ConflictException;
-import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.user.services.UserServices;
 
 import java.nio.charset.StandardCharsets;
 
 import org.hamcrest.Matchers;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static ru.practicum.shareit.data.DataFactory.getUserDto;
 
 import java.util.List;
@@ -53,10 +47,10 @@ class UserControllerTest {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(1L))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(Matchers.containsString(userDto.getName())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.email").value(Matchers.containsString(userDto.getEmail())));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.name").value(Matchers.containsString(userDto.getName())))
+                .andExpect(jsonPath("$.email").value(Matchers.containsString(userDto.getEmail())));
     }
 
     @Test
@@ -70,10 +64,10 @@ class UserControllerTest {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.id").value(1L))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(Matchers.containsString(userDto.getName())))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.email").value(Matchers.containsString(userDto.getEmail())));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.name").value(Matchers.containsString(userDto.getName())))
+                .andExpect(jsonPath("$.email").value(Matchers.containsString(userDto.getEmail())));
     }
 
     @Test
@@ -88,15 +82,42 @@ class UserControllerTest {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.length()").value(1));
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].id").value(1L))
+                .andExpect(jsonPath("$[0].name").value(Matchers.containsString(userDto.getName())))
+                .andExpect(jsonPath("$[0].email").value(Matchers.containsString(userDto.getEmail())));
     }
 
     @Test
-    void getUserId() {
+    void getUserId() throws Exception {
+        var userDto = getUserDto(1L, "user", "user@user.com");
+
+        when(userServices.getUserId(any())).thenReturn(userDto);
+
+        mvc.perform(get("/users/1")
+                        .content(mapper.writeValueAsString(userDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.name").value(Matchers.containsString(userDto.getName())))
+                .andExpect(jsonPath("$.email").value(Matchers.containsString(userDto.getEmail())));
     }
 
     @Test
-    void deleteUser() {
+    void deleteUser() throws Exception {
+        var id = 1L;
+        var userDto = getUserDto(1L, "user", "user@user.com");
+
+        when(userServices.deleteUser(id)).thenReturn(true);
+
+        mvc.perform(delete("/users/1")
+                        .content(mapper.writeValueAsString(userDto))
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
     }
 }
