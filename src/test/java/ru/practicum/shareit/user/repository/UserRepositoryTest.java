@@ -15,13 +15,10 @@ import static org.junit.jupiter.api.Assertions.*;
 class UserRepositoryTest {
 
     @Autowired
-    private TestEntityManager entityManager;
+    TestEntityManager entityManager;
 
     @Autowired
-    private UserRepository userRepository;
-
-    UserRepositoryTest() {
-    }
+    UserRepository userRepository;
 
     @Test
     void findByEmailNotSelfTest() {

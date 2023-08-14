@@ -35,7 +35,7 @@ class ItemRequestControllerTest {
     ItemRequestService itemRequestService;
 
     @Autowired
-    private MockMvc mvc;
+    MockMvc mvc;
 
     @Test
     void createRequest() throws Exception {
