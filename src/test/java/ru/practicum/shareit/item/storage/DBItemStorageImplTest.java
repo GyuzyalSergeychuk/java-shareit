@@ -101,7 +101,7 @@ class DBItemStorageImplTest {
         var itemUpdate = getItem(1L, "Дрель", "Простая дрель", false, 1L);
         var itemDto = getItemDto(1L, "Дрель", "Простая дрель", false, 1L);
 
-        when(itemRepository.findByIdSelf(itemId, userId)).thenReturn(item);
+        when(itemRepository.findByIdAndOwnerId(itemId, userId)).thenReturn(item);
         when(itemRepository.save(item)).thenReturn(itemUpdate);
         when(itemMapper.toItemDto(itemUpdate)).thenReturn(itemDto);
 
@@ -127,7 +127,7 @@ class DBItemStorageImplTest {
         var itemId = 1L;
         var item = getItem(1L, "Дрель", "Простая дрель", true, 1L);
 
-        when(itemRepository.findByIdSelf(itemId, userId)).thenReturn(null);
+        when(itemRepository.findByIdAndOwnerId(itemId, userId)).thenReturn(null);
 
         assertThrows(ObjectNotFoundException.class,
                 () -> dbItemStorage.update(userId, itemId, item),
@@ -142,7 +142,7 @@ class DBItemStorageImplTest {
         var item1 = getItem(1L, "Дрель", "Простая дрель", false, 1L);
         var itemDto = getItemDto(1L, "Дрель", "Простая дрель", false, 1L);
 
-        when(itemRepository.findByIdSelf(itemId, userId)).thenReturn(item1);
+        when(itemRepository.findByIdAndOwnerId(itemId, userId)).thenReturn(item1);
         when(itemRepository.save(item1)).thenReturn(item1);
         when(itemMapper.toItemDto(item1)).thenReturn(itemDto);
 
@@ -159,7 +159,7 @@ class DBItemStorageImplTest {
         var item1 = getItem(1L, "Дрель", "Простая дрель", false, 1L);
         var itemDto = getItemDto(1L, "Дрель", "Простая дрель", false, 1L);
 
-        when(itemRepository.findByIdSelf(itemId, userId)).thenReturn(item1);
+        when(itemRepository.findByIdAndOwnerId(itemId, userId)).thenReturn(item1);
         when(itemRepository.save(item1)).thenReturn(item1);
         when(itemMapper.toItemDto(item1)).thenReturn(itemDto);
 

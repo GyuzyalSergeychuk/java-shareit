@@ -58,7 +58,7 @@ public class DBItemStorageImpl implements ItemStorage {
         }
         userService.getUserById(userId);
 
-        Item itemBase = itemRepository.findByIdSelf(itemId, userId);
+        Item itemBase = itemRepository.findByIdAndOwnerId(itemId, userId);
 
         if (itemBase == null) {
             throw new ObjectNotFoundException("Юзер пытается редактировать чужой товар");
