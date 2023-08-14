@@ -83,8 +83,8 @@ public class DBItemRequestStorageImpl implements ItemRequestStorage {
         if (requestId < 0) {
             throw new ValidationException("Значение requestId не может быть меньше нуля");
         }
-        ItemRequest requests = itemRequestRepository.findById(requestId).
-                orElseThrow(() -> new ObjectNotFoundException("Пользователь не найден"));
+        ItemRequest requests = itemRequestRepository.findById(requestId).orElseThrow(
+                () -> new ObjectNotFoundException("Пользователь не найден"));
 
         return itemRequestMapper.toItemRequestDto(requests);
     }

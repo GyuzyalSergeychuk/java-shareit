@@ -13,8 +13,6 @@ import ru.practicum.shareit.user.services.UserServices;
 
 import java.nio.charset.StandardCharsets;
 
-import org.hamcrest.Matchers;
-
 import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;

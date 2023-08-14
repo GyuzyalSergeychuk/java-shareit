@@ -14,10 +14,10 @@ public class Pagination<T> {
             throw new ValidationException("Индекс первого элемента и размер листа не может быть меньше нуля");
         }
 
-        if(size > list.size()){
+        if (size > list.size()) {
             size = list.size();
         }
-        if (from > list.size()){
+        if (from > list.size()) {
             return List.of();
         }
         List<T> listT = new ArrayList<>();
