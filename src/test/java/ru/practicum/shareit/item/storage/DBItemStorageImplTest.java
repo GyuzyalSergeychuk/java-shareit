@@ -439,4 +439,34 @@ class DBItemStorageImplTest {
                 () -> dbItemStorage.createComment(userId, itemId, comment),
                 "Не возможно добавить комментарий");
     }
+
+    @Test
+    void createCommentItemId99Test() {
+        var userId = 1L;
+        var itemId = 99L;
+        var created = LocalDateTime.now();
+        var user = getUser(1L, "user", "user@user.com");
+        var comment = getComment(1L, "Дрель", userId, created, itemId);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(itemRepository.findById(itemId)).thenReturn(Optional.empty());
+
+        assertThrows(ObjectNotFoundException.class,
+                () -> dbItemStorage.createComment(userId, itemId, comment),
+                "Вещь не найдена");
+    }
+
+    @Test
+    void createCommentUserId99Test() {
+        var userId = 99L;
+        var itemId = 99L;
+        var created = LocalDateTime.now();
+        var comment = getComment(1L, "Дрель", userId, created, itemId);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        assertThrows(ObjectNotFoundException.class,
+                () -> dbItemStorage.createComment(userId, itemId, comment),
+                "Пользователь не найден");
+    }
 }
