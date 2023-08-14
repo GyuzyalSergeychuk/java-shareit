@@ -10,6 +10,7 @@ import ru.practicum.shareit.item.dto.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,7 +26,7 @@ class ItemRequestMapperTest {
     private ItemRequestMapper itemRequestMapper;
 
     @Test
-    void toItemRequestDto() {
+    void toItemRequestDtoTest() {
         var item = new Item();
         List<Item> items = List.of(item);
         var itemDto = ItemDto.builder().build();
@@ -35,6 +36,26 @@ class ItemRequestMapperTest {
         var itemRequestDto = getItemRequestDto(1L, "Щётка для обуви", created, null, itemsDto);
 
         when(itemMapper.toItemDto(item)).thenReturn(itemDto);
+        var actualResp = itemRequestMapper.toItemRequestDto(itemRequest);
+
+        assertEquals(itemRequestDto, actualResp);
+    }
+
+    @Test
+    void toItemRequestDtoItemNullTest() {
+        List<ItemDto> itemsDto = new ArrayList<>();
+        var created = LocalDateTime.now();
+        var itemRequest = getItemRequest(1L,
+                "Щётка для обуви",
+                created,
+                1L,
+                null);
+        var itemRequestDto = getItemRequestDto(1L,
+                "Щётка для обуви",
+                created,
+                null,
+                itemsDto);
+
         var actualResp = itemRequestMapper.toItemRequestDto(itemRequest);
 
         assertEquals(itemRequestDto, actualResp);

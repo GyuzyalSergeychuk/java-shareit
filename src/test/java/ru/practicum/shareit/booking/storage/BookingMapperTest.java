@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static ru.practicum.shareit.data.DataFactory.*;
 
@@ -33,7 +34,7 @@ public class BookingMapperTest {
     private BookingMapper bookingMapper;
 
     @Test
-    void toBookingDto() {
+    void toBookingDtoTest() {
         var now = LocalDateTime.now();
         var itemDto = getItemDto(1L, "dd", "ff", true, 2L);
         var item = getItem(1L, "dd", "ff", true, 2L);
@@ -58,6 +59,32 @@ public class BookingMapperTest {
         when(userMapper.toUserDto(user)).thenReturn(userDto);
         when(itemRepository.findById(1L)).thenReturn(Optional.of(item));
         when(itemMapper.toItemDto(item)).thenReturn(itemDto);
+        var actualResp = bookingMapper.toBookingDto(booking);
+
+        assertEquals(bookingDto, actualResp);
+    }
+
+    @Test
+    void toBookingDtoconverNullTest() {
+        var now = LocalDateTime.now();
+        var booking = getBooking(1L,
+                now,
+                now,
+                1L,
+                1L,
+                Status.APPROVED,
+                1L);
+        var bookingDto = getBookingDto(1L,
+                now,
+                now,
+                null,
+                null,
+                Status.APPROVED,
+                1L);
+
+        when(userRepository.findById(any())).thenReturn(Optional.empty());
+        when(itemRepository.findById(any())).thenReturn(Optional.empty());
+
         var actualResp = bookingMapper.toBookingDto(booking);
 
         assertEquals(bookingDto, actualResp);

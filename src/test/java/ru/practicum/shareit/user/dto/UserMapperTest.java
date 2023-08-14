@@ -14,6 +14,7 @@ class UserMapperTest {
 
     @InjectMocks
     private UserMapper userMapper;
+
     @Test
     void toUserDto() {
         var user = getUser(1L, "user", "user@user.com");

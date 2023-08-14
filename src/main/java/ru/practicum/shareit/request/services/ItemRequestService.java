@@ -23,11 +23,11 @@ public class ItemRequestService {
         return itemRequestStorage.getAllRequestsByUser(userId);
     }
 
-    public List<ItemRequestDto> getAllRequests(Long userId, Integer from, Integer size) throws ValidationException{
+    public List<ItemRequestDto> getAllRequests(Long userId, Integer from, Integer size) throws ValidationException {
         return itemRequestStorage.getAllRequests(userId, from, size);
     }
 
-    public ItemRequestDto getRequests(Long userId, Long requestId) throws ValidationException{
+    public ItemRequestDto getRequests(Long userId, Long requestId) throws ValidationException {
         return itemRequestStorage.getRequests(userId, requestId);
     }
 }

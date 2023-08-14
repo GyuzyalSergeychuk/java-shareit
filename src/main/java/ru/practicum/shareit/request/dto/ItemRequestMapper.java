@@ -24,6 +24,7 @@ public class ItemRequestMapper {
                 .created(itemRequest.getCreated())
                 .build();
     }
+
     private List<ItemDto> mapItems(List<Item> items) {
         if (items == null) {
             return List.of();

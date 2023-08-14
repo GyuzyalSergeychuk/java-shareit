@@ -1,6 +1,7 @@
 package ru.practicum.shareit.request;
 
 import java.util.List;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +29,7 @@ public class ItemRequestController {
     }
 
     @GetMapping
-    public List<ItemRequestDto> getAllRequestsByUser (@RequestHeader("X-Sharer-User-Id") Long userId)
+    public List<ItemRequestDto> getAllRequestsByUser(@RequestHeader("X-Sharer-User-Id") Long userId)
             throws ValidationException {
         log.info("Получен запрос на получения списка всех requests пользователем {}", userId);
         return itemRequestService.getAllRequestsByUser(userId);

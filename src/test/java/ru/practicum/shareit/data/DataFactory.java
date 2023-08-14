@@ -70,7 +70,7 @@ public class DataFactory {
                 .build();
     }
 
-    public static BookingForGetItemDto getBookingForGetItemDto(Long id, Long bookerId){
+    public static BookingForGetItemDto getBookingForGetItemDto(Long id, Long bookerId) {
         return BookingForGetItemDto.builder()
                 .id(id)
                 .bookerId(bookerId)
@@ -167,7 +167,7 @@ public class DataFactory {
         return comment;
     }
 
-    public static CommentDto getCommentDto(Long id, String text, String authorName, LocalDateTime created){
+    public static CommentDto getCommentDto(Long id, String text, String authorName, LocalDateTime created) {
         return CommentDto.builder()
                 .id(id)
                 .text(text)
@@ -180,7 +180,7 @@ public class DataFactory {
                                              String description,
                                              LocalDateTime created,
                                              Long userId,
-                                             List<Item> items){
+                                             List<Item> items) {
         ItemRequest itemRequest = new ItemRequest();
         itemRequest.setId(id);
         itemRequest.setDescription(description);
@@ -194,7 +194,7 @@ public class DataFactory {
                                                    String description,
                                                    LocalDateTime created,
                                                    Long userId,
-                                                   List<ItemDto> items){
+                                                   List<ItemDto> items) {
         return ItemRequestDto.builder()
                 .id(id)
                 .description(description)
