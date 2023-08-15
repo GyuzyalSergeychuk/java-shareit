@@ -31,16 +31,16 @@ import java.util.List;
 class BookingControllerTest {
 
     @Autowired
-    ObjectMapper mapper;
+    public ObjectMapper mapper;
 
     @MockBean
-    BookingServices bookingServices;
+    public BookingServices bookingServices;
 
     @Autowired
-    MockMvc mvc;
+    public MockMvc mvc;
 
     @Test
-    void create() throws Exception {
+    void createTest() throws Exception {
         String start = "2003-08-14 00:10:00";
         String end = "2003-08-16 12:10:00";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -67,7 +67,7 @@ class BookingControllerTest {
     }
 
     @Test
-    void approved() throws Exception {
+    void approvedTest() throws Exception {
         String start = "2003-08-14 00:10:00";
         String end = "2003-08-16 12:10:00";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -95,7 +95,7 @@ class BookingControllerTest {
     }
 
     @Test
-    void getBookingId() throws Exception {
+    void getBookingIdTest() throws Exception {
         String start = "2003-08-14 00:10:00";
         String end = "2003-08-16 12:10:00";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -122,7 +122,7 @@ class BookingControllerTest {
     }
 
     @Test
-    void getAllBookingsByUser() throws Exception {
+    void getAllBookingsByUserTest() throws Exception {
         String start = "2003-08-14 00:10:00";
         String end = "2003-08-16 12:10:00";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -154,7 +154,7 @@ class BookingControllerTest {
     }
 
     @Test
-    void getAllBookingsByItems() throws Exception {
+    void getAllBookingsByItemsTest() throws Exception {
         String start = "2003-08-14 00:10:00";
         String end = "2003-08-16 12:10:00";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");

@@ -1,6 +1,7 @@
 package ru.practicum.shareit.user;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,13 +28,14 @@ import java.util.List;
 class UserControllerTest {
 
     @Autowired
-    ObjectMapper mapper;
+    public ObjectMapper mapper;
 
     @MockBean
-    UserServices userServices;
+    public UserServices userServices;
 
     @Autowired
-    private MockMvc mvc;
+    public MockMvc mvc;
+
 
     @Test
     void create() throws Exception {

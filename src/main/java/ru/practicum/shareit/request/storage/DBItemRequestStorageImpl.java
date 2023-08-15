@@ -71,7 +71,7 @@ public class DBItemRequestStorageImpl implements ItemRequestStorage {
                 PageRequest.of(from, size, Sort.by("created").descending()));
 
         return request.stream()
-                .filter(e -> !e.getUserId().equals(userId))
+                .filter((ItemRequest e) -> !e.getUserId().equals(userId))
                 .map(itemRequestMapper::toItemRequestDto)
                 .collect(Collectors.toList());
     }

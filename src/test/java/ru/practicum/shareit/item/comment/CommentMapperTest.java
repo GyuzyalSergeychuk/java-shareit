@@ -27,7 +27,7 @@ class CommentMapperTest {
     private CommentMapper commentMapper;
 
     @Test
-    void toCommentDto() {
+    void toCommentDtoTest() {
         var user = new User();
         user.setName("user");
         String str = "2003-08-14 00:10:00";

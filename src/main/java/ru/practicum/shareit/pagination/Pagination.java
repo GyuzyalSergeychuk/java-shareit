@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class Pagination<T> {
+public final class Pagination<T> {
 
     public List<T> makePagination(Integer from, Integer size, List<T> list) throws ValidationException {
         if (from < 0 || size <= 0) {

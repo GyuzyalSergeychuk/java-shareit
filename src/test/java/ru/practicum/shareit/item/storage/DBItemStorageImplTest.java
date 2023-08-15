@@ -52,9 +52,11 @@ class DBItemStorageImplTest {
     @Test
     void createTest() throws ValidationException {
         var id = 1L;
+        var user = getUser(1L, "user", "user@user.com");
         var item = getItem(1L, "Дрель", "Простая дрель", true, 1L);
         var itemDto = getItemDto(1L, "Дрель", "Простая дрель", true, 1L);
 
+        when(userService.getUserById(id)).thenReturn(user);
         when(itemRepository.save(item)).thenReturn(item);
         when(itemMapper.toItemDto(item)).thenReturn(itemDto);
 

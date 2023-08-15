@@ -206,7 +206,7 @@ class DBBookingStorageImplTest {
     }
 
     @Test
-    void approvedTestCurrentBookingBeforeNextBook() throws ValidationException {
+    void approvedCurrentBookingBeforeNextBookTest() throws ValidationException {
         var userId = 1L;
         var itemId = 1L;
         var bookingId = 1L;
@@ -234,7 +234,7 @@ class DBBookingStorageImplTest {
     }
 
     @Test
-    void approvedTestCurrentBookingBeforeNextBook1() throws ValidationException {
+    void approvedCurrentBookingBeforeNextBook1Test() throws ValidationException {
         var userId = 1L;
         var itemId = 1L;
         var bookingId = 1L;
@@ -334,7 +334,9 @@ class DBBookingStorageImplTest {
         when(itemRepository.findById(booking.getItemId())).thenReturn(Optional.of(item));
         when(dbUserStorage.getUserById(userId)).thenReturn(null);
 
-        assertThrows(ValidationException.class, () -> dbBookingStorage.approved(userId, bookingId, null));
+        assertThrows(ValidationException.class,
+                () -> dbBookingStorage.approved(userId, bookingId, null),
+                "Неверные данные");
     }
 
     @Test
@@ -522,7 +524,7 @@ class DBBookingStorageImplTest {
     }
 
     @Test
-    void getAllBookingsByUser() throws ValidationException {
+    void getAllBookingsByUserTest() throws ValidationException {
         var userId = 1L;
         var state = "ALL";
         var from = 1;
@@ -546,7 +548,7 @@ class DBBookingStorageImplTest {
     }
 
     @Test
-    void getAllBookingsByUserFromAndSizeIsNull() throws ValidationException {
+    void getAllBookingsByUserFromAndSizeIsNullTest() throws ValidationException {
         var userId = 1L;
         Integer from = null;
         Integer size = null;
@@ -569,7 +571,7 @@ class DBBookingStorageImplTest {
     }
 
     @Test
-    void getAllBookingsByUserFromIsMinus() {
+    void getAllBookingsByUserFromIsMinusTest() {
         var userId = 1L;
         var state = "ALL";
         Integer from = -1;
@@ -581,7 +583,9 @@ class DBBookingStorageImplTest {
 
         when(bookingRepository.findByBookerIdOrderByStartDesc(userId)).thenReturn(bookings);
 
-        assertThrows(ValidationException.class, () -> dbBookingStorage.getAllBookingsByUser(userId, state, from, size));
+        assertThrows(ValidationException.class,
+                () -> dbBookingStorage.getAllBookingsByUser(userId, state, from, size),
+                "from and size не могут быть нулями");
 
     }
 
@@ -666,7 +670,8 @@ class DBBookingStorageImplTest {
         Integer size = 1;
 
         assertThrows(ValidationException.class,
-                () -> dbBookingStorage.getAllBookingsByUser(userId, state, from, size));
+                () -> dbBookingStorage.getAllBookingsByUser(userId, state, from, size),
+                String.format("Unknown state: %s", state));
     }
 
     @Test
@@ -723,7 +728,6 @@ class DBBookingStorageImplTest {
         when(bookingRepository.findByItemIdAndStatusOrderByStartDesc(
                 item.getId(),
                 Status.valueOf(state))).thenReturn(testBooks);
-//        when(pagination.makePagination(from, size, eq(bookings))).thenReturn(bookings);
         when(pagination.makePagination(from, size, testBooks)).thenReturn(bookings);
         when(bookingMapper.toBookingDto(booking)).thenReturn(bookingDto);
 
@@ -773,11 +777,12 @@ class DBBookingStorageImplTest {
         when(dbItemStorage.getAllItems(userId)).thenReturn(items);
 
         assertThrows(ValidationException.class,
-                () -> dbBookingStorage.getAllBookingsByItems(userId, state, from, size));
+                () -> dbBookingStorage.getAllBookingsByItems(userId, state, from, size),
+                String.format("Unknown state: %s", state));
     }
 
     @Test
-    void getAllBookingsByItemspaginationMinusTest() {
+    void getAllBookingsByItemsPaginationMinusTest() {
         var userId = 1L;
         var state = "ALL";
         var from = -1;
@@ -794,7 +799,8 @@ class DBBookingStorageImplTest {
         when(bookingRepository.findByItemIdOrderByStartDesc(item.getId())).thenReturn(bookings);
 
         assertThrows(ValidationException.class,
-                () -> dbBookingStorage.getAllBookingsByItems(userId, state, from, size));
+                () -> dbBookingStorage.getAllBookingsByItems(userId, state, from, size),
+                "from and size не могут быть нулями");
     }
 
     @Test

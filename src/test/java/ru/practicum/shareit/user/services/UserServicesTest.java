@@ -27,7 +27,7 @@ class UserServicesTest {
     private UserServices userServices;
 
     @Test
-    void create() throws ValidationException, ConflictException {
+    void createTest() throws ValidationException, ConflictException {
         var user = getUser(1L, "user", "user@user.com");
         var userDto = getUserDto(1L, "user", "user@user.com");
 
@@ -39,7 +39,7 @@ class UserServicesTest {
     }
 
     @Test
-    void update() throws ValidationException, ConflictException {
+    void updateTest() throws ValidationException, ConflictException {
         var id = 1L;
         var user = getUser(1L, "user", "user@user.com");
         var userDto = getUserDto(1L, "user", "user@user.com");
@@ -52,7 +52,7 @@ class UserServicesTest {
     }
 
     @Test
-    void getFindAllUsers() {
+    void getFindAllUsersTest() {
         var userDto = getUserDto(1L, "user", "user@user.com");
         var users = List.of(userDto);
         var userTest = List.of(userDto);
@@ -65,7 +65,7 @@ class UserServicesTest {
     }
 
     @Test
-    void getUserId() {
+    void getUserIdTest() {
         var id = 1L;
         var userDto = getUserDto(1L, "user", "user@user.com");
 
@@ -77,7 +77,7 @@ class UserServicesTest {
     }
 
     @Test
-    void deleteUser() {
+    void deleteUserTest() {
         var id = 1L;
         var isResult = true;
 

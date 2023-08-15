@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class ErrorResponseTest {
 
     @Test
-    void getError() {
+    void getErrorTest() {
 
         ErrorResponse errorResponse = new ErrorResponse("Ошибка");
 

@@ -1,6 +1,6 @@
 package ru.practicum.shareit.exceptions.model;
 
-public class ErrorResponse {
+public final class ErrorResponse {
     private final String error;
 
     public ErrorResponse(String error) {

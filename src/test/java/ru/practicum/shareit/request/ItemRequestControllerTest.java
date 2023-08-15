@@ -29,16 +29,16 @@ import static ru.practicum.shareit.data.DataFactory.*;
 class ItemRequestControllerTest {
 
     @Autowired
-    ObjectMapper mapper;
+    public ObjectMapper mapper;
 
     @MockBean
-    ItemRequestService itemRequestService;
+    public ItemRequestService itemRequestService;
 
     @Autowired
-    MockMvc mvc;
+    public MockMvc mvc;
 
     @Test
-    void createRequest() throws Exception {
+    void createRequestTest() throws Exception {
         String str = "2003-08-14 00:10:00";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime created = LocalDateTime.parse(str, formatter);

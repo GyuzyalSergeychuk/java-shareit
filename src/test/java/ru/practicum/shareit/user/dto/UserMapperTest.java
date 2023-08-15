@@ -16,7 +16,7 @@ class UserMapperTest {
     private UserMapper userMapper;
 
     @Test
-    void toUserDto() {
+    void toUserDtoTest() {
         var user = getUser(1L, "user", "user@user.com");
         var userDto = getUserDto(1L, "user", "user@user.com");
 

@@ -26,7 +26,7 @@ class ItemServicesTest {
     private ItemServices itemServices;
 
     @Test
-    void create() throws ValidationException {
+    void createTest() throws ValidationException {
         var userId = 1L;
         var item = getItem(1L, "Дрель", "Простая дрель", null, 1L);
         var itemDto = getItemDto(1L, "Дрель", "Простая дрель", null, 1L);
@@ -39,7 +39,7 @@ class ItemServicesTest {
     }
 
     @Test
-    void update() {
+    void updateTest() {
         var userId = 1L;
         var itemId = 1L;
         var item = getItem(1L, "Дрель", "Простая дрель", null, 1L);
@@ -53,7 +53,7 @@ class ItemServicesTest {
     }
 
     @Test
-    void getItemDtoById() {
+    void getItemDtoByIdTest() {
         var userId = 1L;
         var itemId = 1L;
         var itemDto = getItemDto(1L, "Дрель", "Простая дрель", null, 1L);
@@ -66,7 +66,7 @@ class ItemServicesTest {
     }
 
     @Test
-    void getFindAllItems() throws ValidationException {
+    void getFindAllItemsTest() throws ValidationException {
         var userId = 1L;
         var from = 0;
         var size = 20;
@@ -81,7 +81,7 @@ class ItemServicesTest {
     }
 
     @Test
-    void searchItem() throws ValidationException {
+    void searchItemTest() throws ValidationException {
         var text = "Простая дрель";
         var from = 0;
         var size = 20;
@@ -96,7 +96,7 @@ class ItemServicesTest {
     }
 
     @Test
-    void createComment() throws ValidationException {
+    void createCommentTest() throws ValidationException {
         var userId = 1L;
         var itemId = 1L;
         var created = LocalDateTime.now();
