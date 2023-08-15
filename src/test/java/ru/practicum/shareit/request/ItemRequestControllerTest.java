@@ -29,13 +29,13 @@ import static ru.practicum.shareit.data.DataFactory.*;
 class ItemRequestControllerTest {
 
     @Autowired
-    public ObjectMapper mapper;
+    private ObjectMapper mapper;
 
     @MockBean
-    public ItemRequestService itemRequestService;
+    private ItemRequestService itemRequestService;
 
     @Autowired
-    public MockMvc mvc;
+    private MockMvc mvc;
 
     @Test
     void createRequestTest() throws Exception {

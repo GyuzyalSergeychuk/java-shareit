@@ -31,13 +31,13 @@ import java.util.List;
 class BookingControllerTest {
 
     @Autowired
-    public ObjectMapper mapper;
+    private ObjectMapper mapper;
 
     @MockBean
-    public BookingServices bookingServices;
+    private BookingServices bookingServices;
 
     @Autowired
-    public MockMvc mvc;
+    private MockMvc mvc;
 
     @Test
     void createTest() throws Exception {

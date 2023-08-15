@@ -27,13 +27,13 @@ import java.util.List;
 class UserControllerTest {
 
     @Autowired
-    public ObjectMapper mapper;
+    private ObjectMapper mapper;
 
     @MockBean
-    public UserServices userServices;
+    private UserServices userServices;
 
     @Autowired
-    public MockMvc mvc;
+    private MockMvc mvc;
 
 
     @Test
