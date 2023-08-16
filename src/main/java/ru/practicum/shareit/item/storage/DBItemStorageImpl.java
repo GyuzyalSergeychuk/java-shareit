@@ -2,7 +2,6 @@ package ru.practicum.shareit.item.storage;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import ru.practicum.shareit.booking.dto.BookingForGetItemDto;
@@ -19,6 +18,7 @@ import ru.practicum.shareit.item.comment.Comment;
 import ru.practicum.shareit.item.comment.CommentDto;
 import ru.practicum.shareit.item.comment.CommentMapper;
 import ru.practicum.shareit.item.comment.CommentRepository;
+import ru.practicum.shareit.pagination.Pagination;
 import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.storage.DBUserStorageImpl;
 
@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@Primary
 public class DBItemStorageImpl implements ItemStorage {
 
     private final ItemRepository itemRepository;
@@ -40,6 +39,7 @@ public class DBItemStorageImpl implements ItemStorage {
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
     private final CommentMapper commentMapper;
+    private final Pagination<Item> pagination;
 
     @Override
     public ItemDto create(Long userId, Item item) throws ValidationException, ObjectNotFoundException {
@@ -54,11 +54,11 @@ public class DBItemStorageImpl implements ItemStorage {
     @Override
     public ItemDto update(Long userId, Long itemId, Item itemReq) {
         if (itemId <= 0) {
-            throw new ObjectNotFoundException("вещь не найдена");
+            throw new ObjectNotFoundException("Вещь не найдена");
         }
         userService.getUserById(userId);
 
-        Item itemBase = itemRepository.findByIdSelf(itemId, userId);
+        Item itemBase = itemRepository.findByIdAndOwnerId(itemId, userId);
 
         if (itemBase == null) {
             throw new ObjectNotFoundException("Юзер пытается редактировать чужой товар");
@@ -80,10 +80,18 @@ public class DBItemStorageImpl implements ItemStorage {
     }
 
     @Override
-    public List<ItemDto> getAllItemsDto(Long userId) {
+    public List<ItemDto> getAllItemsDto(Long userId, Integer from, Integer size) throws ValidationException {
         userService.getUserById(userId);
         List<Item> itemList = itemRepository.findByOwnerIdOrderByNextBookingIdDesc(userId);
-        return itemList.stream()
+        List<Item> list;
+        if (from == null && size == null) {
+            list = pagination.makePagination(0, 20, itemList);
+        } else if (from > -1 && size > 0) {
+            list = pagination.makePagination(from, size, itemList);
+        } else {
+            throw new ValidationException("from and size не могут быть меньше нулями");
+        }
+        return list.stream()
                 .map((Item e) -> {
                     ItemDto itemDto = itemMapper.toItemDto(e);
                     setBookingsIntoItemDto(itemDto);
@@ -114,50 +122,6 @@ public class DBItemStorageImpl implements ItemStorage {
         }
         return itemDto;
     }
-
-    @Override
-    public List<ItemDto> searchItem(String text) {
-        if (text == null) {
-            throw new ObjectNotFoundException("Запрос на поиск товара не может быть пустым");
-        }
-
-        if (text.isEmpty() || text.isBlank()) {
-            return List.of();
-        }
-        String refactorText = text.toLowerCase();
-        String text1 = StringUtils.capitalize(refactorText);
-
-        List<Item> items = itemRepository.findByNameOrDescriptionContainingIgnoreCaseAndAvailableTrue(text1, text1);
-        return items.stream()
-                .map(itemMapper::toItemDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public CommentDto createComment(Long userId, Long itemId, Comment comment) throws ValidationException {
-        userRepository.findById(userId).orElseThrow(() ->
-                new ObjectNotFoundException("Пользователь не найден"));
-        itemRepository.findById(itemId).orElseThrow(() ->
-                new ObjectNotFoundException("Вещь не найдена"));
-        Booking booking = bookingRepository.findById(userId).get();
-
-        if (comment.getText() == null || comment.getText().isEmpty() || comment.getText().isBlank()) {
-            throw new ValidationException("Текст комментария не может быть пустым");
-        }
-
-        if (booking.getBookerId().equals(userId) && booking.getItemId().equals(itemId)) {
-            comment.setAuthorId(userId);
-            comment.setCreated(LocalDateTime.now());
-            comment.setItemId(itemId);
-        } else {
-            log.info("Пользователь {} не может оставить комментарий, так как не бронировал вещь {}", userId, itemId);
-            throw new ValidationException("Не возможно добавить комментарий");
-        }
-
-        comment = commentRepository.save(comment);
-        return commentMapper.toCommentDto(comment);
-    }
-
 
     private ItemDto setBookingsIntoItemDto(ItemDto itemDto) {
         List<Booking> allBookingsForCurrentItem = bookingRepository.findByItemIdOrderByStartDesc(itemDto.getId());
@@ -194,6 +158,58 @@ public class DBItemStorageImpl implements ItemStorage {
         return itemDto;
     }
 
+    @Override
+    public List<ItemDto> searchItem(String text, Integer from, Integer size) throws ValidationException {
+        if (text == null) {
+            throw new ObjectNotFoundException("Запрос на поиск товара не может быть пустым");
+        }
+        if (text.isEmpty() || text.isBlank()) {
+            return List.of();
+        }
+        String refactorText = text.toLowerCase();
+        String text1 = StringUtils.capitalize(refactorText);
+
+        List<Item> items = itemRepository.findByNameOrDescriptionContainingIgnoreCaseAndAvailableTrue(text1, text1);
+        List<Item> list;
+
+        if (from == null && size == null) {
+            list = pagination.makePagination(0, 20, items);
+        } else if (from > -1 && size > 0) {
+            list = pagination.makePagination(from, size, items);
+        } else {
+            throw new ValidationException("from and size не могут быть нулями");
+        }
+
+        return list.stream()
+                .map(itemMapper::toItemDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public CommentDto createComment(Long userId, Long itemId, Comment comment) throws ValidationException {
+        userRepository.findById(userId).orElseThrow(() ->
+                new ObjectNotFoundException("Пользователь не найден"));
+        itemRepository.findById(itemId).orElseThrow(() ->
+                new ObjectNotFoundException("Вещь не найдена"));
+        Booking booking = bookingRepository.findById(userId).get();
+
+        if (comment.getText() == null || comment.getText().isEmpty() || comment.getText().isBlank()) {
+            throw new ValidationException("Текст комментария не может быть пустым");
+        }
+
+        if (booking.getBookerId().equals(userId) && booking.getItemId().equals(itemId)) {
+            comment.setAuthorId(userId);
+            comment.setCreated(LocalDateTime.now());
+            comment.setItemId(itemId);
+        } else {
+            log.info("Пользователь {} не может оставить комментарий, так как не бронировал вещь {}", userId, itemId);
+            throw new ValidationException("Не возможно добавить комментарий");
+        }
+
+        comment = commentRepository.save(comment);
+        return commentMapper.toCommentDto(comment);
+    }
+
     // Маппим букинг в мелкий букинг для возврата внутри итема
     private BookingForGetItemDto mapBookingForGetItemDto(Long bookingId) {
         Booking booking = bookingRepository.getById(bookingId);
@@ -217,7 +233,7 @@ public class DBItemStorageImpl implements ItemStorage {
             throw new ValidationException("Неверно указано описание вещи");
         }
         if (item.getAvailable() == null) {
-            throw new ValidationException("Неверно указано описание вещи");
+            throw new ValidationException("Неверно указано available вещи");
         }
         return item;
     }

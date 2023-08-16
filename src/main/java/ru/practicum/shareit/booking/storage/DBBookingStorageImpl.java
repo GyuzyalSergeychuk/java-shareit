@@ -13,6 +13,7 @@ import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.storage.DBItemStorageImpl;
+import ru.practicum.shareit.pagination.Pagination;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.DBUserStorageImpl;
 
@@ -31,12 +32,13 @@ public class DBBookingStorageImpl implements BookingStorage {
     private final DBItemStorageImpl dbItemStorage;
     private final BookingRepository bookingRepository;
     private final ItemRepository itemRepository;
+    private final Pagination<Booking> pagination;
 
     @Override
     public BookingDto create(Long userId, Booking bookingReq) throws ValidationException {
         User user = dbUserStorage.getUserById(userId);
         Item item = itemRepository.findById(bookingReq.getItemId()).orElseThrow(() ->
-                new ObjectNotFoundException("Пользователь не найден"));
+                new ObjectNotFoundException("Вещь не найдена"));
         bookingReq.setItemOwnerId(item.getOwnerId());
         if (!item.getAvailable()) {
             throw new ValidationException("Вещь недоступна для бронирования");
@@ -72,7 +74,7 @@ public class DBBookingStorageImpl implements BookingStorage {
         Booking currentBooking = bookingRepository.findById(bookingId).orElseThrow(() ->
                 new ObjectNotFoundException("Запрос на бронирование не найден"));
         Item item = itemRepository.findById(currentBooking.getItemId()).orElseThrow(() ->
-                new ObjectNotFoundException("Пользователь не найден"));
+                new ObjectNotFoundException("Вещь не найден"));
         Booking nextBooking = null;
         if (item.getNextBookingId() != null) {
             nextBooking = bookingRepository.findById(item.getNextBookingId()).get();
@@ -128,7 +130,7 @@ public class DBBookingStorageImpl implements BookingStorage {
         Booking booking = bookingRepository.findById(bookingId).orElseThrow(() ->
                 new ObjectNotFoundException("Запрос на бронирование не найден"));
         Item item = itemRepository.findById(booking.getItemId()).orElseThrow(() ->
-                new ObjectNotFoundException("Пользователь не найден"));
+                new ObjectNotFoundException("Вещь не найден"));
         dbUserStorage.getUserById(userId);
 
         if (item.getOwnerId().equals(userId)) {
@@ -142,10 +144,18 @@ public class DBBookingStorageImpl implements BookingStorage {
     }
 
     @Override
-    public List<BookingDto> getAllBookingsByUser(Long userId, String state) throws ValidationException {
+    public List<BookingDto> getAllBookingsByUser(Long userId, String state, Integer from, Integer size) throws ValidationException {
         dbUserStorage.getUserById(userId);
         List<Booking> bookingList = getAllBooking(userId, state);
-        return bookingList.stream()
+        List<Booking> list;
+        if (from == null && size == null) {
+            list = pagination.makePagination(0, 20, bookingList);
+        } else if (from > 0 && size > 0) {
+            list = pagination.makePagination(from, size, bookingList);
+        } else {
+            throw new ValidationException("from and size не могут быть нулями");
+        }
+        return list.stream()
                 .map(bookingMapper::toBookingDto)
                 .collect(Collectors.toList());
     }
@@ -175,16 +185,23 @@ public class DBBookingStorageImpl implements BookingStorage {
         } else {
             throw new ValidationException(String.format("Unknown state: %s", state));
         }
-
         return bookingList;
     }
 
     @Override
-    public List<BookingDto> getAllBookingsByItems(Long userId, String state) throws ValidationException {
+    public List<BookingDto> getAllBookingsByItems(Long userId, String state, Integer from, Integer size) throws ValidationException {
         dbUserStorage.getUserById(userId);
         List<Item> items = dbItemStorage.getAllItems(userId);
         List<Booking> bookingList = getListItems(userId, items, state);
-        return bookingList.stream()
+        List<Booking> list;
+        if (from == null && size == null) {
+            list = pagination.makePagination(0, 20, bookingList);
+        } else if (from >= 0 && size > 0) {
+            list = pagination.makePagination(from, size, bookingList);
+        } else {
+            throw new ValidationException("from and size не могут быть нулями");
+        }
+        return list.stream()
                 .map(bookingMapper::toBookingDto)
                 .collect(Collectors.toList());
     }
@@ -192,7 +209,6 @@ public class DBBookingStorageImpl implements BookingStorage {
     private List<Booking> getListItems(Long userId, List<Item> items, String state) throws ValidationException {
         List<Booking> bookingList = new ArrayList<>();
         LocalDateTime now = LocalDateTime.now();
-
         for (Item item : items) {
             if (state == null || "ALL".equals(state)) {
                 List<Booking> booking = bookingRepository.findByItemIdOrderByStartDesc(item.getId());

@@ -15,13 +15,13 @@ public interface ItemStorage {
 
     ItemDto update(Long userId, Long itemId, Item itemReq);
 
-    List<ItemDto> getAllItemsDto(Long userId);
+    List<ItemDto> getAllItemsDto(Long userId, Integer from, Integer size) throws ValidationException;
 
     List<Item> getAllItems(Long userId);
 
     ItemDto getItemDtoById(Long userId, Long itemId);
 
-    List<ItemDto> searchItem(String text);
+    List<ItemDto> searchItem(String text, Integer from, Integer size) throws ValidationException;
 
     CommentDto createComment(Long userId, Long itemId, Comment comment) throws ValidationException;
 }

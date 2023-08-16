@@ -31,12 +31,12 @@ public class ItemServices {
         return itemStorage.getItemDtoById(userId, itemId);
     }
 
-    public List<ItemDto> getFindAllItems(Long userId) {
-        return itemStorage.getAllItemsDto(userId);
+    public List<ItemDto> getFindAllItems(Long userId, Integer from, Integer size) throws ValidationException {
+        return itemStorage.getAllItemsDto(userId, from, size);
     }
 
-    public List<ItemDto> searchItem(String text) {
-        return itemStorage.searchItem(text);
+    public List<ItemDto> searchItem(String text, Integer from, Integer size) throws ValidationException {
+        return itemStorage.searchItem(text, from, size);
     }
 
     public CommentDto createComment(Long userId, Long itemId, Comment comment) throws ValidationException {

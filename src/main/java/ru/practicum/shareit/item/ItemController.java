@@ -43,15 +43,21 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDto> getFindAllItems(@RequestHeader("X-Sharer-User-Id") Long userId) {
+    public List<ItemDto> getFindAllItems(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                         @RequestParam(name = "from", required = false) Integer from,
+                                         @RequestParam(name = "size", required = false) Integer size)
+            throws ValidationException {
         log.info("Получен запрос списка всех товаров пользователя{}", userId);
-        return itemServices.getFindAllItems(userId);
+        return itemServices.getFindAllItems(userId, from, size);
     }
 
     @GetMapping("/search")
-    public List<ItemDto> searchItem(@RequestParam String text) {
+    public List<ItemDto> searchItem(@RequestParam String text,
+                                    @RequestParam(name = "from", required = false) Integer from,
+                                    @RequestParam(name = "size", required = false) Integer size)
+            throws ValidationException {
         log.info("Получен запрос на списка товара по содержанию текста {}", text);
-        return itemServices.searchItem(text);
+        return itemServices.searchItem(text, from, size);
     }
 
     @PostMapping("{itemId}/comment")
