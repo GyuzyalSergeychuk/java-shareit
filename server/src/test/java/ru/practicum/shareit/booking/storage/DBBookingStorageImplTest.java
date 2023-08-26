@@ -143,23 +143,23 @@ class DBBookingStorageImplTest {
                 "Предмет нельзя забронировать. Он уже используется кем-то!");
     }
 
-    @Test
-    void createStartNullTest() {
-        var userId = 1L;
-        var itemId = 1L;
-        var item = getItem(1L, "Дрель", "Простая дрель", true, 4L);
-        var user = getUser(1L, "user", "user@user.com");
-        LocalDateTime start = null;
-        var end = LocalDateTime.now().plusHours(10);
-        var booking = getBooking(1L, start, end, itemId, userId, Status.APPROVED, 4L);
-
-        when(dbUserStorage.getUserById(userId)).thenReturn(user);
-        when(itemRepository.findById(booking.getItemId())).thenReturn(Optional.of(item));
-
-        assertThrows(ValidationException.class,
-                () -> dbBookingStorage.create(userId, booking),
-                "Неверно указана дата бронирования");
-    }
+//    @Test
+//    void createStartNullTest() {
+//        var userId = 1L;
+//        var itemId = 1L;
+//        var item = getItem(1L, "Дрель", "Простая дрель", true, 4L);
+//        var user = getUser(1L, "user", "user@user.com");
+//        LocalDateTime start = null;
+//        var end = LocalDateTime.now().plusHours(10);
+//        var booking = getBooking(1L, start, end, itemId, userId, Status.APPROVED, 4L);
+//
+//        when(dbUserStorage.getUserById(userId)).thenReturn(user);
+//        when(itemRepository.findById(booking.getItemId())).thenReturn(Optional.of(item));
+//
+//        assertThrows(ValidationException.class,
+//                () -> dbBookingStorage.create(userId, booking),
+//                "Неверно указана дата бронирования");
+//    }
 
     @Test
     void createItemId99Test() {

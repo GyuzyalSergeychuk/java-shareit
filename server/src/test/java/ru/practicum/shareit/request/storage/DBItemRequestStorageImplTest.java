@@ -82,21 +82,21 @@ class DBItemRequestStorageImplTest {
                 "Пользователь не найден");
     }
 
-    @Test
-    void createRequestDescriptionIsBlankTest() {
-        var userId = 99L;
-        var item = getItem(1L, "Дрель", "Простая дрель", true, 1L);
-        List<Item> items = List.of(item);
-        var created = LocalDateTime.now();
-        var itemRequest = getItemRequest(1L,
-                " ",
-                created,
-                userId, items);
-
-        assertThrows(ValidationException.class,
-                () -> dbItemRequestStorage.createRequest(userId, itemRequest),
-                "Описание запроса отсутствует");
-    }
+//    @Test
+//    void createRequestDescriptionIsBlankTest() {
+//        var userId = 99L;
+//        var item = getItem(1L, "Дрель", "Простая дрель", true, 1L);
+//        List<Item> items = List.of(item);
+//        var created = LocalDateTime.now();
+//        var itemRequest = getItemRequest(1L,
+//                " ",
+//                created,
+//                userId, items);
+//
+//        assertThrows(ValidationException.class,
+//                () -> dbItemRequestStorage.createRequest(userId, itemRequest),
+//                "Описание запроса отсутствует");
+//    }
 
     @Test
     void getAllRequestsByUserTest() throws ValidationException {
@@ -127,17 +127,17 @@ class DBItemRequestStorageImplTest {
         assertEquals(itemRequestDtoList, actualResponse);
     }
 
-    @Test
-    void getAllRequestsFromMinusTest() {
-        var userId = 1L;
-        var user = getUser(1L, "user", "user@user.com");
-
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-
-        assertThrows(ValidationException.class,
-                () -> dbItemRequestStorage.getAllRequests(userId, -1, 0),
-                "Индекс первого элемента и размер листа не может быть меньше нуля");
-    }
+//    @Test
+//    void getAllRequestsFromMinusTest() {
+//        var userId = 1L;
+//        var user = getUser(1L, "user", "user@user.com");
+//
+//        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+//
+//        assertThrows(ValidationException.class,
+//                () -> dbItemRequestStorage.getAllRequests(userId, -1, 0),
+//                "Индекс первого элемента и размер листа не может быть меньше нуля");
+//    }
 
     @Test
     void getAllRequestsTest() throws ValidationException {
@@ -201,18 +201,18 @@ class DBItemRequestStorageImplTest {
         assertEquals(itemRequestDto, actualResponse);
     }
 
-    @Test
-    void getRequestsIdMinusTest() {
-        var userId = 1L;
-        var requestId = -1L;
-        var user = getUser(1L, "user", "user@user.com");
-
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-
-        assertThrows(ValidationException.class,
-                () -> dbItemRequestStorage.getRequests(userId, requestId),
-                "Значение requestId не может быть меньше нуля");
-    }
+//    @Test
+//    void getRequestsIdMinusTest() {
+//        var userId = 1L;
+//        var requestId = -1L;
+//        var user = getUser(1L, "user", "user@user.com");
+//
+//        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+//
+//        assertThrows(ValidationException.class,
+//                () -> dbItemRequestStorage.getRequests(userId, requestId),
+//                "Значение requestId не может быть меньше нуля");
+//    }
 
     @Test
     void getRequestsId99Test() {

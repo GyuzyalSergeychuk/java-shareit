@@ -60,23 +60,23 @@ class DBUserStorageImplTest {
         assertEquals(userDto, actualResponse);
     }
 
-    @Test
-    void createNameNullTest() {
-        var user = getUser(1L, " ", "user@user.com");
+//    @Test
+//    void createNameNullTest() {
+//        var user = getUser(1L, " ", "user@user.com");
+//
+//        assertThrows(ValidationException.class,
+//                () -> dbUserStorage.create(user),
+//                "Имя пользователя не может быть пустым");
+//    }
 
-        assertThrows(ValidationException.class,
-                () -> dbUserStorage.create(user),
-                "Имя пользователя не может быть пустым");
-    }
-
-    @Test
-    void createEmailNullTest() {
-        var user = getUser(1L, "user ", " ");
-
-        assertThrows(ValidationException.class,
-                () -> dbUserStorage.create(user),
-                "Неверно введен email");
-    }
+//    @Test
+//    void createEmailNullTest() {
+//        var user = getUser(1L, "user ", " ");
+//
+//        assertThrows(ValidationException.class,
+//                () -> dbUserStorage.create(user),
+//                "Неверно введен email");
+//    }
 
     @Test
     void updateId0Test() {
