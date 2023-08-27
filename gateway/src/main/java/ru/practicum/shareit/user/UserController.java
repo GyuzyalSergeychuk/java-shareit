@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.user.dto.UserDto;
 
 @Controller
@@ -16,7 +17,7 @@ public class UserController {
     private final UserClient userClient;
 
     @PostMapping
-    public ResponseEntity<Object> createUser(@RequestBody UserDto user) {
+    public ResponseEntity<Object> createUser(@RequestBody UserDto user) throws ValidationException {
         log.info("Получен запрос на добавление пользователя");
         return userClient.createUser(user);
     }

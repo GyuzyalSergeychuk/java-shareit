@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
@@ -17,6 +18,7 @@ import ru.practicum.shareit.item.dto.ItemDto;
 import java.util.List;
 
 @Service
+@Slf4j
 public class ItemClient extends BaseClient {
     private static final String API_PREFIX = "/items";
 
@@ -30,11 +32,26 @@ public class ItemClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> createItem(Long userId, ItemDto itemDto) {
+    public ResponseEntity<Object> createItem(Long userId, ItemDto item) throws ValidationException {
+        if (item.getName() == null ||
+                item.getName().isEmpty() ||
+                item.getName().isBlank()) {
+            log.error("Название товара не может быть пустым: {}", item);
+            throw new ValidationException("Неверно указано название вещи");
+        }
+        if (item.getDescription() == null ||
+                item.getDescription().isEmpty() ||
+                item.getDescription().isBlank()) {
+            log.error("Неверно введено описание вещи: {}", item);
+            throw new ValidationException("Неверно указано описание вещи");
+        }
+        if (item.getAvailable() == null) {
+            throw new ValidationException("Неверно указано available вещи");
+        }
         if (userId <= 0) {
             throw new ObjectNotFoundException("Id не может быть меньше нуля");
         }
-        return post("", userId, itemDto);
+        return post("", userId, item);
     }
 
     public ResponseEntity<Object> updateItem(Long userId, Long itemId, ItemDto itemReq) {
