@@ -173,7 +173,7 @@
                     <configuration>
                         <output>file</output>
                         <excludes>
-                            <exclude>**/ErrorHandler.class</exclude>
+                            <exclude>**/ErrorHandler.crrorHandler.class</exclude>
                         </excludes>
                     </configuration>
                     <executions>
