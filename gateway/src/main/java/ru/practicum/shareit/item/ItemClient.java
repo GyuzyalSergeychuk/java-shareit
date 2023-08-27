@@ -32,25 +32,7 @@ public class ItemClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> createItem(Long userId, ItemDto item) throws ValidationException {
-        if (item.getName() == null ||
-                item.getName().isEmpty() ||
-                item.getName().isBlank()) {
-            log.error("Название товара не может быть пустым: {}", item);
-            throw new ValidationException("Неверно указано название вещи");
-        }
-        if (item.getDescription() == null ||
-                item.getDescription().isEmpty() ||
-                item.getDescription().isBlank()) {
-            log.error("Неверно введено описание вещи: {}", item);
-            throw new ValidationException("Неверно указано описание вещи");
-        }
-        if (item.getAvailable() == null) {
-            throw new ValidationException("Неверно указано available вещи");
-        }
-        if (userId <= 0) {
-            throw new ObjectNotFoundException("Id не может быть меньше нуля");
-        }
+    public ResponseEntity<Object> createItem(Long userId, ItemDto item) {
         return post("", userId, item);
     }
 

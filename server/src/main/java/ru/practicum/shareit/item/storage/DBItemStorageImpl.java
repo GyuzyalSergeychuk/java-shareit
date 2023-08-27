@@ -10,14 +10,14 @@ import ru.practicum.shareit.booking.model.Status;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.exceptions.ObjectNotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
-import ru.practicum.shareit.item.dto.ItemDto;
-import ru.practicum.shareit.item.dto.ItemMapper;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.comment.Comment;
 import ru.practicum.shareit.item.comment.CommentDto;
 import ru.practicum.shareit.item.comment.CommentMapper;
 import ru.practicum.shareit.item.comment.CommentRepository;
+import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemMapper;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.pagination.Pagination;
 import ru.practicum.shareit.user.repository.UserRepository;
 import ru.practicum.shareit.user.storage.DBUserStorageImpl;
@@ -43,15 +43,26 @@ public class DBItemStorageImpl implements ItemStorage {
 
     @Override
     public ItemDto create(Long userId, Item item) throws ValidationException, ObjectNotFoundException {
-        userService.getUserById(userId);
-        item.setOwnerId(userId);
-        Item itemBase = itemRepository.save(item);
-        log.info("вещь успешно добавлен {}", itemBase.getId());
-        return itemMapper.toItemDto(itemBase);
+        try {
+            Item afterCheckItem = standardCheck(item);
+            log.info("itemAfterCheck = {}", afterCheckItem);
+            userService.getUserById(userId);
+            log.info("userService.getUserById(userId) прошел успешно");
+            afterCheckItem.setOwnerId(userId);
+            Item itemBase = itemRepository.save(afterCheckItem);
+            log.info("Вещь успешно добавленa iteId = {}", itemBase.getId());
+            return itemMapper.toItemDto(itemBase);
+        } catch (RuntimeException e) {
+            log.error("Произошла ошибка при создании вещи = {}", e.getMessage());
+            throw new ObjectNotFoundException("надо убрать");
+        }
     }
 
     @Override
     public ItemDto update(Long userId, Long itemId, Item itemReq) {
+        if (itemId <= 0) {
+            throw new ObjectNotFoundException("Вещь не найдена");
+        }
         userService.getUserById(userId);
 
         Item itemBase = itemRepository.findByIdAndOwnerId(itemId, userId);
@@ -104,6 +115,10 @@ public class DBItemStorageImpl implements ItemStorage {
 
     @Override
     public ItemDto getItemDtoById(Long userId, Long itemId) {
+        if (itemId <= 0) {
+            throw new ObjectNotFoundException("Id не может быть меньше нуля");
+        }
+
         Item item = itemRepository.findById(itemId).orElseThrow(() ->
                 new ObjectNotFoundException("Вещь не найдена"));
 
@@ -152,6 +167,12 @@ public class DBItemStorageImpl implements ItemStorage {
 
     @Override
     public List<ItemDto> searchItem(String text, Integer from, Integer size) throws ValidationException {
+        if (text == null) {
+            throw new ObjectNotFoundException("Запрос на поиск товара не может быть пустым");
+        }
+        if (text.isEmpty() || text.isBlank()) {
+            return List.of();
+        }
         String refactorText = text.toLowerCase();
         String text1 = StringUtils.capitalize(refactorText);
 
@@ -179,6 +200,10 @@ public class DBItemStorageImpl implements ItemStorage {
                 new ObjectNotFoundException("Вещь не найдена"));
         Booking booking = bookingRepository.findById(userId).get();
 
+        if (comment.getText() == null || comment.getText().isEmpty() || comment.getText().isBlank()) {
+            throw new ValidationException("Текст комментария не может быть пустым");
+        }
+
         if (booking.getBookerId().equals(userId) && booking.getItemId().equals(itemId)) {
             comment.setAuthorId(userId);
             comment.setCreated(LocalDateTime.now());
@@ -199,5 +224,24 @@ public class DBItemStorageImpl implements ItemStorage {
                 .id(booking.getId())
                 .bookerId(booking.getBookerId())
                 .build();
+    }
+
+    private Item standardCheck(Item item) throws ValidationException {
+        if (item.getName() == null ||
+                item.getName().isEmpty() ||
+                item.getName().isBlank()) {
+            log.error("Название товара не может быть пустым: {}", item);
+            throw new ValidationException("Неверно указано название вещи");
+        }
+        if (item.getDescription() == null ||
+                item.getDescription().isEmpty() ||
+                item.getDescription().isBlank()) {
+            log.error("Неверно введено описание вещи: {}", item);
+            throw new ValidationException("Неверно указано описание вещи");
+        }
+        if (item.getAvailable() == null) {
+            throw new ValidationException("Неверно указано available вещи");
+        }
+        return item;
     }
 }

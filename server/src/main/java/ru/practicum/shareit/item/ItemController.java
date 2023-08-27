@@ -4,11 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exceptions.ValidationException;
+import ru.practicum.shareit.item.comment.Comment;
+import ru.practicum.shareit.item.comment.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.services.ItemServices;
-import ru.practicum.shareit.item.comment.Comment;
-import ru.practicum.shareit.item.comment.CommentDto;
 
 import java.util.List;
 
@@ -23,7 +23,7 @@ public class ItemController {
     @PostMapping
     public ItemDto create(@RequestHeader("X-Sharer-User-Id") Long userId,
                           @RequestBody Item item) throws ValidationException {
-        log.info("Получен запрос на добавление товара пользователем{}", userId);
+        log.info("Получен запрос на добавление товара пользователем {}, item = {}", userId, item.toString());
         return itemServices.create(userId, item);
     }
 

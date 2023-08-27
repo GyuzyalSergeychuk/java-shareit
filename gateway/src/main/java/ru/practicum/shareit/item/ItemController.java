@@ -19,7 +19,7 @@ public class ItemController {
 
     @PostMapping
     public ResponseEntity<Object> createItem(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                             @RequestBody ItemDto item) throws ValidationException {
+                                             @RequestBody ItemDto item) {
         log.info("Получен запрос на добавление товара пользователем{}", userId);
         return itemClient.createItem(userId, item);
     }

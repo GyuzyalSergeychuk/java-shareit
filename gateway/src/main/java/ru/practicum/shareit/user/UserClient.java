@@ -30,18 +30,18 @@ public class UserClient extends BaseClient {
     }
 
     public ResponseEntity<Object> createUser(UserDto user) throws ValidationException {
-        if (user.getEmail() == null ||
-                user.getEmail().isEmpty() ||
-                user.getEmail().isBlank() ||
-                !user.getEmail().contains("@")) {
-            log.error("Неверно введен email: {}", user);
-            throw new ValidationException("Неверно введен email");
-        }
-
-        if (user.getName().isEmpty() || user.getEmail().isBlank() || user.getName().contains(" ")) {
-            log.error("Имя пользователя не может быть пустым: {}", user);
-            throw new ValidationException("Имя пользователя не может быть пустым");
-        }
+//        if (user.getEmail() == null ||
+//                user.getEmail().isEmpty() ||
+//                user.getEmail().isBlank() ||
+//                !user.getEmail().contains("@")) {
+//            log.error("Неверно введен email: {}", user);
+//            throw new ValidationException("Неверно введен email");
+//        }
+//
+//        if (user.getName().isEmpty() || user.getEmail().isBlank() || user.getName().contains(" ")) {
+//            log.error("Имя пользователя не может быть пустым: {}", user);
+//            throw new ValidationException("Имя пользователя не может быть пустым");
+//        }
         return post("", user);
     }
 
@@ -49,7 +49,7 @@ public class UserClient extends BaseClient {
         if (id <= 0) {
             throw new ObjectNotFoundException("id не может быть меньше нуля");
         }
-        return patch("/", id, user);
+        return patch("/" + id, user);
     }
 
     public ResponseEntity<Object> getFindAllUsers() {
@@ -60,13 +60,13 @@ public class UserClient extends BaseClient {
         if (id <= 0) {
             throw new ObjectNotFoundException("id не может быть меньше нуля");
         }
-        return get("/", id);
+        return get("/" + id);
     }
 
     public ResponseEntity<Object> deleteUser(Long id) {
         if (id <= 0) {
             throw new ObjectNotFoundException("id не может быть меньше нуля");
         }
-        return delete("/", id);
+        return delete("/" + id);
     }
 }
