@@ -43,19 +43,12 @@ public class DBItemStorageImpl implements ItemStorage {
 
     @Override
     public ItemDto create(Long userId, Item item) throws ValidationException, ObjectNotFoundException {
-        try {
-            Item afterCheckItem = standardCheck(item);
-            log.info("itemAfterCheck = {}", afterCheckItem);
-            userService.getUserById(userId);
-            log.info("userService.getUserById(userId) прошел успешно");
-            afterCheckItem.setOwnerId(userId);
-            Item itemBase = itemRepository.save(afterCheckItem);
-            log.info("Вещь успешно добавленa iteId = {}", itemBase.getId());
-            return itemMapper.toItemDto(itemBase);
-        } catch (RuntimeException e) {
-            log.error("Произошла ошибка при создании вещи = {}", e.getMessage());
-            throw new ObjectNotFoundException("надо убрать");
-        }
+        Item afterCheckItem = standardCheck(item);
+        userService.getUserById(userId);
+        afterCheckItem.setOwnerId(userId);
+        Item itemBase = itemRepository.save(afterCheckItem);
+        log.info("вещь успешно добавлен {}", itemBase.getId());
+        return itemMapper.toItemDto(itemBase);
     }
 
     @Override

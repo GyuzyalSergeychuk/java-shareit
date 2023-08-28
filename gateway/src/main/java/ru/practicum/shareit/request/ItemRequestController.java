@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exceptions.ValidationException;
-import ru.practicum.shareit.request.dto.ItemRequestDto;
+import ru.practicum.shareit.request.dto.ItemRequestRequestDro;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -21,7 +21,7 @@ public class ItemRequestController {
 
     @PostMapping
     public ResponseEntity<Object> createRequest(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                @RequestBody ItemRequestDto itemRequest) throws ValidationException {
+                                                @RequestBody ItemRequestRequestDro itemRequest) throws ValidationException {
         log.info("Получен запрос на создание request пользователь {}", userId);
         return requestClient.createRequest(userId, itemRequest);
     }

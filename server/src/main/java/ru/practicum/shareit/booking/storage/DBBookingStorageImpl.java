@@ -3,6 +3,7 @@ package ru.practicum.shareit.booking.storage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
@@ -20,6 +21,7 @@ import ru.practicum.shareit.user.storage.DBUserStorageImpl;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,21 +37,36 @@ public class DBBookingStorageImpl implements BookingStorage {
     private final Pagination<Booking> pagination;
 
     @Override
+    @Transactional
     public BookingDto create(Long userId, Booking bookingReq) throws ValidationException {
+        log.info("userId = {}, bookingReq = {}", userId, bookingReq);
         User user = dbUserStorage.getUserById(userId);
-        Item item = itemRepository.findById(bookingReq.getItemId()).orElseThrow(() ->
-                new ObjectNotFoundException("Вещь не найдена"));
-        bookingReq.setItemOwnerId(item.getOwnerId());
-        if (!item.getAvailable()) {
+        log.info("user = {} успешно пршел проверку", user);
+        Optional<Item> item = itemRepository.findById(bookingReq.getItemId());
+        if (item.isEmpty()) {
+            throw new ObjectNotFoundException("Вещь не найдена");
+        }
+        log.info("item = {} получена вещь", item);
+        bookingReq.setItemOwnerId(item.get().getOwnerId());
+        log.info("bookingReq = {} user успешно добавлен к бронированию", bookingReq);
+        if (!item.get().getAvailable()) {
             throw new ValidationException("Вещь недоступна для бронирования");
         }
+        if (bookingReq.getStart() == null ||
+                bookingReq.getEnd() == null ||
+                bookingReq.getStart().isAfter(bookingReq.getEnd()) ||
+                bookingReq.getStart().equals(bookingReq.getEnd()) ||
+                bookingReq.getEnd().isBefore(LocalDateTime.now()) ||
+                bookingReq.getStart().isBefore(LocalDateTime.now())) {
+            throw new ValidationException("Неверно указана дата бронирования");
+        }
 
-        if (item.getOwnerId().equals(userId)) {
+        if (item.get().getOwnerId().equals(userId)) {
             throw new ObjectNotFoundException("Владелец вещи пытается сделать бронирование своей вещи");
         }
         //Запрашиваем все бронирования целевой вещи, фильтруем по статусу АПРУВ, и сверяем время с текущим бронированием.
         //В случае пересечения выбрасываем исключение
-        List<Booking> allBookingsOfTargetItem = bookingRepository.findByItemIdOrderByStartDesc(item.getId());
+        List<Booking> allBookingsOfTargetItem = bookingRepository.findByItemIdOrderByStartDesc(item.get().getId());
         if (allBookingsOfTargetItem.stream()
                 .filter((Booking b) -> Status.APPROVED.equals(b.getStatus()))
                 .anyMatch((Booking b) -> b.getStart().isBefore(bookingReq.getEnd()) && b.getEnd().isAfter(bookingReq.getStart()))) {

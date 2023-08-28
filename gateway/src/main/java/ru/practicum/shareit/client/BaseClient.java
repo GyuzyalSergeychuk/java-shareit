@@ -88,9 +88,10 @@ public class BaseClient {
                 shareitServerResponse = rest.exchange(path, method, requestEntity, Object.class);
             }
         } catch (HttpStatusCodeException e) {
-            log.error(e.getMessage());
+            log.error("код с с ервера = {}", e.getMessage());
             return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsByteArray());
         }
+        log.info("получен ответ от сервера = {}", shareitServerResponse);
         return prepareGatewayResponse(shareitServerResponse);
     }
 
@@ -105,16 +106,19 @@ public class BaseClient {
     }
 
     private static ResponseEntity<Object> prepareGatewayResponse(ResponseEntity<Object> response) {
+        log.info("получен ответ от сервера статус код = {}", response.getStatusCode());
         if (response.getStatusCode().is2xxSuccessful()) {
             return response;
         }
 
         ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.status(response.getStatusCode());
-
+        log.info("респонс от сервера был модифицирован методом ResponseEntity.status = {}", response.getStatusCode());
         if (response.hasBody()) {
             return responseBuilder.body(response.getBody());
         }
 
-        return responseBuilder.build();
+        var finalBuild = responseBuilder.build();
+        log.info("респонс после сборки респонс билдером = {}", finalBuild);
+        return finalBuild;
     }
 }

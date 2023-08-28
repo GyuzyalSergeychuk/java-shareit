@@ -1,22 +1,19 @@
 package ru.practicum.shareit.booking;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.DefaultUriBuilderFactory;
-import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.client.BaseClient;
-import ru.practicum.shareit.exceptions.ObjectNotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
 
-import java.time.LocalDateTime;
-import java.util.Map;
-
 @Service
+@Slf4j
 public class BookingClient extends BaseClient {
     private static final String API_PREFIX = "/bookings";
 
@@ -30,65 +27,41 @@ public class BookingClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> create(Long userId, BookingDto booking) throws ValidationException {
-        if (userId <= 0) {
-            throw new ObjectNotFoundException("Id не может быть меньше нуля");
-        }
-        if (booking.getStart() == null ||
-                booking.getEnd() == null ||
-                booking.getStart().isAfter(booking.getEnd()) ||
-                booking.getStart().equals(booking.getEnd()) ||
-                booking.getEnd().isBefore(LocalDateTime.now()) ||
-                booking.getStart().isBefore(LocalDateTime.now())) {
-            throw new ValidationException("Неверно указана дата бронирования");
-        }
-        return patch("", userId, booking);
+    public ResponseEntity<Object> createBooking(Long userId, BookingRequestDto booking) {
+        return post("", userId, booking);
     }
 
-    @PatchMapping("{bookingId}")
     public ResponseEntity<Object> approved(Long userId, Long bookingId, Boolean approved) {
-        if (bookingId <= 0) {
-            throw new ObjectNotFoundException("Id не может быть меньше нуля");
-        }
-        if (userId <= 0) {
-            throw new ObjectNotFoundException("Id не может быть меньше нуля");
-        }
-        return patch("/" + bookingId, userId, approved);
+        return patch("/" + bookingId + "?approved=" + approved, userId.intValue());
     }
 
     public ResponseEntity<Object> getBookingId(Long userId, Long bookingId) {
-        if (bookingId <= 0) {
-            throw new ObjectNotFoundException("Id не может быть меньше нуля");
-        }
-        if (userId <= 0) {
-            throw new ObjectNotFoundException("Id не может быть меньше нуля");
-        }
         return get("/" + bookingId, userId);
     }
 
-    public ResponseEntity<Object> getAllBookingsByUser(long userId, String state, Integer from, Integer size) throws ValidationException {
-        if (from < 0 || size < 0 || size == 0) {
-            throw new ValidationException("Индекс первого элемента и размер листа не может быть меньше нуля");
+    public ResponseEntity<Object> getAllBookingsByUser(long userId, String state, Integer from, Integer size) {
+        String path;
+        if (state != null){
+            path = "?state=" + state;
+        } else if (size != null){
+            path = "?from=" + from + "&size=" + size;
+        } else {
+            path = "";
         }
-        Map<String, Object> parameters = Map.of(
-                "state", state,
-                "from", from,
-                "size", size
-        );
-        return get("?state={state}&from={from}&size={size}", userId, parameters);
+        return get(path, userId);
     }
 
 
     public ResponseEntity<Object> getAllBookingsByItems(long userId, String state, Integer from, Integer size) throws ValidationException {
-        if (from < 0 || size < 0 || size == 0) {
-            throw new ValidationException("Индекс первого элемента и размер листа не может быть меньше нуля");
+        String path;
+        if (state == null) {
+            path = "/owner";
+        } else if (size != null) {
+            path = "/owner?&from=" + from + "&size=" + size;
+        } else {
+            path = "/owner?state=" + state;
         }
-        Map<String, Object> parameters = Map.of(
-                "state", state,
-                "from", from,
-                "size", size
-        );
-        return get("/owner?state={state}&from={from}&size={size}", userId, parameters);
+        return get(path, userId);
     }
 }
 

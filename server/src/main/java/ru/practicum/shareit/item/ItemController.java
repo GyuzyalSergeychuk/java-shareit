@@ -52,7 +52,8 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public List<ItemDto> searchItem(@RequestParam String text,
+    public List<ItemDto> searchItem(//@RequestHeader("X-Sharer-User-Id") Long userId,
+                                    @RequestParam String text,
                                     @RequestParam(name = "from", required = false) Integer from,
                                     @RequestParam(name = "size", required = false) Integer size)
             throws ValidationException {

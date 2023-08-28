@@ -7,7 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.dto.CommentDto;
-import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemRequestDto;
 
 @Controller
 @RequestMapping("/items")
@@ -19,7 +19,7 @@ public class ItemController {
 
     @PostMapping
     public ResponseEntity<Object> createItem(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                             @RequestBody ItemDto item) {
+                                             @RequestBody ItemRequestDto item) {
         log.info("Получен запрос на добавление товара пользователем{}", userId);
         return itemClient.createItem(userId, item);
     }
@@ -27,7 +27,7 @@ public class ItemController {
     @PatchMapping("{itemId}")
     public ResponseEntity<Object> updateItem(@RequestHeader("X-Sharer-User-Id") Long userId,
                                              @PathVariable("itemId") Long itemId,
-                                             @RequestBody ItemDto itemReq) {
+                                             @RequestBody ItemRequestDto itemReq) {
         log.info("Получен запрос внесение изменений товара {} пользователем{}", itemId, userId);
         return itemClient.updateItem(userId, itemId, itemReq);
     }
@@ -42,19 +42,19 @@ public class ItemController {
     @GetMapping
     public ResponseEntity<Object> getFindAllItems(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                   @RequestParam(name = "from", required = false) Integer from,
-                                                  @RequestParam(name = "size", required = false) Integer size)
-            throws ValidationException {
+                                                  @RequestParam(name = "size", required = false) Integer size) throws ValidationException {
         log.info("Получен запрос списка всех товаров пользователя{}", userId);
         return itemClient.getFindAllItems(userId, from, size);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Object> searchItem(@RequestParam String text,
+    public ResponseEntity<Object> searchItem(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                             @RequestParam String text,
                                              @RequestParam(name = "from", required = false) Integer from,
                                              @RequestParam(name = "size", required = false) Integer size)
             throws ValidationException {
         log.info("Получен запрос на списка товара по содержанию текста {}", text);
-        return itemClient.searchItem(text, from, size);
+        return itemClient.searchItem(userId, text, from, size);
     }
 
     @PostMapping("{itemId}/comment")

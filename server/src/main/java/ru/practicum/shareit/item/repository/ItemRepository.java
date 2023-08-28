@@ -3,12 +3,11 @@ package ru.practicum.shareit.item.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import ru.practicum.shareit.item.model.Item;
 
-import java.util.*;
-import java.util.Optional;
+import java.util.List;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
 
-    Optional<Item> findById(Long id);
+//    Optional<Item> findById(Long id);
 
     List<Item> findByOwnerId(Long id);
 

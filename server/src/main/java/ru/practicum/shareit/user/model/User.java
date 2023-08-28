@@ -25,8 +25,8 @@ public class User {
     @Column(name = "email", length = 128, nullable = false)
     private String email;
 
-    @ElementCollection
-    @CollectionTable(name = "item")
+    @OneToMany
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     private List<Item> items;
 
     @Override
