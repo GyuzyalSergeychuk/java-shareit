@@ -33,7 +33,7 @@ public class RequestClient extends BaseClient {
     }
 
     public ResponseEntity<Object> getAllRequests(Long userId, Integer from, Integer size) {
-        return get("/all?from=" +from + "&size=" +size, userId);
+        return get("/all?from=" + from + "&size=" + size, userId);
     }
 
     public ResponseEntity<Object> getRequests(Long userId, Long requestId) {

@@ -41,9 +41,9 @@ public class BookingClient extends BaseClient {
 
     public ResponseEntity<Object> getAllBookingsByUser(long userId, String state, Integer from, Integer size) {
         String path = "";
-        if (state != null){
+        if (state != null) {
             path = "?state=" + state;
-        } else if (size != null){
+        } else if (size != null) {
             path = "?from=" + from + "&size=" + size;
         }
         return get(path, userId);
@@ -54,7 +54,7 @@ public class BookingClient extends BaseClient {
         String path = "/owner";
         if (state != null) {
             path = "/owner?state=" + state;
-        } else if (size != null){
+        } else if (size != null) {
             path = "/owner?&from=" + from + "&size=" + size;
         }
         return get(path, userId);

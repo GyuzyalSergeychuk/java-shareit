@@ -43,9 +43,9 @@ public class ItemClient extends BaseClient {
         return get("/", userId);
     }
 
-    public ResponseEntity<Object> searchItem(String text, Integer from, Integer size)  {
+    public ResponseEntity<Object> searchItem(String text, Integer from, Integer size) {
         String puth = "/search?text=" + text;
-        if(size != null){
+        if (size != null) {
             puth = "/search?text=" + text + "&from=" + from + "&size=" + size;
         }
         return get(puth);
