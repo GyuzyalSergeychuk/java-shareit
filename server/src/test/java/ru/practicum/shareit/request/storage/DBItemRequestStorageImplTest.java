@@ -5,8 +5,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import ru.practicum.shareit.exceptions.ObjectNotFoundException;
 import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
@@ -17,14 +19,14 @@ import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.repository.ItemRequestRepository;
 import ru.practicum.shareit.user.repository.UserRepository;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
-import static ru.practicum.shareit.data.DataFactory.*;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
+import static ru.practicum.shareit.data.DataFactory.*;
 
 @ExtendWith(MockitoExtension.class)
 class DBItemRequestStorageImplTest {
@@ -82,21 +84,21 @@ class DBItemRequestStorageImplTest {
                 "Пользователь не найден");
     }
 
-//    @Test
-//    void createRequestDescriptionIsBlankTest() {
-//        var userId = 99L;
-//        var item = getItem(1L, "Дрель", "Простая дрель", true, 1L);
-//        List<Item> items = List.of(item);
-//        var created = LocalDateTime.now();
-//        var itemRequest = getItemRequest(1L,
-//                " ",
-//                created,
-//                userId, items);
-//
-//        assertThrows(ValidationException.class,
-//                () -> dbItemRequestStorage.createRequest(userId, itemRequest),
-//                "Описание запроса отсутствует");
-//    }
+    @Test
+    void createRequestDescriptionIsBlankTest() {
+        var userId = 99L;
+        var item = getItem(1L, "Дрель", "Простая дрель", true, 1L);
+        List<Item> items = List.of(item);
+        var created = LocalDateTime.now();
+        var itemRequest = getItemRequest(1L,
+                " ",
+                created,
+                userId, items);
+
+        assertThrows(ValidationException.class,
+                () -> dbItemRequestStorage.createRequest(userId, itemRequest),
+                "Описание запроса отсутствует");
+    }
 
     @Test
     void getAllRequestsByUserTest() throws ValidationException {
@@ -127,17 +129,17 @@ class DBItemRequestStorageImplTest {
         assertEquals(itemRequestDtoList, actualResponse);
     }
 
-//    @Test
-//    void getAllRequestsFromMinusTest() {
-//        var userId = 1L;
-//        var user = getUser(1L, "user", "user@user.com");
-//
-//        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-//
-//        assertThrows(ValidationException.class,
-//                () -> dbItemRequestStorage.getAllRequests(userId, -1, 0),
-//                "Индекс первого элемента и размер листа не может быть меньше нуля");
-//    }
+    @Test
+    void getAllRequestsFromMinusTest() {
+        var userId = 1L;
+        var user = getUser(1L, "user", "user@user.com");
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        assertThrows(ValidationException.class,
+                () -> dbItemRequestStorage.getAllRequests(userId, -1, 0),
+                "Индекс первого элемента и размер листа не может быть меньше нуля");
+    }
 
     @Test
     void getAllRequestsTest() throws ValidationException {
@@ -201,18 +203,18 @@ class DBItemRequestStorageImplTest {
         assertEquals(itemRequestDto, actualResponse);
     }
 
-//    @Test
-//    void getRequestsIdMinusTest() {
-//        var userId = 1L;
-//        var requestId = -1L;
-//        var user = getUser(1L, "user", "user@user.com");
-//
-//        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-//
-//        assertThrows(ValidationException.class,
-//                () -> dbItemRequestStorage.getRequests(userId, requestId),
-//                "Значение requestId не может быть меньше нуля");
-//    }
+    @Test
+    void getRequestsIdMinusTest() {
+        var userId = 1L;
+        var requestId = -1L;
+        var user = getUser(1L, "user", "user@user.com");
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        assertThrows(ValidationException.class,
+                () -> dbItemRequestStorage.getRequests(userId, requestId),
+                "Значение requestId не может быть меньше нуля");
+    }
 
     @Test
     void getRequestsId99Test() {

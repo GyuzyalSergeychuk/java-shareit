@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exceptions.ValidationException;
-import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.CommentRequestDto;
 import ru.practicum.shareit.item.dto.ItemRequestDto;
 
 @Controller
@@ -48,19 +48,18 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Object> searchItem(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                             @RequestParam String text,
+    public ResponseEntity<Object> searchItem(@RequestParam String text,
                                              @RequestParam(name = "from", required = false) Integer from,
                                              @RequestParam(name = "size", required = false) Integer size)
             throws ValidationException {
         log.info("Получен запрос на списка товара по содержанию текста {}", text);
-        return itemClient.searchItem(userId, text, from, size);
+        return itemClient.searchItem(text, from, size);
     }
 
     @PostMapping("{itemId}/comment")
     public ResponseEntity<Object> createComment(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                 @PathVariable("itemId") Long itemId,
-                                                @RequestBody CommentDto comment) throws ValidationException {
+                                                @RequestBody CommentRequestDto comment) {
         log.info("Получен запрос на создание комментария пользователем{}", userId);
         return itemClient.createComment(userId, itemId, comment);
     }

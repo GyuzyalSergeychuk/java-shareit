@@ -118,6 +118,7 @@ public class DBItemStorageImpl implements ItemStorage {
         ItemDto itemDto = itemMapper.toItemDto(item);
 
         if (itemDto.getOwnerId().equals(userId)) {
+            log.info("itemDto.getOwnerId() = {} равен userId ={}", itemDto.getOwnerId(), userId);
             itemDto = setBookingsIntoItemDto(itemDto);
         }
         return itemDto;
@@ -125,19 +126,26 @@ public class DBItemStorageImpl implements ItemStorage {
 
     private ItemDto setBookingsIntoItemDto(ItemDto itemDto) {
         List<Booking> allBookingsForCurrentItem = bookingRepository.findByItemIdOrderByStartDesc(itemDto.getId());
+        log.info("allBookingsForCurrentItem ={} получин лист бронирования на товар на товар ={}", allBookingsForCurrentItem, itemDto.getId());
         List<Booking> sortingBooking = allBookingsForCurrentItem.stream()
                 .filter((Booking e) -> e.getStatus().equals(Status.APPROVED))
                 .sorted(Comparator.comparing(Booking::getStart))
                 .collect(Collectors.toList());
+        log.info("sortingBooking = {} сортировка по дате и статусу APPROVED", sortingBooking);
         if (sortingBooking.isEmpty()) {
+            log.info("sortingBooking = {} пустая ничего в листе нет", sortingBooking);
             return itemDto;
         } else {
             LocalDateTime now = LocalDateTime.now();
             Booking nearestLastBooking = sortingBooking.get(0);
+            log.info("nearestLastBooking = {} добавили бронирование следующие", nearestLastBooking);
             Booking nearestNextBooking = sortingBooking.get(0);
+            log.info(" nearestNextBooking = {} добавили бронирование следующие",  nearestNextBooking);
             int count = 0;
             for (Booking booking : sortingBooking) {
+                log.info("sortingBooking = {} итирация по листу сортировкаи", sortingBooking);
                 if (booking.getEnd().isBefore(now) && booking.getEnd().isAfter(nearestLastBooking.getEnd())) {
+
                     nearestLastBooking = booking;
                 }
                 if (booking.getStart().isAfter(now) && count == 0) {
@@ -149,8 +157,10 @@ public class DBItemStorageImpl implements ItemStorage {
                 }
             }
             itemDto.setLastBooking(mapBookingForGetItemDto(nearestLastBooking.getId()));
+            log.info("itemDto.setLastBooking = {} добавили бронирование следующие", nearestLastBooking.getId());
             if (count == 1) {
                 itemDto.setNextBooking(mapBookingForGetItemDto(nearestNextBooking.getId()));
+                log.info("itemDto = {} добавили бронирование следующие", itemDto.getNextBooking());
             } else {
                 itemDto.setNextBooking(null);
             }

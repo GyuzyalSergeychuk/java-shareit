@@ -40,26 +40,22 @@ public class BookingClient extends BaseClient {
     }
 
     public ResponseEntity<Object> getAllBookingsByUser(long userId, String state, Integer from, Integer size) {
-        String path;
+        String path = "";
         if (state != null){
             path = "?state=" + state;
         } else if (size != null){
             path = "?from=" + from + "&size=" + size;
-        } else {
-            path = "";
         }
         return get(path, userId);
     }
 
 
     public ResponseEntity<Object> getAllBookingsByItems(long userId, String state, Integer from, Integer size) throws ValidationException {
-        String path;
-        if (state == null) {
-            path = "/owner";
-        } else if (size != null) {
-            path = "/owner?&from=" + from + "&size=" + size;
-        } else {
+        String path = "/owner";
+        if (state != null) {
             path = "/owner?state=" + state;
+        } else if (size != null){
+            path = "/owner?&from=" + from + "&size=" + size;
         }
         return get(path, userId);
     }

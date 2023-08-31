@@ -9,8 +9,7 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.shareit.client.BaseClient;
-import ru.practicum.shareit.exceptions.ObjectNotFoundException;
-import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.CommentRequestDto;
 import ru.practicum.shareit.item.dto.ItemRequestDto;
 
 @Service
@@ -33,24 +32,10 @@ public class ItemClient extends BaseClient {
     }
 
     public ResponseEntity<Object> updateItem(Long userId, Long itemId, ItemRequestDto itemReq) {
-        if (itemId <= 0) {
-            throw new ObjectNotFoundException("Id не может быть меньше нуля");
-        }
-
-        if (userId <= 0) {
-            throw new ObjectNotFoundException("Id не может быть меньше нуля");
-        }
         return patch("/" + itemId, userId, itemReq);
     }
 
     public ResponseEntity<Object> getId(Long userId, Long itemId) {
-        if (itemId <= 0) {
-            throw new ObjectNotFoundException("Id не может быть меньше нуля");
-        }
-
-        if (userId <= 0) {
-            throw new ObjectNotFoundException("Id не может быть меньше нуля");
-        }
         return get("/" + itemId, userId);
     }
 
@@ -58,11 +43,16 @@ public class ItemClient extends BaseClient {
         return get("/", userId);
     }
 
-    public ResponseEntity<Object> searchItem(Long userId, String text, Integer from, Integer size)  {
-        return get("/search?text=" + text);
+    public ResponseEntity<Object> searchItem(String text, Integer from, Integer size)  {
+        String puth = "/search?text=" + text;
+        if(size != null){
+            puth = "/search?text=" + text + "&from=" + from + "&size=" + size;
+        }
+        return get(puth);
     }
 
-    public ResponseEntity<Object> createComment(Long userId, Long itemId, CommentDto commentDto) {
-        return post("/" + itemId + "/comment", userId, commentDto);
+    public ResponseEntity<Object> createComment(Long userId, Long itemId, CommentRequestDto comment) {
+        log.info("запрос на создание комментария ={}", comment);
+        return post("/" + itemId + "/comment", userId, comment);
     }
 }

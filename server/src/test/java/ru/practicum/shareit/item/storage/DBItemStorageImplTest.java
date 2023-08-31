@@ -65,35 +65,35 @@ class DBItemStorageImplTest {
         assertEquals(itemDto, actualResponse);
     }
 
-//    @Test
-//    void createNameNullTest() {
-//        var id = 1L;
-//        var item = getItem(1L, null, "Простая дрель", true, 1L);
-//
-//        assertThrows(ValidationException.class,
-//                () -> dbItemStorage.create(id, item),
-//                "Неверно указано название вещи");
-//    }
-//
-//    @Test
-//    void createDescriptionNullTest() {
-//        var id = 1L;
-//        var item = getItem(1L, "Дрель", null, true, 1L);
-//
-//        assertThrows(ValidationException.class,
-//                () -> dbItemStorage.create(id, item),
-//                "Неверно указано описание вещи");
-//    }
+    @Test
+    void createNameNullTest() {
+        var id = 1L;
+        var item = getItem(1L, null, "Простая дрель", true, 1L);
 
-//    @Test
-//    void createAvailableNullTest() {
-//        var id = 1L;
-//        var item = getItem(1L, "Дрель", "Простая дрель", null, 1L);
-//
-//        assertThrows(ValidationException.class,
-//                () -> dbItemStorage.create(id, item),
-//                "Неверно указано available вещи");
-//    }
+        assertThrows(ValidationException.class,
+                () -> dbItemStorage.create(id, item),
+                "Неверно указано название вещи");
+    }
+
+    @Test
+    void createDescriptionNullTest() {
+        var id = 1L;
+        var item = getItem(1L, "Дрель", null, true, 1L);
+
+        assertThrows(ValidationException.class,
+                () -> dbItemStorage.create(id, item),
+                "Неверно указано описание вещи");
+    }
+
+    @Test
+    void createAvailableNullTest() {
+        var id = 1L;
+        var item = getItem(1L, "Дрель", "Простая дрель", null, 1L);
+
+        assertThrows(ValidationException.class,
+                () -> dbItemStorage.create(id, item),
+                "Неверно указано available вещи");
+    }
 
     @Test
     void updateTest() {
@@ -353,16 +353,16 @@ class DBItemStorageImplTest {
         assertEquals(itemDtoList, actualResponse);
     }
 
-//    @Test
-//    void searchItemTextNullTest() {
-//        String text = null;
-//        Integer from = 0;
-//        Integer size = 20;
-//
-//        assertThrows(ObjectNotFoundException.class,
-//                () -> dbItemStorage.searchItem(text, from, size),
-//                "Запрос на поиск товара не может быть пустым");
-//    }
+    @Test
+    void searchItemTextNullTest() {
+        String text = null;
+        Integer from = 0;
+        Integer size = 20;
+
+        assertThrows(ObjectNotFoundException.class,
+                () -> dbItemStorage.searchItem(text, from, size),
+                "Запрос на поиск товара не может быть пустым");
+    }
 
     @Test
     void searchItemTextTest() throws ValidationException {
@@ -400,26 +400,26 @@ class DBItemStorageImplTest {
         assertEquals(commentDto, actualResponse);
     }
 
-//    @Test
-//    void createCommentTextNullTest() {
-//        var userId = 1L;
-//        var itemId = 1L;
-//        var created = LocalDateTime.now();
-//        var start = LocalDateTime.now().minusHours(5);
-//        var end = LocalDateTime.now().minusHours(4);
-//        var item = getItem(1L, "Дрель", "Простая дрель", true, 4L);
-//        var user = getUser(1L, "user", "user@user.com");
-//        var comment = getComment(1L, null, userId, created, itemId);
-//        var booking = getBooking(1L, start, end, itemId, userId, Status.APPROVED, 4L);
-//
-//        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
-//        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
-//        when(bookingRepository.findById(userId)).thenReturn(Optional.of(booking));
-//
-//        assertThrows(ValidationException.class,
-//                () -> dbItemStorage.createComment(userId, itemId, comment),
-//                "Текст комментария не может быть пустым");
-//    }
+    @Test
+    void createCommentTextNullTest() {
+        var userId = 1L;
+        var itemId = 1L;
+        var created = LocalDateTime.now();
+        var start = LocalDateTime.now().minusHours(5);
+        var end = LocalDateTime.now().minusHours(4);
+        var item = getItem(1L, "Дрель", "Простая дрель", true, 4L);
+        var user = getUser(1L, "user", "user@user.com");
+        var comment = getComment(1L, null, userId, created, itemId);
+        var booking = getBooking(1L, start, end, itemId, userId, Status.APPROVED, 4L);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
+        when(bookingRepository.findById(userId)).thenReturn(Optional.of(booking));
+
+        assertThrows(ValidationException.class,
+                () -> dbItemStorage.createComment(userId, itemId, comment),
+                "Текст комментария не может быть пустым");
+    }
 
     @Test
     void createCommentOwnerIdEqualsItemIdTest() {
