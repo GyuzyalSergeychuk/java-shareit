@@ -6,11 +6,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.exceptions.ValidationException;
-import ru.practicum.shareit.item.dto.CommentRequestDto;
 import ru.practicum.shareit.item.dto.ItemRequestDto;
+import ru.practicum.shareit.item.dto.gaet.CommentRequestDtoGate;
 
 @Controller
 @RequestMapping("/items")
+//@RequestMapping("/")
 @RequiredArgsConstructor
 @Slf4j
 public class ItemController {
@@ -56,10 +57,11 @@ public class ItemController {
         return itemClient.searchItem(text, from, size);
     }
 
-    @PostMapping("{itemId}/comment")
+//    @PostMapping("/items/{itemId}/comment")
+    @PostMapping("/{itemId}/comment")
     public ResponseEntity<Object> createComment(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                 @PathVariable("itemId") Long itemId,
-                                                @RequestBody CommentRequestDto comment) {
+                                                @RequestBody CommentRequestDtoGate comment) {
         log.info("Получен запрос на создание комментария пользователем{}", userId);
         return itemClient.createComment(userId, itemId, comment);
     }

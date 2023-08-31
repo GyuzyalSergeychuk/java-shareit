@@ -3,6 +3,7 @@ package ru.practicum.shareit.item.dto;
 import lombok.Builder;
 import lombok.Data;
 import ru.practicum.shareit.booking.dto.BookingForGetItemDto;
+import ru.practicum.shareit.item.dto.gaet.CommentDtoGate;
 
 import java.util.List;
 
@@ -16,6 +17,6 @@ public class ItemResponseDto {
     private Long ownerId;
     private BookingForGetItemDto lastBooking;
     private BookingForGetItemDto nextBooking;
-    private List<CommentDto> comments;
+    private List<CommentDtoGate> comments;
     private Long requestId;
 }
