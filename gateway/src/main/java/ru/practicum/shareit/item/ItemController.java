@@ -58,7 +58,7 @@ public class ItemController {
     }
 
 //    @PostMapping("/items/{itemId}/comment")
-    @PostMapping("/{itemId}/comment")
+    @PostMapping("{itemId}/comment")
     public ResponseEntity<Object> createComment(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                 @PathVariable("itemId") Long itemId,
                                                 @RequestBody CommentRequestDtoGate comment) {

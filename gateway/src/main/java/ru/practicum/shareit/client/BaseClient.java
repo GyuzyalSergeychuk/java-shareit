@@ -81,6 +81,7 @@ public class BaseClient {
         HttpEntity<T> requestEntity = new HttpEntity<>(body, defaultHeaders(userId));
 
         ResponseEntity<Object> shareitServerResponse;
+        log.info("лог на входе method={}, userId={}, path={} ", method, userId, path);
         try {
             if (parameters != null) {
                 shareitServerResponse = rest.exchange(path, method, requestEntity, Object.class, parameters);
