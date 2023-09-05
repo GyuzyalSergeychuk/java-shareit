@@ -7,8 +7,6 @@ import java.util.List;
 
 public interface ItemRepository extends JpaRepository<Item, Long> {
 
-//    Optional<Item> findById(Long id);
-
     List<Item> findByOwnerId(Long id);
 
     List<Item> findByOwnerIdOrderByNextBookingIdDesc(Long id);

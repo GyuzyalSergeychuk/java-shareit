@@ -89,7 +89,7 @@ public class BaseClient {
                 shareitServerResponse = rest.exchange(path, method, requestEntity, Object.class);
             }
         } catch (HttpStatusCodeException e) {
-            log.error("код с с ервера = {}", e.getMessage());
+            log.error("код с сервера = {}", e.getMessage());
             return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsByteArray());
         }
         log.info("получен ответ от сервера = {}", shareitServerResponse);

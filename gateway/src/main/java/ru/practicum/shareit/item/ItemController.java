@@ -11,7 +11,6 @@ import ru.practicum.shareit.item.dto.gaet.CommentRequestDtoGate;
 
 @Controller
 @RequestMapping("/items")
-//@RequestMapping("/")
 @RequiredArgsConstructor
 @Slf4j
 public class ItemController {
@@ -57,7 +56,6 @@ public class ItemController {
         return itemClient.searchItem(text, from, size);
     }
 
-//    @PostMapping("/items/{itemId}/comment")
     @PostMapping("{itemId}/comment")
     public ResponseEntity<Object> createComment(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                 @PathVariable("itemId") Long itemId,
