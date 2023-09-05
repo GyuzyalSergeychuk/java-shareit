@@ -33,7 +33,13 @@ public class RequestClient extends BaseClient {
     }
 
     public ResponseEntity<Object> getAllRequests(Long userId, Integer from, Integer size) {
-        return get("/all?from=" + from + "&size=" + size, userId);
+        String path = "";
+        if (size != null) {
+            path = "/all?from=" + from + "&size=" + size;
+        } else {
+            path = "/all";
+        }
+        return get(path, userId);
     }
 
     public ResponseEntity<Object> getRequests(Long userId, Long requestId) {
