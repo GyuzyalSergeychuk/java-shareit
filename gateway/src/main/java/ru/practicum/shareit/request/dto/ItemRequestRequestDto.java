@@ -7,11 +7,11 @@ import lombok.Data;
 
 @Data
 @Builder
-public class ItemRequestRequestDro {
+public class ItemRequestRequestDto {
     private String description;
 
     @JsonCreator
-    public ItemRequestRequestDro(@JsonProperty String description) {
+    public ItemRequestRequestDto(@JsonProperty String description) {
         this.description = description;
     }
 }
