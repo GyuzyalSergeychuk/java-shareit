@@ -36,7 +36,6 @@ public final class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse throwable(final Throwable e) {
-        log.info("DDDDD = {}", e.getMessage());
         e.printStackTrace();
         return new ErrorResponse(
                 "Произошла непредвиденная ошибка."
