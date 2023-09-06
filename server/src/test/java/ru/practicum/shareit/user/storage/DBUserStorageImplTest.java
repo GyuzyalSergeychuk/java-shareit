@@ -13,11 +13,13 @@ import ru.practicum.shareit.user.dto.UserMapper;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
-import java.util.Optional;
 import java.util.List;
+import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
 import static ru.practicum.shareit.data.DataFactory.getUser;
 import static ru.practicum.shareit.data.DataFactory.getUserDto;
 
@@ -60,23 +62,23 @@ class DBUserStorageImplTest {
         assertEquals(userDto, actualResponse);
     }
 
-//    @Test
-//    void createNameNullTest() {
-//        var user = getUser(1L, " ", "user@user.com");
-//
-//        assertThrows(ValidationException.class,
-//                () -> dbUserStorage.create(user),
-//                "Имя пользователя не может быть пустым");
-//    }
+    @Test
+    void createNameNullTest() {
+        var user = getUser(1L, " ", "user@user.com");
 
-//    @Test
-//    void createEmailNullTest() {
-//        var user = getUser(1L, "user ", " ");
-//
-//        assertThrows(ValidationException.class,
-//                () -> dbUserStorage.create(user),
-//                "Неверно введен email");
-//    }
+        assertThrows(ValidationException.class,
+                () -> dbUserStorage.create(user),
+                "Имя пользователя не может быть пустым");
+    }
+
+    @Test
+    void createEmailNullTest() {
+        var user = getUser(1L, "user ", " ");
+
+        assertThrows(ValidationException.class,
+                () -> dbUserStorage.create(user),
+                "Неверно введен email");
+    }
 
     @Test
     void updateId0Test() {

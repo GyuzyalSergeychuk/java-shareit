@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.practicum.shareit.client.BaseClient;
 import ru.practicum.shareit.exceptions.ObjectNotFoundException;
-import ru.practicum.shareit.exceptions.ValidationException;
 import ru.practicum.shareit.user.dto.UserDto;
 
 @Service
@@ -29,19 +28,7 @@ public class UserClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> createUser(UserDto user) throws ValidationException {
-//        if (user.getEmail() == null ||
-//                user.getEmail().isEmpty() ||
-//                user.getEmail().isBlank() ||
-//                !user.getEmail().contains("@")) {
-//            log.error("Неверно введен email: {}", user);
-//            throw new ValidationException("Неверно введен email");
-//        }
-//
-//        if (user.getName().isEmpty() || user.getEmail().isBlank() || user.getName().contains(" ")) {
-//            log.error("Имя пользователя не может быть пустым: {}", user);
-//            throw new ValidationException("Имя пользователя не может быть пустым");
-//        }
+    public ResponseEntity<Object> createUser(UserDto user) {
         return post("", user);
     }
 
