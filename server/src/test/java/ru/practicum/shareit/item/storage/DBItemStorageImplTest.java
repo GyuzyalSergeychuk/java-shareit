@@ -314,7 +314,7 @@ class DBItemStorageImplTest {
 
         var actualResponse = dbItemStorage.searchItem(text, from, size);
 
-        assertEquals(itemDtoList, actualResponse, "Вещь найдина по названию" );
+        assertEquals(itemDtoList, actualResponse, "Вещь найдина по названию");
     }
 
     @Test
