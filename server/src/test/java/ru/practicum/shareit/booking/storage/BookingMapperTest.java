@@ -21,7 +21,7 @@ import static org.mockito.Mockito.when;
 import static ru.practicum.shareit.data.DataFactory.*;
 
 @ExtendWith(MockitoExtension.class)
-public class BookingMapperTest {
+class BookingMapperTest {
     @Mock
     private UserRepository userRepository;
     @Mock

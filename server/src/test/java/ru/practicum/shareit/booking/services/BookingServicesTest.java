@@ -10,10 +10,10 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.storage.BookingStorage;
 import ru.practicum.shareit.exceptions.ValidationException;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
-
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class BookingServicesTest {
@@ -32,7 +32,7 @@ class BookingServicesTest {
 
         var actualResponse = bookingServices.create(1L, booking);
 
-        assertEquals(bookingDto, actualResponse);
+        assertEquals(bookingDto, actualResponse, "Созданно забронирование вещи");
     }
 
     @Test
@@ -44,7 +44,7 @@ class BookingServicesTest {
 
         var actualResponse = bookingServices.approved(1L, 1L, approved);
 
-        assertEquals(bookingDto, actualResponse);
+        assertEquals(bookingDto, actualResponse, "Бронирование подтверждено");
     }
 
     @Test

@@ -43,7 +43,7 @@ class DBUserStorageImplTest {
 
         var actualResponse = dbUserStorage.create(user);
 
-        assertEquals(userDto, actualResponse);
+        assertEquals(userDto, actualResponse, "Добавлен пользователь");
     }
 
     @Test
@@ -59,7 +59,7 @@ class DBUserStorageImplTest {
 
         var actualResponse = dbUserStorage.update(id, user);
 
-        assertEquals(userDto, actualResponse);
+        assertEquals(userDto, actualResponse, "Внесены изменения пользователя");
     }
 
     @Test
